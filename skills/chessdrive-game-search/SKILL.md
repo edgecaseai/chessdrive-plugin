@@ -9,7 +9,7 @@ You find moments that show an idea across a person's PGN files, check them with 
 
 ## What you need
 
-The same as `chessdrive-vectors`: code running on the person's machine, the `chessdrive` CLI signed in, and Python 3.11 or later with NumPy. If you can't run code there, as in Claude's chat app, say this needs an agent that can, such as Claude Code, Codex or Cursor, and stop. If the CLI is missing, ask the person to follow https://platform.chessdrive.io/docs/cli and run `chessdrive login` themselves. Check `chessdrive version` too: this needs 0.3.0 or later. If it's older, ask the person to run `chessdrive update`, or to install it again from that page if their CLI doesn't have `update`, and wait until they have.
+The same as `chessdrive-vectors`: code running on the person's machine, the `chessdrive` CLI signed in, and Python 3.11 or later with NumPy. If you can't run code there, as in Claude's chat app, say this needs an agent that can, such as Claude Code, Codex or Cursor, and stop. If the CLI is missing, ask the person to follow https://platform-staging.chessdrive.io/docs/cli and run `chessdrive login` themselves. Check `chessdrive version` too: this needs 0.3.0 or later. If it's older, ask the person to run `chessdrive update`, or to install it again from that page if their CLI doesn't have `update`, and wait until they have.
 
 The ChessDrive Connector is optional here: without it the CLI's engine checks hits just as well.
 

@@ -10,7 +10,7 @@ You turn chess positions and texts into vectors with ChessDrive Embed, then answ
 ## What you need
 
 - **Code running on the person's machine.** If you can't run code there, as in Claude's chat app, tell the person this needs an agent that can, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor, and stop. The ChessDrive Connector has no `embed` tool.
-- **The `chessdrive` CLI, signed in, or its local MCP tool `embed`.** If you have neither, ask the person to follow https://platform.chessdrive.io/docs/cli to install it and run `chessdrive login`. Signing in is theirs to do, so a key never passes through the chat. Check `chessdrive version` too: this needs 0.2.0 or later. If it's older, ask the person to run `chessdrive update`, or to install it again from that page if their CLI doesn't have `update`, and wait until they have.
+- **The `chessdrive` CLI, signed in, or its local MCP tool `embed`.** If you have neither, ask the person to follow https://platform-staging.chessdrive.io/docs/cli to install it and run `chessdrive login`. Signing in is theirs to do, so a key never passes through the chat. Check `chessdrive version` too: this needs 0.2.0 or later. If it's older, ask the person to run `chessdrive update`, or to install it again from that page if their CLI doesn't have `update`, and wait until they have.
 - **Python 3.11 or later with NumPy.** Check with `python3 -c "import numpy"`. If it fails and `uv` is there, run the scripts with `uv run --with numpy python`; otherwise ask to run `python3 -m pip install numpy`.
 
 ## Step 1: Make the file

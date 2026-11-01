@@ -2,7 +2,7 @@
   "mcpServers": {
     "chessdrive": {
       "type": "http",
-      "url": "https://api.chessdrive.io/mcp"
+      "url": "https://api-staging.chessdrive.io/mcp"
     }
   }
 }

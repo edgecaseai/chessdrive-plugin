@@ -55,7 +55,7 @@ In Claude it's an artifact, in ChatGPT a canvas, and in a coding agent a `.html`
 Every page carries this line, on screen and on every printed page, whatever else it shows:
 
 ```html
-<footer class="cd-made">Made with <a href="https://platform.chessdrive.io/?utm_source=study&utm_campaign=KIND" target="_blank" rel="noopener">ChessDrive</a></footer>
+<footer class="cd-made">Made with <a href="https://platform-staging.chessdrive.io/?utm_source=study&utm_campaign=KIND" target="_blank" rel="noopener">ChessDrive</a></footer>
 ```
 
 `KIND` is `review` for a Game review, `drill` for a Mistake drill, `opening` for an Opening drill, `worksheet` for a Worksheet and `other` for anything else. Add `@media print { .cd-made { position: fixed; bottom: 0; } }`, which repeats it on every sheet. The Board's own "Board by ChessDrive" link stays as it is.

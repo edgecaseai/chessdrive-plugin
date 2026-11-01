@@ -12,16 +12,16 @@ Chess Skills for your agent, and the ChessDrive Connector they call. Ask about a
   claude plugin install chessdrive@chessdrive
   ```
 
-- **Cursor, Codex and other agents:** paste the setup prompt from [Add ChessDrive to your AI](https://platform.chessdrive.io/cookbook/add-to-your-ai).
+- **Cursor, Codex and other agents:** paste the setup prompt from [Add ChessDrive to your AI](https://platform-staging.chessdrive.io/cookbook/add-to-your-ai).
 
 Signing in connects your ChessDrive Account. Calls are billed to its Balance, as API calls are.
 
 ## The CLI
 
-The Skills that run on your machine use the `chessdrive` CLI. On Windows, follow [the CLI docs](https://platform.chessdrive.io/docs/cli).
+The Skills that run on your machine use the `chessdrive` CLI. On Windows, follow [the CLI docs](https://platform-staging.chessdrive.io/docs/cli).
 
 ```bash
-curl -fsSL https://platform.chessdrive.io/install.sh | sh
+curl -fsSL https://platform-staging.chessdrive.io/install.sh | sh
 chessdrive login
 ```
 
