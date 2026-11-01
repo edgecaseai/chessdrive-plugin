@@ -1,0 +1,76 @@
+# The Board in a page
+
+## Load it
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@chessdrive/board@0.1.0/dist/board.umd.js"></script>
+<chessdrive-board id="board"></chessdrive-board>
+```
+
+Keep this exact URL: jsDelivr's `/npm/` path and an exact version. It's the script host every Claude artifact allows. The Board needs nothing else, as its pieces, squares and rules are inside it.
+
+**Give it a width.** The Board fills its box and has no width of its own, so in a box that sizes to its content it collapses to a sliver: never `flex: 0 0 auto`, `width: fit-content` or `display: inline-block` around it. In a flex row:
+
+```css
+chessdrive-board { display: block; width: 100%; }
+.board-col { flex: 0 1 760px; min-width: 0; width: 100%; } /* 560px with no move list */
+```
+
+## The State
+
+One object describes the whole Board. `board.set(patch)` merges a partial State and `board.state` returns the current one. Unknown fields are ignored. Call `set` straight after the tag, in the same script: don't wait for `ready`. An `addEventListener('ready', …)` in a later script never fires, as the Board is ready by then.
+
+| Field | Value |
+|---|---|
+| `fen` | a position; or instead: |
+| `pgn`, `ply` | a game, and how many half-moves have been played (0 = the start; leave `ply` out for the end) |
+| `orientation` | `"white"` or `"black"`: the side at the bottom |
+| `lastMove` | `"e2e4"`: tinted. A game supplies its own; setting `fen` clears it unless you pass it too |
+| `marks` | a list of `{arrow: "e2e4", color}`, `{circle: "f7", color}`, `{square: "d5", color}`; colours `green`, `red`, `blue`, `yellow`, `orange`. Yours stay until you set `marks` again, which leaves the person's alone |
+| `annotations` | verdicts on a game's moves, a map from Board `ply` to `{glyph, comment}`: see Verdicts |
+| `eval` | an answer's `eval_before`, `eval_after` or Line as it comes, from White's side; `null` hides the bar |
+| `mode` | `view` (no moves), `play-white`, `play-black`, `play-both` (the default, so set it) |
+| `moves` | `true` shows the game's move list inside the Board: beside it at `full` on a wide page, below at `phone` |
+| `players` | `{white: {name, rating}, black: {name, rating}}`, with captures and material |
+| `size` | `full` (squares up to 560 px, 520 beside the eval bar), `phone` (360, moves below), `embed` (240, buttons and link), `thumb` (160, the board alone) |
+
+The Board follows the viewer's light or dark setting, whatever your page does, and dims in dark. A page with only a light look adds the `data-light` attribute to the element.
+
+## Verdicts
+
+The Board draws verdicts itself: in the move list, on the move's square, and the comment under the list while that ply is on view. Use `annotations` for them, not a list of your own.
+
+- The key is the Board `ply` after the move: `moves[i].ply + 1`.
+- Build them in page code from `DATA.moves`, so none goes missing, not by hand.
+- The glyph comes only from `verdict`: `?!` for `inaccuracy`, `?` for `mistake`, `??` for `blunder`. A `best` or `good` move gets none: the Board's `!` and `!!` would read as praise the engine didn't give.
+- The comment starts with the verdict's word: "Mistake. …", then `generate`'s explanation. Where you have none, it's only "Inaccuracy. Better was 14...Nf6.", from `best_line`, with no reason of your own.
+- Set them with the `pgn`, in the same `set`. A new game clears them, and a move played from an earlier ply drops those on the moves it replaced.
+
+## Commands and events
+
+- `board.set(patch)` returns `false` and fires `error` for a bad value, which stays as it was.
+- `board.play("Nf3")` or `board.play("g1f3")` plays one legal move from the position on view. An illegal one fires `error` and returns `false`.
+- `await board.animate(["e4", "e5", "Nf3"])` plays a line, and `board.clear()` removes your Marks.
+- `board.on(name, fn)` listens. Events report **the person's actions only**, never your own commands:
+  - `move` `{uci, san, fen, ply}`: the person moved;
+  - `ply` `{ply, fen}`: the person stepped through the game;
+  - `marks` `{marks}`, `flip` `{orientation}`, `error` `{code, message}`.
+- A click anywhere on a Board reaches your page as a `click` on the element, its buttons and link included: give a card its own button rather than listening on the Board.
+
+## Numbers
+
+- **Plies.** Each of a whole-game answer's `moves` has `ply`, the half-moves played *before* it: 0 for White's first move. The Board's `ply` counts half-moves played. So `moves[i]` is played from Board `ply: i` and shown done at `ply: i + 1`, and on a `ply` event the move just played is `moves[ply - 1]`. `generate`'s `position: {pgn, ply}` names the position at Board `ply`.
+- **Evaluations** are from White's side, and exactly one of `cp` and `mate` is set. For the side to move, better is higher for White and lower for Black: compare `cp × (white ? 1 : −1)`. Print pawns with one decimal (`+1.3`) and a mate as `M3` (White mates) or `−M3`. `mate: 0` is checkmate on the board: print "Checkmate", and pass `eval: null`.
+- **Win chance** for a graph: `1 / (1 + Math.exp(-0.00368208 * cp))`; a mate is 1 if White mates and 0 if Black does, and for `mate: 0` the side that just moved has won.
+
+## Patterns
+
+- **Keep the page in step with the Board.** The Board holds the position. Your page holds `DATA` and one `show(ply)` function, which sets the Board's `ply`, `eval` and `marks` (`[]` if none) and updates your panel. Call it on the `ply` event and from your own clicks. Keep no chess position of your own.
+- **Show a verdict:** go to the ply after the move, where the Board shows its glyph and comment.
+- **Show the best move instead:** go to the ply before the move, with a green arrow for the engine's best move (`best_line[0].uci`), a red arrow for the move played (`move.uci`) and `eval_before`.
+- **Right or wrong:** in `play-*` mode, on the person's `move`, compare `uci` with the sourced answers, then a `green` or `red` square on its last two letters. For a miss, wait a beat and `set({fen, lastMove, marks: []})` back to the position. Go back with `fen`, not `ply`: a `play-*` Board takes moves only at the end of its game.
+- **The other side replies:** on the person's correct `move`, `board.play(nextMove)`.
+- **A line without losing the game:** show it as text, or `set({fen})` the position and `animate` the line, then `set({pgn, ply})` to come back. Set the annotations again with that `pgn`.
+- **Phones:** at `full` the Board fits a narrow column by itself and puts its moves below. Put your panel under it.
+- **Keys:** with a game in `view` mode, ← → step it while the Board has focus, and arrive as `ply` events. A page that steps from anywhere listens on `document`, and ignores a keydown whose `target` is the Board, or it steps twice.
+- **Print:** `mode: "view"`, and `size: "thumb"` from a `beforeprint` listener, back to `embed` on `afterprint`: `embed` prints its buttons and link, and is too tall for a grid. `@media print` rules hide your buttons. The squares print without the browser's background graphics. Write "White to play" beside each diagram yourself. A page in Claude can't open the print dialog, so offer no Print button there: tell the person to download the artifact and print it from their browser. A local file can have a Print button (`window.print()`).

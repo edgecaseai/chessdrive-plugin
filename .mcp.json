@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "chessdrive": {
+      "type": "http",
+      "url": "https://api.chessdrive.io/mcp"
+    }
+  }
+}
