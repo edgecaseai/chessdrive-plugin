@@ -4,11 +4,11 @@ Chess Skills for your agent, and the ChessDrive Connector they call. Ask about a
 
 ## Install
 
-- **Claude:** Customize → Plugins → Add → Add marketplace → Add from a repository. Enter `edgecaseai/chessdrive-cli`, press Sync and install ChessDrive. Then, in a Chat, open the plugin's Connectors tab, connect ChessDrive and sign in.
+- **Claude:** Customize → Plugins → Add → Add marketplace → Add from a repository. Enter `edgecaseai/chessdrive-plugin`, press Sync and install ChessDrive. Then, in a Chat, open the plugin's Connectors tab, connect ChessDrive and sign in.
 - **Claude Code:** run these, then `/mcp` to sign in.
 
   ```bash
-  claude plugin marketplace add edgecaseai/chessdrive-cli
+  claude plugin marketplace add edgecaseai/chessdrive-plugin
   claude plugin install chessdrive@chessdrive
   ```
 
@@ -18,7 +18,7 @@ Signing in connects your ChessDrive Account. Calls are billed to its Balance, as
 
 ## The CLI
 
-The Skills that run on your machine use the `chessdrive` CLI. On Windows, follow [the CLI docs](https://platform-staging.chessdrive.io/docs/cli).
+The Skills that run code use the `chessdrive` CLI. On Windows, follow [the CLI docs](https://platform-staging.chessdrive.io/docs/cli).
 
 ```bash
 curl -fsSL https://platform-staging.chessdrive.io/install.sh | sh
@@ -30,8 +30,8 @@ chessdrive login
 - `chessdrive-position`: look at one position and explain it.
 - `chessdrive-game-review`: review a finished game, or annotate it for a video or article.
 - `chessdrive-vectors`: embed positions and texts to a file on your machine, then find the closest ones or group them. It needs an agent that runs code there, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor, with the `chessdrive` CLI; it doesn't work in Claude's chat app.
-- `chessdrive-patterns`: find the mistakes you keep making across your last 30 games. Like `chessdrive-vectors`, it needs an agent that runs code on your machine, with the `chessdrive` CLI; it doesn't work in Claude's chat app.
-- `chessdrive-game-search`: find examples of an idea across your own PGN files, in plain English, checked with the engine and returned as a PGN. Built on `chessdrive-vectors`, so it needs the same agent and CLI.
+- `chessdrive-patterns`: find the mistakes you keep making across your last 30 games. It runs in an agent that runs code, with the `chessdrive` CLI, or in Claude's chat app on a paid plan, once you've added `api.chessdrive.io` under Settings, Capabilities, Domain allowlist.
+- `chessdrive-game-search`: find examples of an idea across your own PGN files, in plain English, checked with the engine and returned as a PGN. It runs where `chessdrive-patterns` does.
 - `chessdrive-study`: have your agent build you a Study, an interactive page of your own on the Board: a game to step through, a drill of your mistakes, an opening line to practise or a worksheet to print. It's an artifact in Claude and a local file in a coding agent.
 
 ## Updates

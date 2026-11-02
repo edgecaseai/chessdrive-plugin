@@ -10,7 +10,7 @@ A page to step through one game and see where it turned: the Board with the move
 
 1. `engine` with `{"engine": "stockfish", "position": {"pgn": PGN}}`, no `ply`: one answer for the whole game. Each of `moves` has `ply`, `move_number`, `color`, `move` (`san`, `uci`), `fen`, `eval_before`, `eval_after`, `win_chance_lost`, `verdict` (`best`, `good`, `inaccuracy`, `mistake`, `blunder`) and `best_line`. If it says the PGN doesn't parse, say a move in its main line is illegal or the text isn't a game, and ask them to copy it again. On `limit_too_high`, call again with `depth: 10` and say so in one line.
 2. **Turning points:** the person's moves with `verdict` `mistake` or `blunder`, highest `win_chance_lost` first, at most three. With none, take their one move with the highest `win_chance_lost`, call it "the costliest move", and say in the hand-over that the engine found no mistakes by them.
-3. For each turning point, one `generate` with `model: "queen"`, `position: {"pgn": PGN, "ply": <the move's ply>}`, this `system`, filling in the rating from the PGN's `WhiteElo` or `BlackElo`, or "a club player" without one:
+3. For each turning point, one `generate`, two at a time as they don't use each other's answers, and never more, as the engine's notes behind each reply are then skipped, with `model: "queen"`, `position: {"pgn": PGN, "ply": <the move's ply>}`, this `system`, filling in the rating from the PGN's `WhiteElo` or `BlackElo`, or "a club player" without one:
 
    ```text
    You review a chess game for a player rated about {rating}. The move they ask about was a {verdict}.
@@ -29,9 +29,9 @@ A page to step through one game and see where it turned: the Board with the move
 
 ## The page
 
-- **The Board:** `pgn`, `ply: 0`, `orientation` the person's side, `moves: true`, `mode: "view"`, `players` from the PGN's headers, and `annotations` for every `inaccuracy`, `mistake` and `blunder` (board.md, Verdicts), with a turning point's explanation as its comment.
+- **The Board:** `pgn`, `ply: 0`, `orientation` the person's side, `moves: true`, `mode: "play-both"`, `players` from the PGN's headers, and `annotations` for every `inaccuracy`, `mistake` and `blunder` (board.md, Verdicts), with a turning point's explanation as its comment. The person tries their own moves and comes back with "Back to the game" under it (board.md, Trying moves).
 - **The graph** under the Board: White's win chance after each move, one point per ply, with the turning points as dots in their verdict's colour (blunder red, mistake orange, the costliest move your accent colour). Clicking the graph sets `ply`. Plain SVG.
-- **The panel** beside the Board on wide screens and under it on phones, in step with `ply`: the move just played and the evaluation before and after, with `eval` on the Board. At a turning point, "Show the best move", which goes to the ply before the move with the two arrows from board.md. The verdict and explanation are the Board's, under its move list: don't repeat them.
+- **The panel** beside the Board on wide screens and under it on phones, in step with `ply`: the move just played and the evaluation before and after, with `eval` on the Board, from `ply: 0`: there, the first move's `eval_before`, so its bar is there from the start. At a turning point, "Show the best move", which goes to the ply before the move with the two arrows from board.md. The verdict and explanation are the Board's, under its move list: don't repeat them.
 - **Turning points** as a short list at the top: clicking one goes to the ply after the move, where the Board shows its verdict and explanation.
 - **Keys:** ← → step, from your own listener (board.md, Keys).
 

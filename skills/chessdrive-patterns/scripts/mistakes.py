@@ -4,7 +4,8 @@ with the `chessdrive` CLI signed in.
 
     python3 mistakes.py games.pgn --player MyHandle --folder patterns
 
-Keeps each game's answer in the folder, so running it again carries on and bills no game twice. Writes:
+Sends as many games at once as the Plan's requests in flight. Keeps each game's answer in the folder, so running it
+again carries on and bills no game twice. Writes:
 
     items.json       the position after each mistake, where what it allowed is on the board, for `chessdrive embed --input`
     mistakes.jsonl   what each row of items.json is: the game, the move, its verdict, Engine's best Line from before
@@ -18,7 +19,9 @@ import json
 import os
 import subprocess
 import sys
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 sys.dont_write_bytecode = True  # keeps the Plugin's folder as it was installed
@@ -31,6 +34,30 @@ EXIT_INVALID, EXIT_RATE_LIMITED = 2, 5
 SHORTER_DEPTH = 10  # for a game too long for one call at the default depth
 RETRIES = 5
 RETRY_SECONDS = int(os.environ.get("CHESSDRIVE_RETRY_SECONDS", 5))
+IN_FLIGHT = {"free": 1, "hobby": 2, "pro": 6}  # Stockfish's requests in flight on each Plan
+
+
+class Slots:
+    """The calls a run may have at Engine at once. Each 429 costs it one, as another run on the Account or a smaller
+    engine can leave less than the Plan allows, and the calls it stops would only have waited 5 s to be refused."""
+
+    def __init__(self, size):
+        self.size = size
+        self.free = threading.Semaphore(size)
+        self.lock = threading.Lock()
+
+    def __enter__(self):
+        self.free.acquire()
+
+    def __exit__(self, *_):
+        self.free.release()
+
+    def one_fewer(self):
+        with self.lock:
+            if self.size == 1:
+                return
+            self.size -= 1
+        self.free.acquire()
 
 
 def tags_of(game):
@@ -64,13 +91,25 @@ def names_in(games):
     return sorted(seen, key=seen.get, reverse=True)[:5]
 
 
-def call_engine(cli, game):
+def in_flight(cli):
+    """How many calls the Plan lets a run send at once, or 1 where the Plan can't be read, as on a Team member's key."""
+    done = subprocess.run([cli, "balance", "--json"], capture_output=True, text=True, encoding="utf-8")
+    try:
+        return IN_FLIGHT.get(json.loads(done.stdout).get("plan"), 1)
+    except ValueError:
+        return 1
+
+
+def call_engine(cli, game, slots):
     """A whole game's answer, retrying what can pass and stopping the run on what can't. None is a game refused."""
     args = [cli, "engine", "--pgn", "-", "--json"]
     for attempt in range(RETRIES):
-        done = subprocess.run(args, input=game.text, capture_output=True, text=True, encoding="utf-8")
+        with slots:
+            done = subprocess.run(args, input=game.text, capture_output=True, text=True, encoding="utf-8")
         if done.returncode == 0:
             return json.loads(done.stdout)
+        if done.returncode == EXIT_RATE_LIMITED:
+            slots.one_fewer()
         if done.returncode == EXIT_RATE_LIMITED or done.returncode == 1:
             time.sleep(min(60, RETRY_SECONDS * 2**attempt))
             continue
@@ -81,6 +120,36 @@ def call_engine(cli, game):
             return None
         sys.exit(done.stderr.strip() or f"{cli} stopped with code {done.returncode}.")
     sys.exit(done.stderr.strip() or f"{cli} kept failing.")
+
+
+def answers_of(cli, games, folder):
+    """Each game's place in games and its answer, as they come: those saved, then the rest from Engine, up to the Plan's
+    requests in flight. A game refused answers None. A stop lets the calls running end, as they're billed and saved."""
+    calls = []
+    for at, game in enumerate(games):
+        saved = folder / f"{game.id()}.json"
+        if saved.exists():
+            yield at, json.loads(saved.read_text(encoding="utf-8"))
+        else:
+            calls.append((at, game, saved))
+    if not calls:
+        return
+
+    slots = Slots(in_flight(cli))
+
+    def answer(at, game, saved):
+        found = call_engine(cli, game, slots)
+        if found is not None:
+            saved.write_text(json.dumps(found), encoding="utf-8")
+        return at, found
+
+    with ThreadPoolExecutor(slots.size) as pool:
+        running = [pool.submit(answer, *call) for call in calls]
+        try:
+            for done in as_completed(running):
+                yield done.result()
+        finally:
+            pool.shutdown(cancel_futures=True)
 
 
 def in_words(score):
@@ -148,23 +217,18 @@ def main():
     folder = Path(args.folder)
     answers = folder / "engine"
     answers.mkdir(parents=True, exist_ok=True)
-    mistakes, refused, cost = [], [], 0.0
-    for at, game in enumerate(chosen):
-        tags = tags_of(game)
-        saved = answers / f"{game.id()}.json"
-        if saved.exists():
-            answer = json.loads(saved.read_text(encoding="utf-8"))
-        else:
-            answer = call_engine(args.cli, game)
-            if answer is None:
-                refused.append({"game": at, "white": tags.get("White"), "black": tags.get("Black"), "date": played_at(tags)[0]})
-                continue
-            saved.write_text(json.dumps(answer), encoding="utf-8")
+    by_game, refused_by_game, cost = {}, {}, 0.0
+    for at, answer in answers_of(args.cli, chosen, answers):
+        game, tags = chosen[at], tags_of(chosen[at])
+        if answer is None:
+            refused_by_game[at] = {"game": at, "white": tags.get("White"), "black": tags.get("Black"), "date": played_at(tags)[0]}
+            continue
         cost += float(answer.get("cost_usd") or 0)
-        found = list(mistakes_of(answer, game, at, colour_of(tags, args.player)))
-        mistakes += found
-        emit({"game": at, "of": len(chosen), "mistakes": len(found)})
+        by_game[at] = list(mistakes_of(answer, game, at, colour_of(tags, args.player)))
+        emit({"game": at, "of": len(chosen), "mistakes": len(by_game[at])})
 
+    mistakes = [m for at in sorted(by_game) for m in by_game[at]]  # answers come in any order, and the files keep the games'
+    refused = [refused_by_game[at] for at in sorted(refused_by_game)]
     (folder / "items.json").write_text(
         json.dumps([{"type": "position", "pgn": m["pgn"], "ply": m["ply"] + 1} for m in mistakes]), encoding="utf-8"
     )

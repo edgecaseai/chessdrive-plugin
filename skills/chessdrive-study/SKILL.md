@@ -5,7 +5,7 @@ description: Build someone a Study with ChessDrive, an interactive chess page of
 
 # Build a Study
 
-You build a **Study**: one page for one person, around their game, their lines or their students. It shows the **Board**, ChessDrive's free chess board, which owns the rules, the position and the person's moves, so your page code only feeds it and listens to it. Paid answers come from the ChessDrive Connector's tools, which you call yourself while you build. If they aren't there, ask the person to connect ChessDrive on this plugin's Connectors tab and sign in. The page never calls them: the answers go into it at build time.
+You build a **Study**: one page for one person, around their game, their lines or their students. It shows the **Board**, ChessDrive's free chess board, which owns the rules, the position and the person's moves, so your page code only feeds it and listens to it. Paid answers come from the ChessDrive Connector's tools, which you call yourself while you build. If they aren't there, read Connect in `<this Skill's folder>/../chessdrive-vectors/references/set-up.md`, where `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it, and walk the person through it one step at a time. Give no chess reading of your own in the meantime, and go on when the tools are there. The page never calls them: the answers go into it at build time.
 
 Every move on the page is **sourced**: from a PGN or FEN the person gave, from `engine`, or played by the person on the Board. Every verdict ("a mistake", "the best move") comes from `engine`, in its words. `generate` writes the explanation around them, and may name only moves it was given. Never work out a move yourself.
 
@@ -19,12 +19,13 @@ Build without asking whether they want a page. Match the request to one kind, th
 | to practise the moments they went wrong | Mistake drill | [mistake-drill.md](references/mistake-drill.md) | `engine` 1 a game and 1 a position, `generate` 0 or 1 |
 | to learn or test a line of their repertoire | Opening drill | [opening-drill.md](references/opening-drill.md) | None |
 | sheets of positions to print or hand out | Worksheet | [worksheet.md](references/worksheet.md) | None with the coach's answers, else `engine` 1 a position |
+| to prepare against an opponent, from a PGN file of their games | Opponent prep | [opponent-prep.md](references/opponent-prep.md) | `engine` 1, `generate` 0 or 1 |
 
 - **One position or one game to look at or play** needs no page: where the Connector has `show_board`, call it and stop. It takes the Board's State. Add `opponent: {"engine": "stockfish", "level": 5}` to play the person with the engine.
 - **Something else,** such as a table of their games: build it from the closest kind and keep every rule here.
-- **Preparing against an opponent** isn't a Study yet, as it needs Search's player games. Say so in one line, and build nothing from memory of their games.
+- **Preparing against an opponent with no file of their games:** run the `chessdrive-prep` Skill first, and build nothing from memory of their games.
 
-Ask one question only when the request lacks the one input the kind needs: which game, which side, which lines. With no position, game or lines to work from, answer in chat and build nothing. Take the person's word for the side they played, whatever the PGN's names say.
+Ask one question only when the request lacks the one input the kind needs: which game, which side, which lines. If they ask what this does, or give no position, game or lines to work from, say in a line or two what you need, such as a PGN, a Lichess or chess.com link, or their opening lines, and build nothing. Take the person's word for the side they played, whatever the PGN's names say.
 
 ## Step 2: Gather
 
@@ -44,7 +45,7 @@ One self-contained HTML file, following [board.md](references/board.md):
 
 - the Board, from its pinned script tag;
 - the fields of each tool answer your page reads, inline as one `const DATA = {…}`, leaving out `board_url` and what you don't use. If you can run code, write `DATA` from the answers with code. Never retype a move from memory: one wrong letter in a Line is an illegal move on the page;
-- page code that sets the Board's State and listens to its events, as the kind's reference says.
+- page code that sets the Board's State and listens to its events, as the kind's reference says, all inside `(() => { … })();`. At the top level of a script, a name the browser already uses, such as `top`, stops the whole script.
 
 In Claude it's an artifact, in ChatGPT a canvas, and in a coding agent a `.html` file the person opens.
 
@@ -58,7 +59,7 @@ Every page carries this line, on screen and on every printed page, whatever else
 <footer class="cd-made">Made with <a href="https://platform-staging.chessdrive.io/?utm_source=study&utm_campaign=KIND" target="_blank" rel="noopener">ChessDrive</a></footer>
 ```
 
-`KIND` is `review` for a Game review, `drill` for a Mistake drill, `opening` for an Opening drill, `worksheet` for a Worksheet and `other` for anything else. Add `@media print { .cd-made { position: fixed; bottom: 0; } }`, which repeats it on every sheet. The Board's own "Board by ChessDrive" link stays as it is.
+`KIND` is `review` for a Game review, `drill` for a Mistake drill, `opening` for an Opening drill, `worksheet` for a Worksheet, `prep` for Opponent prep and `other` for anything else. Add `@media print { .cd-made { position: fixed; bottom: 0; } }`, which repeats it on every sheet. The Board's own "Board by ChessDrive" link stays as it is.
 
 ## Step 5: Check it
 
@@ -66,10 +67,12 @@ It's done when every line holds:
 
 - the Board's column has a width of its own (board.md, Load it), or the Board draws nothing;
 - the Board faces the person's side, or the side to move for a position with no owner;
+- a Board that shows a game or a position takes moves and has its way back (board.md, Trying moves);
 - every move and verdict on the page traces to the person's input or to an answer in `DATA`;
 - evaluations read from White's side (`+1.2`, `−0.4`, `M3`, `−M3`);
 - text from a PGN or a tool goes in with `textContent`, never `innerHTML`: a PGN header can hold anything;
 - the page holds no API key, token or Connection secret, and makes no `fetch`;
+- the page code sits inside a function, not at the top level of its script;
 - the footer is there.
 
 A coding agent that can open the page in a browser does so, and looks at the console.
@@ -89,4 +92,3 @@ Name no price unless they ask. If they ask what it cost, add up `cost_usd` and n
 - Keep the person's data in their page: a game they pasted stays in `DATA`.
 - Every call is billed to the person's ChessDrive Account. Spend only on what the page shows, and rebuild a page from the answers you have.
 - Name verdicts as `engine` does. A move it didn't call a mistake is a "costly move" at most.
-- Use Queen for what the person reads and Knight for bulk steps. On `plan_required`, fall back to Knight; on `429 rate_limited`, wait.

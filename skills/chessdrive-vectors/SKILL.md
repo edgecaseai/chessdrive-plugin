@@ -1,24 +1,28 @@
 ---
 name: chessdrive-vectors
-description: Embed chess positions and texts with ChessDrive into a vector file on the person's machine, then answer with code that reads the file. Use when someone asks which positions are closest to a position, wants to find an idea in plain English across their own PGN files ("find back rank mates in my games"), wants a set of positions grouped by what they have in common, or mentions embeddings or vectors of chess positions. Needs an agent that runs code on the person's machine, such as Claude Code, Codex or Cursor.
+description: Embed chess positions and texts with ChessDrive into a vector file on the person's machine, then answer with code that reads the file. Use when someone asks which positions are closest to a position, wants to find an idea in plain English across their own PGN files ("find back rank mates in my games"), wants a set of positions grouped by what they have in common, or mentions embeddings or vectors of chess positions. Runs in an agent that runs code, such as Claude Code, Codex or Cursor, and in Claude's chat app on a paid plan.
 ---
 
 # Work with vectors
 
-You turn chess positions and texts into vectors with ChessDrive Embed, then answer the person's question with code that reads them. Vectors stay in the file: code reads them, and you read what the code prints, which is rows, counts and scores. Compare and group are not API features. They are the scripts in `scripts/` beside this file, for you to run or adapt.
+You turn chess positions and texts into vectors with ChessDrive Embed, then answer the person's question with code that reads them. Vectors stay in the file: code reads them, and you read what the code prints, which is rows, counts and scores. Compare and group are not API features. They are the scripts in `scripts/` beside this file, for you to run or adapt. Below, `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. Run them from the person's own folder, by that full path.
 
 ## What you need
 
-- **Code running on the person's machine.** If you can't run code there, as in Claude's chat app, tell the person this needs an agent that can, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor, and stop. The ChessDrive Connector has no `embed` tool.
-- **The `chessdrive` CLI, signed in, or its local MCP tool `embed`.** If you have neither, ask the person to follow https://platform-staging.chessdrive.io/docs/cli to install it and run `chessdrive login`. Signing in is theirs to do, so a key never passes through the chat. Check `chessdrive version` too: this needs 0.2.0 or later. If it's older, ask the person to run `chessdrive update`, or to install it again from that page if their CLI doesn't have `update`, and wait until they have.
+- **Somewhere to run code:** the person's machine, or in Claude's chat app on a paid plan, Claude's sandbox. There, read "the person's machine" below as that sandbox. The ChessDrive Connector has no `embed` tool.
+- **The `chessdrive` CLI at 0.2.0 or later, signed in, or its local MCP tool `embed`.** If you have neither, read `references/set-up.md` and do what it says: it walks the person through what's missing, one step at a time, with Claude's chat app's own steps.
 - **Python 3.11 or later with NumPy.** Check with `python3 -c "import numpy"`. If it fails and `uv` is there, run the scripts with `uv run --with numpy python`; otherwise ask to run `python3 -m pip install numpy`.
+
+If they have no PGN file, read `references/get-games.md` and do what it says: with a username, fetch their games with its script, and otherwise give them its steps for their site as they're written, never from memory.
+
+If they ask what this does, or give too little to start, say what you need in a line or two: their PGN files or the positions, and what they want to find or group.
 
 ## Step 1: Make the file
 
 Count first. Embed is 4 cents per 1K items, and every position of a game is an item. For a PGN file, this gives the exact count and cost, with no call and no charge:
 
 ```bash
-python3 scripts/vectorfile.py games.pgn
+python3 <this Skill's folder>/scripts/vectorfile.py games.pgn
 ```
 
 Over 25,000 items that run costs over a dollar, so stop first: tell the person the items, the cost and the time, and wait for their yes. Below that, say how long it will take and go ahead, giving the cost only if they ask. Time is about 300 items a minute on Free, 1,000 on Hobby and 2,000 on Pro.
@@ -42,7 +46,7 @@ It writes `games.npy`, the vectors, and `games.jsonl` beside it, one line per ro
 **Closest to a position in the file.** Game counts from 0 in the file, so a game's number is how many `[Event ` lines come before it. Ply is half-moves from the start: after White's move `n` it is `2n - 1`, after Black's it is `2n`.
 
 ```bash
-python3 scripts/compare.py games.npy --game 3 --ply 24 --other-games --per-game 1
+python3 <this Skill's folder>/scripts/compare.py games.npy --game 3 --ply 24 --other-games --per-game 1
 ```
 
 **Closest to a position from elsewhere, or to a text.** Embed the query to a file of its own, then compare. A new query needs a new file name, as a run won't overwrite other vectors.
@@ -50,7 +54,7 @@ python3 scripts/compare.py games.npy --game 3 --ply 24 --other-games --per-game 
 ```bash
 chessdrive embed --pgn one-game.pgn --ply 24 --out queries/position-1.npy
 chessdrive embed --text "a back rank mate" --out queries/back-rank.npy
-python3 scripts/compare.py games.npy --query queries/back-rank.npy --per-game 1
+python3 <this Skill's folder>/scripts/compare.py games.npy --query queries/back-rank.npy --per-game 1
 ```
 
 Keep a text under about 300 characters, as a longer one answers `text_too_long`. Use `--per-game 1` when a file has many games, since neighbouring positions in a game look alike and would fill the list.
@@ -58,7 +62,7 @@ Keep a text under about 300 characters, as a longer one answers `text_too_long`.
 **Groups of similar items.** Group the positions the question is about, such as a player's mistakes, rather than every position of a file, where the groups would mostly be games.
 
 ```bash
-python3 scripts/group.py mistakes.npy --examples 3
+python3 <this Skill's folder>/scripts/group.py mistakes.npy --examples 3
 ```
 
 Pass `--groups` if the person names a number. Asking again with more `--examples` shows more of the same groups.
@@ -83,7 +87,7 @@ Each hit is one line of JSON. A hit from a game has `source`, `game`, `ply`, and
 
 - **Answer in chess terms:** the game, the move, and what the positions share. A `score` ranks hits within one run, closer being higher. It isn't a percentage, so give the order and leave the numbers out.
 - **Check the idea before you claim it.** The list holds the nearest items, whether or not any truly fits. To look at a hit, call the Connector's `engine` tool with `engine: "stockfish"`, `position: {"pgn": "<pgn>", "ply": <ply>}` or `{"fen": "<fen>"}`, and `depth: 10`. Without the Connector, pipe the `pgn` to `chessdrive engine --pgn - --ply <ply> --depth 10 --json`: its last event gives the `fen` and the Lines. Engine is billed, so do this for the few hits you show.
-- **Show the hits on boards.** Build a Study with the `chessdrive-study` Skill beside this one: a page with a Board for each hit, at its `pgn` and `ply` or its `fen`, in `mode: "view"`, with no ChessDrive calls. If that Skill isn't there, make the hit's move a link to the `board_url` from the `engine` answer. With neither, point to the hit by its game and move. Drop a hit that doesn't show what was asked, and say if none does.
+- **Show the hits on boards.** Build a Study with the `chessdrive-study` Skill beside this one: a page with a Board for each hit, at its `pgn` and `ply` or its `fen`, in `mode: "play-both"` with its way back (its `references/board.md`, Trying moves), with no ChessDrive calls. If that Skill isn't there, make the hit's move a link to the `board_url` from the `engine` answer. With neither, point to the hit by its game and move. Drop a hit that doesn't show what was asked, and say if none does.
 - **To explain a hit,** call `generate` with `model: "queen"` on the same position. If it answers `plan_required`, fall back to Knight and say so in one line. If it answers `upstream_unavailable`, make the same call once more. If that fails too, give the engine's Line with no explanation, and add no note about it. Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it.
 - **Name only moves the game or a tool gave you.** The file holds no moves: the `pgn` and the tools do.
 
@@ -117,5 +121,5 @@ The CLI and the tool handle `429 rate_limited` themselves: they wait and carry o
 - Name no price unless they ask, including what this run cost, apart from the stop in Step 1. The CLI prints the cost, so leave it out.
 - Before you send, check your answer against the shape in Step 3: the bold first line, a heading for each hit, no table, and no price they didn't ask for.
 - Every call is billed to the person's ChessDrive Account. Reuse the file for every question it can answer.
-- The person's PGN files stay on their machine, apart from what each Embed call sends.
+- The person's PGN files stay where this code runs, apart from what each Embed call sends.
 - Open `.npy` files only through NumPy, in code that prints no array. If a vector does reach your output, leave it out of your answer and fix the code.

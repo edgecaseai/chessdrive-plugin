@@ -3,7 +3,7 @@
 ## Load it
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@chessdrive/board@0.1.0/dist/board.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@chessdrive/board@0.1.2/dist/board.umd.js"></script>
 <chessdrive-board id="board"></chessdrive-board>
 ```
 
@@ -28,8 +28,8 @@ One object describes the whole Board. `board.set(patch)` merges a partial State 
 | `lastMove` | `"e2e4"`: tinted. A game supplies its own; setting `fen` clears it unless you pass it too |
 | `marks` | a list of `{arrow: "e2e4", color}`, `{circle: "f7", color}`, `{square: "d5", color}`; colours `green`, `red`, `blue`, `yellow`, `orange`. Yours stay until you set `marks` again, which leaves the person's alone |
 | `annotations` | verdicts on a game's moves, a map from Board `ply` to `{glyph, comment}`: see Verdicts |
-| `eval` | an answer's `eval_before`, `eval_after` or Line as it comes, from White's side; `null` hides the bar |
-| `mode` | `view` (no moves), `play-white`, `play-black`, `play-both` (the default, so set it) |
+| `eval` | an answer's `eval_before`, `eval_after` or Line as it comes, from White's side; `null` hides the bar, which keeps its place once shown |
+| `mode` | `view` (no moves), `play-white`, `play-black`, `play-both` (the default, so set it; see Trying moves) |
 | `moves` | `true` shows the game's move list inside the Board: beside it at `full` on a wide page, below at `phone` |
 | `players` | `{white: {name, rating}, black: {name, rating}}`, with captures and material |
 | `size` | `full` (squares up to 560 px, 520 beside the eval bar), `phone` (360, moves below), `embed` (240, buttons and link), `thumb` (160, the board alone) |
@@ -50,12 +50,40 @@ The Board draws verdicts itself: in the move list, on the move's square, and the
 
 - `board.set(patch)` returns `false` and fires `error` for a bad value, which stays as it was.
 - `board.play("Nf3")` or `board.play("g1f3")` plays one legal move from the position on view. An illegal one fires `error` and returns `false`.
-- `await board.animate(["e4", "e5", "Nf3"])` plays a line, and `board.clear()` removes your Marks.
+- `await board.animate(["e4", "e5", "Nf3"])` plays a line, at a pace a person can follow, so use it rather than a timer of your own. `board.clear()` removes your Marks.
 - `board.on(name, fn)` listens. Events report **the person's actions only**, never your own commands:
   - `move` `{uci, san, fen, ply}`: the person moved;
   - `ply` `{ply, fen}`: the person stepped through the game;
   - `marks` `{marks}`, `flip` `{orientation}`, `error` `{code, message}`.
 - A click anywhere on a Board reaches your page as a `click` on the element, its buttons and link included: give a card its own button rather than listening on the Board.
+
+## Trying moves
+
+A Board that shows a game or a position to look at takes the person's moves, so they can try their own ideas and come back. Set `mode: "play-both"`, and give each such Board a button of yours under it, `hidden` at first: "Back to the game", or "Back to the position" for a `fen`. Copy this function as it stands:
+
+```js
+// `shown` is what to come back to: {pgn, annotations} or {fen, lastMove}, with any `marks` and `eval` you set.
+// Returns a function that says whether the person is on their own moves.
+function tryMoves(board, button, shown, onBack) {
+  let left = null; // The ply of the game they left it at.
+  board.on('move', ({ ply }) => {
+    if (left === null) board.set({ marks: [], eval: null }); // Your answers are about what you showed.
+    left = Math.min(left ?? ply - 1, ply - 1);
+    button.hidden = false;
+  });
+  button.onclick = () => {
+    const ply = left;
+    left = null;
+    button.hidden = true;
+    board.set(shown.pgn === undefined ? shown : { ...shown, ply });
+    onBack?.(ply);
+  };
+  return () => left !== null;
+}
+```
+
+- A Board on its own: `tryMoves(board, back, {pgn, annotations})`, once for each Board on the page.
+- With a page `show(ply)`: `const trying = tryMoves(board, back, {pgn, annotations}, show)`. Call `show` on the `ply` event only `if (!trying())`, as the plies then count the person's moves, not the game's. Your own clicks, on a graph or a turning point, start with `if (trying()) back.click()`.
 
 ## Numbers
 
@@ -72,5 +100,5 @@ The Board draws verdicts itself: in the move list, on the move's square, and the
 - **The other side replies:** on the person's correct `move`, `board.play(nextMove)`.
 - **A line without losing the game:** show it as text, or `set({fen})` the position and `animate` the line, then `set({pgn, ply})` to come back. Set the annotations again with that `pgn`.
 - **Phones:** at `full` the Board fits a narrow column by itself and puts its moves below. Put your panel under it.
-- **Keys:** with a game in `view` mode, ← → step it while the Board has focus, and arrive as `ply` events. A page that steps from anywhere listens on `document`, and ignores a keydown whose `target` is the Board, or it steps twice.
+- **Keys:** with a game in `view` mode, ← → step it while the Board has focus, and arrive as `ply` events. In `play-both` the squares keep those keys for their cursor, and the Board's buttons and move list step it. A page that steps from anywhere listens on `document`, and ignores a keydown whose `target` is the Board, or it steps twice.
 - **Print:** `mode: "view"`, and `size: "thumb"` from a `beforeprint` listener, back to `embed` on `afterprint`: `embed` prints its buttons and link, and is too tall for a grid. `@media print` rules hide your buttons. The squares print without the browser's background graphics. Write "White to play" beside each diagram yourself. A page in Claude can't open the print dialog, so offer no Print button there: tell the person to download the artifact and print it from their browser. A local file can have a Print button (`window.print()`).
