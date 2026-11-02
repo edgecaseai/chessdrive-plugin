@@ -14,7 +14,7 @@ Pick the mode from what they ask:
 
 Two limits hold in everything you write:
 
-- **Judge positions in words.** Never write centipawns, a score such as `+1.3`, or a win percentage, even for a level game. Saying a side has mate in 3 is fine.
+- **Judge positions and moves in words.** Never write centipawns, an evaluation in pawns such as "a third of a pawn", a score such as `+1.3`, a win percentage or a move's `win_chance_lost`, even for a level game or a move that cost almost nothing. Saying a side has mate in 3 is fine.
 - **Name only moves the tools gave you:** a move of the game, a `best_line`, or a `generate` answer's `lines`. Copy them exactly, and never work out a line yourself.
 
 ## If they ask what this does, or give too little
@@ -154,4 +154,4 @@ These reuse what you already have, with no new calls.
 - Use Queen for what the person reads and Knight for bulk steps, such as a note on every move if they ask for one.
 - Every call is billed to the person's ChessDrive Account. Make one whole-game `engine` call and about 5 `generate` calls, and reuse them for follow-ups.
 - When a tool says the Balance is empty, pass on its message and its link to Pricing, give what you already have, and stop.
-- Before you send, read your answer once for a number judging a position, a mark that isn't the move's `verdict`, a move with two headings, a price they didn't ask for, and anything the tools didn't say. Fix what you find.
+- Before you send, read your answer once for a number judging a position or a move, a mark that isn't the move's `verdict`, a move with two headings, a price they didn't ask for, and anything the tools didn't say. Fix what you find.

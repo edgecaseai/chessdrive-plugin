@@ -2,6 +2,7 @@
 
 Each release of the `chessdrive` Plugin bumps `version` in `.claude-plugin/plugin.json` and adds a line here, newest first. People who added the marketplace get it from Check for updates, or `claude plugin marketplace update` and `claude plugin update` in Claude Code. A zip doesn't update, and uploading over it changes nothing: people remove the Plugin, download it again and upload it.
 
+- **0.14.1** (2026-11-02): `chessdrive-game-review` judges moves in words too, so a game with no mistakes no longer quotes how much win chance a move cost or how many pawns the evaluation moved.
 - **0.14.0** (2026-11-02): Skills run their calls side by side. `chessdrive-patterns` sends as many games to the engine at once as your Plan allows, so checking 30 games takes about half as long on Hobby, with more to gain on Pro. Free still checks one at a time. Game review, Annotate and Patterns ask the chess model two at a time. The cost of a run doesn't change.
 - **0.13.0** (2026-11-01): The Skills carry their own instructions, so a Use case's Copy prompt is a line or two, and each Skill's steps are at `/skills/<name>.md` for an agent with only the Connector. Prep ends in a Study in Claude's chat app too, as Game review does. `chessdrive-vectors` says what's true: it runs in Claude's chat app on a paid plan. Where the sandbox can't reach Lichess or chess.com, a Skill gives you the link, on words, and never opens a browser to get around it. The Skills were tightened.
 - **0.12.3** (2026-11-01): `chessdrive-patterns` quotes about 25 cents, as Queen's prices fell 40%.
