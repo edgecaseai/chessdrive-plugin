@@ -5,9 +5,11 @@ Chess Skills for your agent, and the ChessDrive Connector they call. Ask about a
 ## Install
 
 - **Claude:** Customize → Plugins → Add → Add marketplace → Add from a repository. Enter `edgecaseai/chessdrive-plugin`, press Sync and install ChessDrive. Then, in a Chat, open the plugin's Connectors tab, connect ChessDrive and sign in.
-- **Claude Code:** run these, then `/mcp` to sign in.
+- **Claude Code:** install the CLI and sign in once, then add the Plugin. Its Connector uses the key `chessdrive login` saves, so there's no second sign-in.
 
   ```bash
+  npm install -g chessdrive
+  chessdrive login
   claude plugin marketplace add edgecaseai/chessdrive-plugin
   claude plugin install chessdrive@chessdrive
   ```
@@ -21,9 +23,11 @@ Signing in connects your ChessDrive Account. Calls are billed to its Balance, as
 The Skills that run code use the `chessdrive` CLI. On Windows, follow [the CLI docs](https://platform-staging.chessdrive.io/docs/cli).
 
 ```bash
-curl -fsSL https://platform-staging.chessdrive.io/install.sh | sh
+npm install -g chessdrive
 chessdrive login
 ```
+
+Without npm, `curl -fsSL https://platform-staging.chessdrive.io/install.sh | sh`.
 
 ## Skills
 

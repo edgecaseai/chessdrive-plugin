@@ -94,7 +94,7 @@ For each batch:
    ```
 
    Line 7 of the results answers line 7 of the list, with `status`, `fen`, `best_move` and `lines`. A position with no legal moves comes back as `game_over`, so for a mate check the ply before it. A question with a new list gets a new pair of files.
-3. **Only after that, for a hit where the idea may have been missed,** run its whole game, at most 3 games a question, as each takes about 10 seconds. Engine takes parallel requests up to the Plan's limit, 1 on Free, 2 on Hobby and 6 on Pro, so run them at once where the Plan allows. `printf '%s' "$pgn" | chessdrive engine --pgn - --json` gives every move its `verdict` and `best_line` in one call, so look in the `best_line` of the moves marked `mistake` or `blunder`.
+3. **Only after that, for a hit where the idea may have been missed,** run its whole game, at most 3 games a question, as each takes about 10 seconds. Engine takes parallel requests up to the Plan's limit, 2 on Free, 6 on Hobby and 18 on Pro, so run them at once where the Plan allows. `printf '%s' "$pgn" | chessdrive engine --pgn - --json` gives every move its `verdict` and `best_line` in one call, so look in the `best_line` of the moves marked `mistake` or `blunder`.
 4. **Keep it only if the board shows the idea.** It has to happen in the moves of the game or in the engine's best line, and you must be able to say where. For a tactic, name the piece that moves, what it hits and what it wins. If only the best line has it, say the player missed it. Drop anything you can only call similar.
 
 **Never run an engine on this machine,** even if one is installed. Most people have none, so the same question would give them less. Every engine answer comes from ChessDrive.
@@ -141,6 +141,10 @@ The PGN file and the vector file, with its size in positions: paths in a coding 
 Later questions read that file, so finish by saying so in one short line: the search takes seconds, and the checks take as long as you do. If they ask what one costs: a new phrase is one Embed item, a position already in the file is no Embed call at all, and 100 engine checks are about a fifth of a cent, so a question costs about a cent at most.
 
 **To explain an example,** call `generate` with `model: "queen"` on the same `{pgn, ply}`. If it answers `plan_required`, use Knight and say so in one line. If it answers `upstream_unavailable`, make the same call once more. If that fails too, give the engine's Line with no explanation, and add no note about it. Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it.
+
+## Follow-ups
+
+- **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": never answer from your own reading of the board. Call `engine` on that one position, with `depth` left out and `lines` too, for one Line, or `lines: 3` if they ask what else to play, unless you have its answer already. A hit's row in the results file is the engine's answer for its position, so a question about it needs no `engine` call, and To explain an example in Step 5 is the same call to `generate`. Then call `generate` with Queen, with the question and the Line in the message. Answer in two to four sentences from those two alone. A threat, an attack or a tactic goes in only if a Line plays it against a piece that stands on that square now: a piece that moves there first in the Line and is taken was given up, so give that as the Line's moves. Add no reason of your own, and no note on what you left out. Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` has the rest.
 
 ## When a call is refused
 

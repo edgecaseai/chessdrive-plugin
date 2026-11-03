@@ -64,10 +64,12 @@ It prints:
 - `read`: the games in the file, theirs, with this colour, and `used`, what the rest stands on, from the date `from` to `to`, by `speeds`.
 - `left_out`: what it didn't read, and why.
 - `first_moves`: from where the reading starts, each move with its `games`, `won`, `drawn`, `lost` and `score_percent`, always from the opponent's side, and the `replies` to it.
-- `lines`: the top three, each `line` as far as enough games still agree, with the same counts, `of_their_last_30`, `next`, what they played after it, and `opening`, the file's own name for it, or null. A null name stays unnamed: write the moves.
+- `lines`: the top three, each `line` as far as enough games still agree, with the same counts, `of_their_last_30`, `next`, the moves played after it, and `opening`, the file's own name for it, or null. A null name stays unnamed: write the moves.
 - `weak_spot`: another line they score badly in, if there is one.
 - `form`: their last 12 games at these speeds, of either colour, and `rating_then` and `rating_now`.
 - `positions`: the end of each line, ready for Step 3.
+
+`next` is a move of whichever side is to move after the line. When that's the person's colour, it's what the opponent's opponents played, not the opponent: write "After it, White played 5. f3", never "they played". In the same way, when the opponent has Black, `first_moves` are White's and only their `replies` are the opponent's: "they mostly face 1.e4".
 
 If `few_games` is true, say the picture rests on few games. If `used` is 0, say so, and run it again without `--after`.
 
@@ -88,11 +90,11 @@ Name only moves from what you are given. Name no opening. Say nothing about the 
 Judge positions in words, such as "Black stands a little better", never in numbers.
 ```
 
-Send one `user` message:
+Send `messages` with one `user` message:
 
 ```text
 I have {colour} against {name}. In {used} of their games from {from} to {to}:
-Line 1: {line}. {games} games: {won} wins, {drawn} draws, {lost} losses for them. After it they played {next}. The engine says {who stands better}, and its best moves from there are {the first Line's first 4 moves, numbered}.
+Line 1: {line}. {games} games: {won} wins, {drawn} draws, {lost} losses for them. After it, {they, or White or Black when `next` is the person's colour} played {next}. The engine says {who stands better}, and its best moves from there are {the first Line's first 4 moves, numbered}.
 Line 2: ...
 They score worst in: {weak_spot's line and its counts}.
 Their last 12 games: {won} wins, {drawn} draws, {lost} losses.
@@ -136,7 +138,9 @@ Start with the bold answer, with nothing before it. Start a line's heading with 
 
 ## Follow-ups
 
-These read the same file, so the script costs nothing.
+- **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": never answer from your own reading of the board. Call `engine` on that one position, with `depth` left out and `lines` too, for one Line, or `lines: 3` if they ask what else to play, unless you have its answer already. Step 3's result for a line's last position is the engine's answer there, so a question about it needs no `engine` call. Then call `generate` with Queen, with the question and the Line in the message. Answer in two to four sentences from those two alone. A threat, an attack or a tactic goes in only if a Line plays it against a piece that stands on that square now: a piece that moves there first in the Line and is taken was given up, so give that as the Line's moves. Add no reason of your own, and no note on what you left out. Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` has the rest.
+
+These read the same file, so the script costs nothing:
 
 - **"Drill their main line":** build an Opening drill with the `chessdrive-study` Skill, from `lines`, with the person's side as the side to drill.
 - **"What did they play in the games they lost?":** run Step 2 again with `--lost`, and answer from its `lines` and counts.
@@ -150,4 +154,4 @@ These read the same file, so the script costs nothing.
 - Every call is billed to the person's ChessDrive Account: one `engine` call and one `generate` call a run, and none for the script.
 - The PGN file and `prep/` stay where this code runs. What goes out is the positions and counts you send to `engine` and `generate`.
 - When a tool says the Balance is empty, pass on its message and its link to Pricing, give what you already have, and stop.
-- Before you send, read your answer once for a number judging a position, a move that isn't in the script's output or an `engine` Line, an opening's name where `opening` is null, such as Sicilian or Caro-Kann for a line that has none, even in a passing phrase, a Line given as the opponent's own moves, a price they didn't ask for, and anything the tools didn't say. Fix what you find.
+- Before you send, read your answer once for a number judging a position, a move that isn't in the script's output or an `engine` Line, an opening's name where `opening` is null, such as Sicilian or Caro-Kann for a line that has none, even in a passing phrase, a Line, or a `next` of the person's colour, given as the opponent's own moves, a price they didn't ask for, and anything the tools didn't say. Fix what you find.

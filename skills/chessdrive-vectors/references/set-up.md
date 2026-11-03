@@ -17,10 +17,10 @@ Stop at the first that's missing, walk them through it, then carry on down the l
 Say that the CLI is a small program that lets you call ChessDrive from here, and ask if you can install it. On their yes, run:
 
 ```bash
-curl -fsSL https://platform-staging.chessdrive.io/install.sh | sh
+npm install -g chessdrive
 ```
 
-On Windows, run `npm install -g chessdrive` if `npm` is there. Otherwise give them https://platform-staging.chessdrive.io/docs/cli, which has the download.
+Without `npm`, run `curl -fsSL https://platform-staging.chessdrive.io/install.sh | sh`, or on Windows give them https://platform-staging.chessdrive.io/docs/cli, which has the download.
 
 If it says its folder isn't on the `PATH`, run the `export` line it prints, and use the same line in each later command.
 
@@ -49,7 +49,16 @@ If it says the sign-in has run out, start again from the first command. If `--no
 Say that ChessDrive isn't connected to your app yet, and give them the steps for their app, one at a time. They only do this once.
 
 - **Claude's chat or desktop app:** in a chat, open Customize, then Plugins, then ChessDrive. On its Connectors tab, press Connect, sign in to ChessDrive and pick a daily limit.
-- **Claude Code:** type `/mcp`, choose `chessdrive` and sign in. If it isn't listed, ask to run `claude mcp add --transport http --scope user chessdrive https://api-staging.chessdrive.io/mcp`, then restart Claude Code and try again.
-- **Any other agent:** add `https://api-staging.chessdrive.io/mcp` as a remote MCP server named `chessdrive`, then sign in when it asks.
+- **Claude Code:** the Plugin's Connector uses the key `chessdrive login` saved. Once the CLI is signed in, ask them to type `/mcp`, choose `chessdrive` and press Reconnect. If it isn't listed, ask to run `claude mcp add-json --scope user chessdrive '{"type":"http","url":"https://api-staging.chessdrive.io/mcp","headersHelper":"chessdrive key --headers"}'`, then restart Claude Code.
+- **Codex:** ask to add this to `~/.codex/config.toml`, with the full path `command -v chessdrive` gives, then restart Codex:
+
+  ```toml
+  [mcp_servers.chessdrive]
+  url = "https://api-staging.chessdrive.io/mcp"
+  http_headers_helper = "/full/path/to/chessdrive key --headers"
+  ```
+
+- **Cursor:** ask to add a `chessdrive` server to `~/.cursor/mcp.json` with `"url": "https://api-staging.chessdrive.io/mcp"` and `"headers": { "Authorization": "Bearer ${env:CHESSDRIVE_CONNECTOR_KEY}" }`, and `export CHESSDRIVE_CONNECTOR_KEY="$(chessdrive key 2>/dev/null)"` in their shell's startup file, then restart Cursor. On Windows, leave out the headers and sign in when Cursor asks.
+- **Any other agent:** add `https://api-staging.chessdrive.io/mcp` as a remote MCP server named `chessdrive`, sending `Authorization: Bearer` and the key `chessdrive key` prints, or sign in when it asks.
 
 Then ask them to start a new chat if the tools still don't appear, as some apps load them only at the start.

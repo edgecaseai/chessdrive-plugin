@@ -89,14 +89,22 @@ function tryMoves(board, button, shown, onBack) {
 
 - **Plies.** Each of a whole-game answer's `moves` has `ply`, the half-moves played *before* it: 0 for White's first move. The Board's `ply` counts half-moves played. So `moves[i]` is played from Board `ply: i` and shown done at `ply: i + 1`, and on a `ply` event the move just played is `moves[ply - 1]`. `generate`'s `position: {pgn, ply}` names the position at Board `ply`.
 - **Evaluations** are from White's side, and exactly one of `cp` and `mate` is set. For the side to move, better is higher for White and lower for Black: compare `cp × (white ? 1 : −1)`. Print pawns with one decimal (`+1.3`) and a mate as `M3` (White mates) or `−M3`. `mate: 0` is checkmate on the board: print "Checkmate", and pass `eval: null`.
+- **Moves in SAN.** Engine's answers through the Connector give each move in SAN alone: `best_line` and a Line's `moves` are lists such as `["Nf3", "d5"]`, and `move` and `best_move` are `{san}`. The CLI's `--json` gives `{san, uci}` in those lists instead, so read a move as `m.san ?? m`. An arrow and `lastMove` take a move's squares: get them from a Board you never put on the page, with this function as it stands:
+
+  ```js
+  // A move's squares, such as squares(fen, 'Nf3') → 'g1f3', or null when it isn't legal in that position.
+  const probe = document.createElement('chessdrive-board');
+  const squares = (fen, san) => (probe.set({ fen }) && probe.play(san) ? probe.state.lastMove : null);
+  ```
+
 - **Win chance** for a graph: `1 / (1 + Math.exp(-0.00368208 * cp))`; a mate is 1 if White mates and 0 if Black does, and for `mate: 0` the side that just moved has won.
 
 ## Patterns
 
 - **Keep the page in step with the Board.** The Board holds the position. Your page holds `DATA` and one `show(ply)` function, which sets the Board's `ply`, `eval` and `marks` (`[]` if none) and updates your panel. Call it on the `ply` event and from your own clicks. Keep no chess position of your own.
 - **Show a verdict:** go to the ply after the move, where the Board shows its glyph and comment.
-- **Show the best move instead:** go to the ply before the move, with a green arrow for the engine's best move (`best_line[0].uci`), a red arrow for the move played (`move.uci`) and `eval_before`.
-- **Right or wrong:** in `play-*` mode, on the person's `move`, compare `uci` with the sourced answers, then a `green` or `red` square on its last two letters. For a miss, wait a beat and `set({fen, lastMove, marks: []})` back to the position. Go back with `fen`, not `ply`: a `play-*` Board takes moves only at the end of its game.
+- **Show the best move instead:** go to the ply before the move, with a green arrow for the engine's best move (`squares(fen, best_line[0])`), a red arrow for the move played (`squares(fen, move.san)`) and `eval_before`.
+- **Right or wrong:** in `play-*` mode, on the person's `move`, compare its `san` with the sourced answers, leaving out `+` and `#`, then a `green` or `red` square on its `uci`'s third and fourth letters. For a miss, wait a beat and `set({fen, lastMove, marks: []})` back to the position. Go back with `fen`, not `ply`: a `play-*` Board takes moves only at the end of its game.
 - **The other side replies:** on the person's correct `move`, `board.play(nextMove)`.
 - **A line without losing the game:** show it as text, or `set({fen})` the position and `animate` the line, then `set({pgn, ply})` to come back. Set the annotations again with that `pgn`.
 - **Phones:** at `full` the Board fits a narrow column by itself and puts its moves below. Put your panel under it.

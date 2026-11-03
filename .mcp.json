@@ -2,7 +2,8 @@
   "mcpServers": {
     "chessdrive": {
       "type": "http",
-      "url": "https://api-staging.chessdrive.io/mcp"
+      "url": "https://api-staging.chessdrive.io/mcp",
+      "headersHelper": "chessdrive key --headers 2>/dev/null || echo '{}'"
     }
   }
 }

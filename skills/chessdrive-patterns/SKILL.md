@@ -15,7 +15,7 @@ Three limits hold in everything you write:
 
 ## If they ask what this does, or give too little
 
-Say this, and wait: "Give me a PGN file of your last 30 games and your username on the site, and I'll find the three kinds of mistake you make most, each with a board. It takes about 7 minutes, or 9 on Free. No file? Tell me your site and username, and I'll fetch them."
+Say this, and wait: "Give me a PGN file of your last 30 games and your username on the site, and I'll find the three kinds of mistake you make most, each with a board. It takes about 5 minutes, or 7 on Free. No file? Tell me your site and username, and I'll fetch them."
 
 ## What you need
 
@@ -29,7 +29,7 @@ You need about 30 of the player's games in a PGN file, and their name as the fil
 
 **No file?** Read `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` and do what it says: with a username, fetch their games with its script, and otherwise give the person its steps for their site as they're written, never from memory. It covers Lichess, chess.com and ChessBase. Never call `search`, and don't bring it up: it can't find a player's games.
 
-Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 7 minutes, or 9 on Free. Name the cost only if they ask: about 25 cents.
+Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 5 minutes, or 7 on Free. Name the cost only if they ask: about 25 cents.
 
 ## Step 2: Mark the mistakes
 
@@ -37,7 +37,7 @@ Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take
 python3 <this Skill's folder>/scripts/mistakes.py games.pgn --player "<their name>" --folder patterns
 ```
 
-It takes their newest 30 games and calls Engine once per game, about 10 seconds each. Engine takes parallel requests up to the Plan's limit, 1 on Free, 2 on Hobby and 6 on Pro, and the script reads the Plan and sends that many at once, so never run games one by one yourself. Give the call a 10-minute timeout, or run it in the background and wait to be told it has finished, rather than checking on it. Stopped, the same command carries on and bills no game twice. It prints a line per game, then the totals: `games`, `rating`, `refused`, `positions`, `blunders` and the costs so far. Name any `refused` game in your answer.
+It takes their newest 30 games and calls Engine once per game, about 10 seconds each. Engine takes parallel requests up to the Plan's limit, 2 on Free, 6 on Hobby and 18 on Pro, and the script reads the Plan and sends that many at once, so never run games one by one yourself. Give the call a 10-minute timeout, or run it in the background and wait to be told it has finished, rather than checking on it. Stopped, the same command carries on and bills no game twice. It prints a line per game, then the totals: `games`, `rating`, `refused`, `positions`, `blunders` and the costs so far. Name any `refused` game in your answer.
 
 If the name isn't in the file, it says which names are. If `positions` is under 6, there's too little to group: say so, and offer a review of their worst game instead.
 
@@ -101,14 +101,15 @@ Want a drill of group 1?
 
 Start with the bold answer, with nothing before it. Give each group one example, the one on its board. Write each `move` as the scripts give it, with its mark, and write other moves with no mark. Number a move of `allowed` as the one after `move`, and name only the first few, as they are the engine's play and not the game's. Name the files, by name and never by a sandbox path, and say later questions about them are free, just above the last line. In Claude's chat app, say that lasts as long as this chat. That line offers one follow-up: a drill PGN of a group's mistakes for a Lichess study.
 
-## A follow-up
+## Follow-ups
 
-**"Turn group 1 into a drill":** run `python3 <this Skill's folder>/scripts/groups.py patterns --examples 10`, which shows more of the same groups, and make one game per mistake, in one PGN block, each with `[SetUp "1"]`, `[FEN "<fen>"]` and `[Result "*"]`. Its moves are `best`, after a first comment such as `{ You played 14...Qd7 here. Find better. }`.
+- **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": never answer from your own reading of the board. Call `engine` on that one position, with `depth` left out and `lines` too, for one Line, or `lines: 3` if they ask what else to play, unless you have its answer already. Every mistake the engine marked is a line of `patterns/mistakes.jsonl`, with its `pgn`, `ply`, `best` and `allowed`, not only the examples you showed: look a move up there by `opponent` and `move` before you say it wasn't marked. A position the game never reached, such as the one after a move of `allowed`, is still one to answer: Follow-ups says how to send it. `best` and `allowed` are the engine's Lines from a mistake's `fen` and from the position after its `move`, so a question about either needs no `engine` call. Then call `generate` with Queen, with the question and the Line in the message. Answer in two to four sentences from those two alone. A threat, an attack or a tactic goes in only if a Line plays it against a piece that stands on that square now: a piece that moves there first in the Line and is taken was given up, so give that as the Line's moves. Add no reason of your own, and no note on what you left out. Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` has the rest.
+- **"Turn group 1 into a drill":** run `python3 <this Skill's folder>/scripts/groups.py patterns --examples 10`, which shows more of the same groups, and make one game per mistake, in one PGN block, each with `[SetUp "1"]`, `[FEN "<fen>"]` and `[Result "*"]`. Its moves are `best`, after a first comment such as `{ You played 14...Qd7 here. Find better. }`.
 
 ## Rules
 
 - Name no price unless they ask, including what this run cost.
-- Every call is billed to the person's ChessDrive Account. Reuse `patterns/`: a new question about the same games costs nothing more than any `generate` it needs. A fresh run over the same games can mark a few different mistakes, as the engine's search varies, so the groups can shift; reusing the folder keeps them.
+- Every call is billed to the person's ChessDrive Account. Reuse `patterns/`: a new question about the same games costs nothing more than the `engine` and `generate` calls it needs. A fresh run over the same games can mark a few different mistakes, as the engine's search varies, so the groups can shift; reusing the folder keeps them.
 - The person's PGN files and `patterns/` stay where this code runs, apart from what each Engine and Embed call sends. That's their machine, or in Claude's chat app Claude's sandbox, which resets with each new chat.
 - Never print or read vectors, and open `.npy` files only through the scripts. If a vector does reach your output, leave it out of your answer and fix the code.
 - Low closeness or a small group doesn't show a player never makes a mistake of some kind. Only say what the groups show, and never say something is absent.

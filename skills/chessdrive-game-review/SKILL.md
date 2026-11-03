@@ -133,15 +133,22 @@ Check it before you hand it over: call `engine` with `"position": {"pgn": "<your
 Then give 3 to 5 talking points, in game order:
 
 ```markdown
-1. **"The pin on d7 is the whole game."**
+1. **The pin on d7 is the whole game.**
+   Black's knight on d7 can't move, as the bishop on b5 pins it to the king. White takes on d7 and brings the other rook to d1, so the pin is still there. Point at the bishop, the knight and the king on one diagonal.
    Show: 13.Rxd7 Rxd7 14.Rd1.
 ```
 
-The quoted line is the one sentence to say on camera. Each point's Line comes from the game or a `best_line`, and they find it in the Study at that move. With no Study, make the Line a link to the position's `board_url`, as in `[13.Rxd7 Rxd7 14.Rd1](board_url)`. The positions with no `board_url` get theirs from one `engine` call, never one call each: `positions` holding each one as `{"fen": "<its fen>"}`, with `depth: 10`. A checkmate or stalemate has no move to find, so show the position before it.
+The bold title is the one sentence to say on camera. Under it go 2 or 3 plain sentences: what's going on, why it matters, and what to point at on the board. Then "Show:" and the Line. A point holds nothing else: no timings, caveats or asides.
+
+Write the sentences from the `generate` replies and the engine's Lines only, never from your own reading of the board. Before you write, find each point's reply from Step 4. A point with none, such as the finish or a strong move by the winner, gets its own `generate` call now, made as in Step 4 with two changes: in the `system`, "say what the move does and what a viewer should look at on the board" replaces "say what the move allowed and why the engine's best move is better", and the `user` message ends "What does this move do?" instead of "What went wrong?". Make at most five of these in a run. Leave out a point that still has nothing to draw on, and a sentence where the reply and the engine disagree.
+
+Each point's Line comes from the game or a `best_line`, and they find it in the Study at that move. With no Study, make the Line a link to the position's `board_url`, as in `[13.Rxd7 Rxd7 14.Rd1](board_url)`. The positions with no `board_url` get theirs from one `engine` call, never one call each: `positions` holding each one as `{"fen": "<its fen>"}`, with `depth: 10`. A checkmate or stalemate has no move to find, so show the position before it.
 
 ## Follow-ups
 
-These reuse what you already have, with no new calls.
+- **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": never answer from your own reading of the board. Call `engine` on that one position, with `depth` left out and `lines` too, for one Line, or `lines: 3` if they ask what else to play, unless you have its answer already. A move's entry in `moves` is the engine's answer for the position it was played from, so a question about that position needs no `engine` call. Then call `generate` with Queen, with the question and the Line in the message. Answer in two to four sentences from those two alone. A threat, an attack or a tactic goes in only if a Line plays it against a piece that stands on that square now: a piece that moves there first in the Line and is taken was given up, so give that as the Line's moves. Add no reason of your own, and no note on what you left out. Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` has the rest.
+
+These reuse what you already have, with no new calls:
 
 - **"Turn my mistakes into a drill PGN":** one game per mistake, in one PGN block, each with `[SetUp "1"]`, `[FEN "<the move's fen>"]` and `[Result "*"]`. Its moves are the `best_line`, after a first comment such as `{ You played 14...Qd7 here. Find better. }`. Lichess makes each game a chapter of a study.
 - **"Show me those moves on their own boards":** one `show_board` per move, at its `ply`, with `alongside: true` on every board after the first, so they all stay live.
@@ -152,6 +159,6 @@ These reuse what you already have, with no new calls.
 - Name moves in algebraic notation (`Nf3`, `O-O`), never UCI, with their number (`14...Qd7`).
 - Marks come only from `verdict`: `?!`, `?` or `??`, and none on a `best` or `good` move.
 - Use Queen for what the person reads and Knight for bulk steps, such as a note on every move if they ask for one.
-- Every call is billed to the person's ChessDrive Account. Make one whole-game `engine` call and about 5 `generate` calls, and reuse them for follow-ups.
+- Every call is billed to the person's ChessDrive Account. Make one whole-game `engine` call and about 5 `generate` calls, plus at most 5 for talking points, and reuse them for follow-ups.
 - When a tool says the Balance is empty, pass on its message and its link to Pricing, give what you already have, and stop.
 - Before you send, read your answer once for a number judging a position or a move, a mark that isn't the move's `verdict`, a move with two headings, a price they didn't ask for, and anything the tools didn't say. Fix what you find.

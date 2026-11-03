@@ -34,7 +34,7 @@ EXIT_INVALID, EXIT_RATE_LIMITED = 2, 5
 SHORTER_DEPTH = 10  # for a game too long for one call at the default depth
 RETRIES = 5
 RETRY_SECONDS = int(os.environ.get("CHESSDRIVE_RETRY_SECONDS", 5))
-IN_FLIGHT = {"free": 1, "hobby": 2, "pro": 6}  # Stockfish's requests in flight on each Plan
+IN_FLIGHT = {"free": 2, "hobby": 6, "pro": 18}  # Stockfish's requests in flight on each Plan
 
 
 class Slots:

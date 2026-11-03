@@ -86,6 +86,10 @@ Up to two short lines:
 
 Name no price unless they ask. If they ask what it cost, add up `cost_usd` and never guess ("2 ChessDrive calls, 4 cents").
 
+## Follow-ups
+
+- **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": never answer from your own reading of the board. Call `engine` on that one position, with `depth` left out and `lines` too, for one Line, or `lines: 3` if they ask what else to play, unless you have its answer already. An `engine` answer the page was built from is reused, so a question about its position needs no new `engine` call. Then call `generate` with Queen, with the question and the Line in the message. Answer in two to four sentences from those two alone. A threat, an attack or a tactic goes in only if a Line plays it against a piece that stands on that square now: a piece that moves there first in the Line and is taken was given up, so give that as the Line's moves. Add no reason of your own, and no note on what you left out. Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` has the rest.
+
 ## Rules
 
 - Load the Board only from the pinned URL in [board.md](references/board.md). Its rules and moves are the ones the person can trust.
