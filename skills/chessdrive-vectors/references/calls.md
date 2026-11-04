@@ -6,6 +6,8 @@ The Skills name their calls `engine` and `generate`, with the Connector's fields
 
 ## Engine
 
+**One position runs on the person's own Stockfish, free; deep and bulk work runs on the Engine API, billed.** The CLI picks: one position, from `--fen` or `--pgn` with `--ply`, below `--depth 20` runs on the Stockfish installed on their machine, at depth 18 when you give no depth. `--depth 20` and up, `--positions`, `--games` and a whole game go to the Engine API. Ask for depth 20 or more only when the person asks for a deep search, and never add `--api` yourself. If the CLI says there's no Stockfish, the answer still came, billed: pass on its install line once, such as `brew install stockfish` on macOS, and go on. The Connector's `engine` tool always runs on the Engine API.
+
 | The Skill asks for | Run |
 |---|---|
 | One position, from a FEN | `chessdrive engine --fen "<fen>" --no-stream` |

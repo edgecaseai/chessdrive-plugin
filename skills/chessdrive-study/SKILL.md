@@ -5,7 +5,7 @@ description: Build someone a Study with ChessDrive, an interactive chess page of
 
 # Build a Study
 
-You build a **Study**: one page for one person, around their game, their lines or their students. It shows the **Board**, ChessDrive's free chess board, which owns the rules, the position and the person's moves, so your page code only feeds it and listens to it. Paid answers come from `engine` and `generate`, which you call yourself while you build: with the `chessdrive` CLI wherever you can run code, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says, and with the ChessDrive Connector's tools where you can't. `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. If what you need isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and walk the person through it one step at a time. Give no chess reading of your own in the meantime, and go on when it's there. The answers you gather go into the page at build time. The page asks Engine and Generate itself only about a position the person plays or steps to, when they ask, with a **Study key** made for that page ([live.md](references/live.md)).
+You build a **Study**: one page for one person, around their game, their lines or their students. It shows the **Board**, ChessDrive's free chess board, which owns the rules, the position and the person's moves, so your page code only feeds it and listens to it. Paid answers come from `engine` and `generate`, which you call yourself while you build: with the `chessdrive` CLI wherever you can run code, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says, and with the ChessDrive Connector's tools where you can't. `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. If what you need isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and walk the person through it one step at a time. Give no chess reading of your own in the meantime, and go on when it's there. The answers you gather go into the page at build time. The page answers about a position the person plays or steps to, only when they ask: the engine's Line from Stockfish in their browser, free, and a question to Generate with a **Study key** made for that page ([live.md](references/live.md)).
 
 Every move on the page is **sourced**: from a PGN or FEN the person gave, from `engine`, or played by the person on the Board. Every verdict ("a mistake", "the best move") comes from `engine`, in its words. `generate` writes the explanation around them, and may name only moves it was given. Never work out a move yourself.
 
@@ -72,7 +72,7 @@ It's done when every line holds:
 - every move and verdict on the page traces to the person's input or to an answer in `DATA`;
 - evaluations read from White's side (`+1.2`, `−0.4`, `M3`, `−M3`);
 - text from a PGN or a tool goes in with `textContent`, never `innerHTML`: a PGN header can hold anything;
-- the page holds no API key, token or Connection secret, only its own Study key in the `chessdrive-key` `<meta>`, and makes no `fetch` but the keeping script's and live.md's card's;
+- the page holds no API key, token or Connection secret, only its own Study key in the `chessdrive-key` `<meta>`, and makes no `fetch` but the keeping script's and live.md's card's, and loads Stockfish only as live.md's `stockfish()` does;
 - the page code sits inside a function, not at the top level of its script;
 - the footer is there.
 
@@ -86,7 +86,7 @@ Then up to three short lines:
 
 - the answer to what they asked, when the page has one ("Engine found no mistakes by you; 7...h6 cost you the most");
 - how to use the page ("Click a move or use ← →"), and, for a file, where it is: its full path as a link, as in `[/Users/ana/chess/review.html](file:///Users/ana/chess/review.html)`;
-- how to keep and share it: for a file, "Download saves a copy that opens anywhere, without your key; send it, or Save as PDF"; in Claude, "Download or share it from the artifact's menu". For a page with a Study key, add that its engine and questions work for 7 days, up to a dollar a day, and that the key is listed on the Dashboard under Study keys.
+- how to keep and share it: for a file, "Download saves a copy that opens anywhere, without your key; send it, or Save as PDF"; in Claude, "Download or share it from the artifact's menu". For a page with a Study key, add that the engine's Line runs in their browser, free, that its questions work for 7 days, up to a dollar a day, and that the key is listed on the Dashboard under Study keys.
 
 Say nothing about how you checked the page. Name no price unless they ask. If they ask what it cost, add up `cost_usd` and never guess ("2 ChessDrive calls, 4 cents").
 

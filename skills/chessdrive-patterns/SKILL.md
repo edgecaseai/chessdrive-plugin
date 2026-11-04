@@ -29,7 +29,7 @@ You need about 30 of the player's games in a PGN file, and their name as the fil
 
 **No file?** Read `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` and do what it says: with a username, fetch their games with its script, and otherwise give the person its steps for their site as they're written, never from memory. It covers Lichess, chess.com and ChessBase. Never call `search`, and don't bring it up: it can't find a player's games.
 
-Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 4 minutes, or 5 on Free. Name the cost only if they ask: about 26 cents.
+Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 4 minutes, or 5 on Free. Name the cost only if they ask: about 35 cents.
 
 ## Step 2: Mark the mistakes
 
