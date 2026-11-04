@@ -1,17 +1,17 @@
 ---
 name: chessdrive-study
-description: Build someone a Study with ChessDrive, an interactive chess page of their own on the ChessDrive Board. Use when someone says "turn this game into a page I can step through", "make me a drill of my mistakes", "make a worksheet from these positions for my students" or "build me a trainer for my opening lines", or asks for any chess app, viewer, board, trainer, quiz or printable sheet, even if they don't name ChessDrive. In Claude it's an artifact, in a coding agent a local HTML file. Calls the ChessDrive Connector's engine and generate tools only as the Study needs.
+description: Build someone a Study with ChessDrive, an interactive chess page of their own on the ChessDrive Board. Use when someone says "turn this game into a page I can step through", "make me a drill of my mistakes", "make a worksheet from these positions for my students" or "build me a trainer for my opening lines", or asks for any chess app, viewer, board, trainer, quiz or printable sheet, even if they don't name ChessDrive. In Claude it's an artifact, in a coding agent a local HTML file, whose engine and questions run on a Study key. Calls the ChessDrive Connector's engine and generate tools only as the Study needs.
 ---
 
 # Build a Study
 
-You build a **Study**: one page for one person, around their game, their lines or their students. It shows the **Board**, ChessDrive's free chess board, which owns the rules, the position and the person's moves, so your page code only feeds it and listens to it. Paid answers come from the ChessDrive Connector's tools, which you call yourself while you build. If they aren't there, read Connect in `<this Skill's folder>/../chessdrive-vectors/references/set-up.md`, where `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it, and walk the person through it one step at a time. Give no chess reading of your own in the meantime, and go on when the tools are there. The page never calls them: the answers go into it at build time.
+You build a **Study**: one page for one person, around their game, their lines or their students. It shows the **Board**, ChessDrive's free chess board, which owns the rules, the position and the person's moves, so your page code only feeds it and listens to it. Paid answers come from the ChessDrive Connector's tools, which you call yourself while you build. If they aren't there, read Connect in `<this Skill's folder>/../chessdrive-vectors/references/set-up.md`, where `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it, and walk the person through it one step at a time. Give no chess reading of your own in the meantime, and go on when the tools are there. The answers you gather go into the page at build time. The page asks Engine and Generate itself only about a position the person plays or steps to, when they ask, with a **Study key** made for that page ([live.md](references/live.md)).
 
 Every move on the page is **sourced**: from a PGN or FEN the person gave, from `engine`, or played by the person on the Board. Every verdict ("a mistake", "the best move") comes from `engine`, in its words. `generate` writes the explanation around them, and may name only moves it was given. Never work out a move yourself.
 
 ## Step 1: Pick the kind
 
-Build without asking whether they want a page. Match the request to one kind, then read [frame.md](references/frame.md), [board.md](references/board.md) and the kind's reference before anything else:
+Build without asking whether they want a page. Match the request to one kind, then read [frame.md](references/frame.md), [board.md](references/board.md), [live.md](references/live.md) and the kind's reference before anything else:
 
 | They want | Kind | Reference | Calls |
 |---|---|---|---|
@@ -44,6 +44,7 @@ Make the calls the kind's reference lists, and no more. **When another ChessDriv
 One self-contained HTML file in the frame, [frame.md](references/frame.md), so every Study looks like ChessDrive, has the same layout and fits any screen, with the Board as [board.md](references/board.md) says:
 
 - the frame's page, style and keeping script, copied as they stand, with the kind's parts in its header, `.cd-board`, `.cd-panel` and `.cd-more`;
+- for a Board the person moves on, live.md's card, styles and `live(board)`, with the Study key you made in a coding agent in the page's `chessdrive-key` `<meta>`, and none in an app that shows the page itself;
 - the fields of each tool answer your page reads, inline as one `const DATA = {…}`, leaving out `board_url` and what you don't use. If you can run code, write `DATA` from the answers with code. Never retype a move from memory: one wrong letter in a Line is an illegal move on the page;
 - page code after the keeping script that sets the Board's State and listens to its events, as the kind's reference says, all inside `(() => { … })();`. At the top level of a script, a name the browser already uses, such as `top`, stops the whole script.
 
@@ -71,7 +72,7 @@ It's done when every line holds:
 - every move and verdict on the page traces to the person's input or to an answer in `DATA`;
 - evaluations read from White's side (`+1.2`, `−0.4`, `M3`, `−M3`);
 - text from a PGN or a tool goes in with `textContent`, never `innerHTML`: a PGN header can hold anything;
-- the page holds no API key, token or Connection secret, and makes no `fetch` but the keeping script's;
+- the page holds no API key, token or Connection secret, only its own Study key in the `chessdrive-key` `<meta>`, and makes no `fetch` but the keeping script's and live.md's card's;
 - the page code sits inside a function, not at the top level of its script;
 - the footer is there.
 
@@ -85,7 +86,7 @@ Then up to three short lines:
 
 - the answer to what they asked, when the page has one ("Engine found no mistakes by you; 7...h6 cost you the most");
 - how to use the page ("Click a move or use ← →"), and, for a file, where it is: its full path as a link, as in `[/Users/ana/chess/review.html](file:///Users/ana/chess/review.html)`;
-- how to keep and share it: for a file, "Download saves a copy that opens anywhere; send it, or Save as PDF"; in Claude, "Download or share it from the artifact's menu".
+- how to keep and share it: for a file, "Download saves a copy that opens anywhere, without your key; send it, or Save as PDF"; in Claude, "Download or share it from the artifact's menu". For a page with a Study key, add that its engine and questions work for 7 days, up to a dollar a day, and that the key is listed on the Dashboard under Study keys.
 
 Say nothing about how you checked the page. Name no price unless they ask. If they ask what it cost, add up `cost_usd` and never guess ("2 ChessDrive calls, 4 cents").
 
@@ -97,5 +98,5 @@ Say nothing about how you checked the page. Name no price unless they ask. If th
 
 - Load the Board only from the pinned URL in [frame.md](references/frame.md). Its rules and moves are the ones the person can trust.
 - Keep the person's data in their page: a game they pasted stays in `DATA`.
-- Every call is billed to the person's ChessDrive Account. Spend only on what the page shows, and rebuild a page from the answers you have.
+- Every call is billed to the person's ChessDrive Account, the page's own too, up to its Study key's dollar a day. Spend only on what the page shows, and rebuild a page from the answers you have.
 - Name verdicts as `engine` does. A move it didn't call a mistake is a "costly move" at most.

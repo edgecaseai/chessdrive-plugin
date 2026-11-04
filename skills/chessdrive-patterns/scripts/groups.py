@@ -7,7 +7,8 @@ is. NumPy only, on Python 3.11 or later.
 
 Reads vectors.npy and mistakes.jsonl in the folder and prints one JSON object a line: the top groups, largest first,
 each with a few examples from different games, then the totals. Never prints a vector or a score. A group needs
-MIN_SIZE mistakes from at least two games, as one game's mistakes aren't a habit, so few mistakes give fewer groups.
+MIN_SIZE mistakes from at least MIN_GAMES games, as one game's mistakes aren't a habit and a group shows three examples
+from different games, so few mistakes give fewer groups. The groups it prints go to groups.json too, for study.py.
 """
 
 import argparse
@@ -24,6 +25,7 @@ sys.path.insert(0, str(VECTORS))
 from vectorfile import emit
 
 MIN_SIZE = 3
+MIN_GAMES = 3
 SHOWN = ("move", "verdict", "colour", "opponent", "date", "site", "best", "allowed", "before", "after", "fen", "pgn", "ply")
 
 
@@ -55,11 +57,13 @@ def main():
             if row["game"] not in seen:
                 seen.add(row["game"])
                 rows.append(row)
-        if group["size"] >= MIN_SIZE and len(rows) >= 2:
+        if group["size"] >= MIN_SIZE and len(rows) >= MIN_GAMES:
             kept.append({"size": group["size"], "games": len(rows), "examples": [{k: r[k] for k in SHOWN} for r in rows[: args.examples]]})
 
-    for number, group in enumerate(kept[: args.top], start=1):
-        emit({"group": number, **group})
+    shown = [{"group": number, **group} for number, group in enumerate(kept[: args.top], start=1)]
+    for group in shown:
+        emit(group)
+    (folder / "groups.json").write_text(json.dumps(shown, ensure_ascii=False), encoding="utf-8")
     emit({"positions": len(mistakes), "games": len({m["game"] for m in mistakes}), "repeated_groups": len(kept)})
 
 

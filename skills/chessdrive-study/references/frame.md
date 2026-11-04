@@ -13,6 +13,7 @@ Every Study is the same page: ChessDrive's colours and type, a header that says 
 <title>Your game against Ana</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@chessdrive/board@0.1.2/dist/board.umd.js"></script>
+<meta name="chessdrive-api" content="https://api-staging.chessdrive.io">
 <style>/* The style, below */</style>
 </head>
 <body>
@@ -44,12 +45,12 @@ Every Study is the same page: ChessDrive's colours and type, a header that says 
 - **`<title>` and `<h1>`** say what the page is, in the person's words: "Your game against Ana", "Your mistakes", "Ana's openings against 1.e4". The `<p>` under it says how to use the page in one line.
 - **`data-moves`** on `.cd-page` leaves room for the Board's move list: keep it when the Board in `.cd-board` has `moves: true`, and drop it when it hasn't.
 - **`.cd-board`** holds the Board and its "Back to the game" button. A page with several Boards, such as a Worksheet, puts the one to play in `.cd-board` and the rest in `.cd-more`.
-- **`.cd-panel`** holds the kind's panel, in `.cd-card`s, each with an `<h2>`. Put what the person needs while on the Board here, first things first.
+- **`.cd-panel`** holds the kind's panel, in `.cd-card`s, each with an `<h2>`. Put what the person needs while on the Board here, first things first. A Board the person moves on gets the "Ask about this position" card first, and the page's `chessdrive-api` and `chessdrive-key` `<meta>`s, as [live.md](live.md) says.
 - **`.cd-more`** holds what can wait below, across the page: a grid of diagrams, what the page rests on. Leave it out if there's nothing.
 - **Buttons** are `.cd-btn`, and `.cd-btn.cd-main` for the one to press next. A list the person clicks through is `.cd-list` of `<button>`s; mark the one on view with `aria-current="true"`. A small label is `.cd-tag`, with `.cd-inaccuracy`, `.cd-mistake` or `.cd-blunder` for a verdict.
 - **Numbers and moves** go in `.cd-num`, which sets them in the mono face.
 
-Load nothing else: no other script, font or stylesheet.
+Load nothing else: no other script, font or stylesheet. The page calls nothing but the keeping script's fetch and live.md's card.
 
 ## The style
 
@@ -180,8 +181,8 @@ Write the kind's own styles after it, from these tokens only: no colour, font or
 First in the page's one script, before the kind's code. In a coding agent's file it shows Download, which saves a copy with the Board's script inside it, so the copy opens with no internet, and Save as PDF. In Claude and other apps the page isn't a file of the person's, the host blocks both, and the buttons stay hidden: the app has its own download and share.
 
 ```js
-// The page as it was built, before the page code changes it, for Download.
-const built = '<!doctype html>\n' + document.documentElement.outerHTML;
+// The page as it was built, before the page code changes it, for Download: never with its Study key.
+const built = '<!doctype html>\n' + document.documentElement.outerHTML.replace(/<meta name="chessdrive-key"[^>]*>\n?/, '');
 const keep = document.querySelector('.cd-keep');
 if (keep && location.protocol === 'file:') {
   keep.hidden = false;
