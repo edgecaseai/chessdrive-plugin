@@ -87,7 +87,7 @@ Each hit is one line of JSON. A hit from a game has `source`, `game`, `ply`, and
 
 - **Answer in chess terms:** the game, the move, and what the positions share. A `score` ranks hits within one run, closer being higher. It isn't a percentage, so give the order and leave the numbers out.
 - **Check the idea before you claim it.** The list holds the nearest items, whether or not any truly fits. To look at a hit, call the Connector's `engine` tool with `engine: "stockfish"`, `position: {"pgn": "<pgn>", "ply": <ply>}` or `{"fen": "<fen>"}`, and `depth: 10`. Without the Connector, pipe the `pgn` to `chessdrive engine --pgn - --ply <ply> --depth 10 --json`: its last event gives the `fen` and the Lines. Engine is billed, so do this for the few hits you show.
-- **Show the hits on boards.** Build a Study with the `chessdrive-study` Skill beside this one: a page with a Board for each hit, at its `pgn` and `ply` or its `fen`, in `mode: "play-both"` with its way back (its `references/board.md`, Trying moves), with no ChessDrive calls. If that Skill isn't there, make the hit's move a link to the `board_url` from the `engine` answer. With neither, point to the hit by its game and move. Drop a hit that doesn't show what was asked, and say if none does.
+- **Show the hits on boards.** Build a Study with the `chessdrive-study` Skill beside this one: a page in its frame (its `references/frame.md`), without `data-moves`, with one Board and, in its panel, a `.cd-list` of the hits. Clicking a hit puts it on the Board, at its `pgn` and `ply` or its `fen`, in `mode: "play-both"` with its way back (its `references/board.md`, Trying moves). It makes no ChessDrive calls. Open the page for the person with `open`, `xdg-open` or `start`. If that Skill isn't there, make the hit's move a link to the `board_url` from the `engine` answer. With neither, point to the hit by its game and move. Drop a hit that doesn't show what was asked, and say if none does.
 - **To explain a hit,** call `generate` with `model: "queen"` on the same position. If it answers `plan_required`, fall back to Knight and say so in one line. If it answers `upstream_unavailable`, make the same call once more. If that fails too, give the engine's Line with no explanation, and add no note about it. Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it.
 - **Name only moves the game or a tool gave you.** The file holds no moves: the `pgn` and the tools do.
 
@@ -96,7 +96,7 @@ Answer in exactly this shape, with no table and no price. The second line is how
 ```markdown
 **The answer to their question, in one sentence.**
 
-How to open the Study, in one line.
+The Study's full path as a link, and how to use and share it, in one line.
 
 ### Rkido vs Megacount, 9...Qxa1
 What the positions share, in one or two sentences.

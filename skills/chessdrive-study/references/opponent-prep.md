@@ -12,9 +12,11 @@ A page to explore what one opponent plays: their lines as a tree with results, a
 
 ## The page
 
+In the frame ([frame.md](frame.md)), without `data-moves`. The header: "{Name}'s openings against {your colour}", and "Move on the board or click a row to walk what they play."
+
 - `DATA` holds the summary, the tree and the `engine` results, written by code. Never retype the tree.
 - The Board: `orientation` the person's colour, `mode: "play-both"`, so the person walks the tree by moving.
-- **The tree panel** beside it, kept in step with the Board's `move` and `ply`: for the current position, what they played, each with its games, wins, draws, losses and last date. Clicking a row plays it on the Board, with `play`. "Back" and "Start" buttons. A move the person plays that isn't in the tree shows "Not in their games".
-- **Top lines** above it: each line with its counts, written as "1 draw" and "1 loss" where there's one, and where the engine says it leaves the person, in words. Clicking one plays it out on the Board. The engine's Line is shown as the engine's, never as their moves.
-- **What this rests on,** under the panel: how many games, from when to when, at what speeds, and `left_out` in words.
+- **The panel,** two cards. **Their moves here,** kept in step with the Board's `move` and `ply`: for the current position, what they played, each with its games, wins, draws, losses and last date. Clicking a row plays it on the Board, with `play`. "Back" and "Start" buttons. A move the person plays that isn't in the tree shows "Not in their games".
+- **Top lines,** the second card: each line with its counts, written as "1 draw" and "1 loss" where there's one, and where the engine says it leaves the person, in words. Clicking one plays it out on the Board. The engine's Line is shown as the engine's, never as their moves.
+- **What this rests on,** in `.cd-more`: how many games, from when to when, at what speeds, and `left_out` in words.
 - `KIND` is `prep`.

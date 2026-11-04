@@ -11,7 +11,7 @@ Every move on the page is **sourced**: from a PGN or FEN the person gave, from `
 
 ## Step 1: Pick the kind
 
-Build without asking whether they want a page. Match the request to one kind, then read [board.md](references/board.md) and the kind's reference before anything else:
+Build without asking whether they want a page. Match the request to one kind, then read [frame.md](references/frame.md), [board.md](references/board.md) and the kind's reference before anything else:
 
 | They want | Kind | Reference | Calls |
 |---|---|---|---|
@@ -41,50 +41,53 @@ Make the calls the kind's reference lists, and no more. **When another ChessDriv
 
 ## Step 3: Build the page
 
-One self-contained HTML file, following [board.md](references/board.md):
+One self-contained HTML file in the frame, [frame.md](references/frame.md), so every Study looks like ChessDrive, has the same layout and fits any screen, with the Board as [board.md](references/board.md) says:
 
-- the Board, from its pinned script tag;
+- the frame's page, style and keeping script, copied as they stand, with the kind's parts in its header, `.cd-board`, `.cd-panel` and `.cd-more`;
 - the fields of each tool answer your page reads, inline as one `const DATA = {…}`, leaving out `board_url` and what you don't use. If you can run code, write `DATA` from the answers with code. Never retype a move from memory: one wrong letter in a Line is an illegal move on the page;
-- page code that sets the Board's State and listens to its events, as the kind's reference says, all inside `(() => { … })();`. At the top level of a script, a name the browser already uses, such as `top`, stops the whole script.
+- page code after the keeping script that sets the Board's State and listens to its events, as the kind's reference says, all inside `(() => { … })();`. At the top level of a script, a name the browser already uses, such as `top`, stops the whole script.
 
-In Claude it's an artifact, in ChatGPT a canvas, and in a coding agent a `.html` file the person opens.
+In Claude it's an artifact, in ChatGPT a canvas, and in a coding agent a `.html` file in the person's working folder, never a scratch or temporary folder, so they can find and keep it.
 
-**If your app can't show a page,** fall back: `show_board` with the game and its verdicts (see [review.md](references/review.md)), or the position, where the Connector has it. Without `show_board`, give the `board_url` links from the tool answers.
+**If your app can't show a page,** fall back, though a coding agent always can, as the page is a file it opens: `show_board` with the game and its verdicts (see [review.md](references/review.md)), or the position, where the Connector has it. Without `show_board`, give the `board_url` links from the tool answers.
 
 ## Step 4: Link back
 
-Every page carries this line, on screen and on every printed page, whatever else it shows:
+Every page carries the frame's footer, on screen and on every printed page, whatever else it shows:
 
 ```html
 <footer class="cd-made">Made with <a href="https://platform-staging.chessdrive.io/?utm_source=study&utm_campaign=KIND" target="_blank" rel="noopener">ChessDrive</a></footer>
 ```
 
-`KIND` is `review` for a Game review, `drill` for a Mistake drill, `opening` for an Opening drill, `worksheet` for a Worksheet, `prep` for Opponent prep and `other` for anything else. Add `@media print { .cd-made { position: fixed; bottom: 0; } }`, which repeats it on every sheet. The Board's own "Board by ChessDrive" link stays as it is.
+`KIND` is `review` for a Game review, `drill` for a Mistake drill, `opening` for an Opening drill, `worksheet` for a Worksheet, `prep` for Opponent prep and `other` for anything else. The frame's print rules repeat it on every sheet. The Board's own "Board by ChessDrive" link stays as it is.
 
 ## Step 5: Check it
 
 It's done when every line holds:
 
-- the Board's column has a width of its own (board.md, Load it), or the Board draws nothing;
+- the page is the frame: its tokens and no colour or font of your own, the header's two lines, the Board in `.cd-board`, the panel in `.cd-panel`, and `data-moves` on `.cd-page` only when the Board shows its moves;
 - the Board faces the person's side, or the side to move for a position with no owner;
 - a Board that shows a game or a position takes moves and has its way back (board.md, Trying moves);
 - every move and verdict on the page traces to the person's input or to an answer in `DATA`;
 - evaluations read from White's side (`+1.2`, `−0.4`, `M3`, `−M3`);
 - text from a PGN or a tool goes in with `textContent`, never `innerHTML`: a PGN header can hold anything;
-- the page holds no API key, token or Connection secret, and makes no `fetch`;
+- the page holds no API key, token or Connection secret, and makes no `fetch` but the keeping script's;
 - the page code sits inside a function, not at the top level of its script;
 - the footer is there.
 
-A coding agent that can open the page in a browser does so, and looks at the console.
+Don't set up a browser to check it. If one is already at hand, open the page once and read the console for errors, with no clicking, screenshots or rounds of polish. Say nothing about checking it in the hand-over.
 
 ## Step 6: Hand it over
 
-Up to two short lines:
+In a coding agent, open the file for them first: `open <file>` on macOS, `xdg-open <file>` on Linux, `start "" <file>` on Windows.
+
+Then up to three short lines:
 
 - the answer to what they asked, when the page has one ("Engine found no mistakes by you; 7...h6 cost you the most");
-- how to use the page ("Click a move or use ← →"), and where it is, for a file.
+- how to use the page ("Click a move or use ← →"), and, for a file, where it is: its full path as a link, as in `[/Users/ana/chess/review.html](file:///Users/ana/chess/review.html)`;
+- how to keep and share it: for a file, "Download saves a copy that opens anywhere; send it, or Save as PDF"; in Claude, "Download or share it from the artifact's menu".
 
-Name no price unless they ask. If they ask what it cost, add up `cost_usd` and never guess ("2 ChessDrive calls, 4 cents").
+Say nothing about how you checked the page. Name no price unless they ask. If they ask what it cost, add up `cost_usd` and never guess ("2 ChessDrive calls, 4 cents").
 
 ## Follow-ups
 
@@ -92,7 +95,7 @@ Name no price unless they ask. If they ask what it cost, add up `cost_usd` and n
 
 ## Rules
 
-- Load the Board only from the pinned URL in [board.md](references/board.md). Its rules and moves are the ones the person can trust.
+- Load the Board only from the pinned URL in [frame.md](references/frame.md). Its rules and moves are the ones the person can trust.
 - Keep the person's data in their page: a game they pasted stays in `DATA`.
 - Every call is billed to the person's ChessDrive Account. Spend only on what the page shows, and rebuild a page from the answers you have.
 - Name verdicts as `engine` does. A move it didn't call a mistake is a "costly move" at most.

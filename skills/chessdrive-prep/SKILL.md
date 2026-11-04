@@ -107,9 +107,9 @@ Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the
 
 ## Step 5: Build a Study
 
-Before you write your answer, build the person a Study with the `chessdrive-study` Skill beside this one: read `board.md` and `opponent-prep.md` in `<this Skill's folder>/../chessdrive-study/references/`, and fill the page from what you already have. Do this in every run. Don't offer it or ask first, and make no new ChessDrive calls.
+Before you write your answer, build the person a Study with the `chessdrive-study` Skill beside this one: read `frame.md`, `board.md` and `opponent-prep.md` in `<this Skill's folder>/../chessdrive-study/references/`, and fill the page from what you already have. Hand it over as that Skill's Step 6 says: in a coding agent, open it and give its full path as a link. Do this in every run. Don't offer it or ask first, and make no new ChessDrive calls.
 
-If your app can't show a page, or that Skill isn't there, call `show_board` instead, once, before your answer, with `pgn` the first line's `line`, its `ply`, `orientation` the person's colour, `moves: true` and `mode: "play-both"`, so they can try their own moves. With no `show_board`, make the moves of each line's heading a link to its `board_url`.
+A coding agent always builds the Study, as the page is a file it opens: `show_board` isn't a way round it. If your app can't show a page, as in a chat with no artifacts, or that Skill isn't there, call `show_board` instead, once, before your answer, with `pgn` the first line's `line`, its `ply`, `orientation` the person's colour, `moves: true` and `mode: "play-both"`, so they can try their own moves. With no `show_board`, make the moves of each line's heading a link to its `board_url`.
 
 ## Step 6: Answer
 

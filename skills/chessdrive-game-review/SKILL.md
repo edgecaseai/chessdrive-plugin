@@ -87,13 +87,13 @@ Replies link each move as `[text](line:L1)`, and `lines` holds the moves that pa
 
 ## Step 5: Build a Study
 
-Before you write your answer, build the person a page of this game with the `chessdrive-study` Skill: the Board, the verdicts on the moves and your explanations, to step through. Do this in every run. Don't offer it or ask first, and make no new ChessDrive calls. Read `board.md` and `review.md` in `<this Skill's folder>/../chessdrive-study/references/`, and fill the page from the `engine` answer and the `generate` replies you already have. Its orientation is the person's colour, or White if you don't know it.
+Before you write your answer, build the person a page of this game with the `chessdrive-study` Skill: the Board, the verdicts on the moves and your explanations, to step through. Do this in every run. Don't offer it or ask first, and make no new ChessDrive calls. Read `frame.md`, `board.md` and `review.md` in `<this Skill's folder>/../chessdrive-study/references/`, and fill the page from the `engine` answer and the `generate` replies you already have. Its orientation is the person's colour, or White if you don't know it.
 
-If your app can't show a page, or that Skill isn't there, call `show_board` instead, once, before your answer, with `pgn`, `ply: 0`, `orientation`, `moves: true`, `mode: "play-both"`, so the person can try their own moves, and `annotations`. Each key is a move's `ply + 1`, each glyph is the mark above, and each comment is `generate`'s explanation or empty. Where no board shows, or you have no `show_board`, make the move in its heading a link to its `board_url`, as in `### [14...Qd7??](board_url) The queen left f7`.
+A coding agent always builds the Study, as the page is a file it opens: `show_board` isn't a way round it. If your app can't show a page, as in a chat with no artifacts, or that Skill isn't there, call `show_board` instead, once, before your answer, with `pgn`, `ply: 0`, `orientation`, `moves: true`, `mode: "play-both"`, so the person can try their own moves, and `annotations`. Each key is a move's `ply + 1`, each glyph is the mark above, and each comment is `generate`'s explanation or empty. Where no board shows, or you have no `show_board`, make the move in its heading a link to its `board_url`, as in `### [14...Qd7??](board_url) The queen left f7`.
 
 ## Step 6: Answer
 
-Put one line on how to use the Study or the board under your first line. Any link goes on words, as in `[Step through the game](link)`, never bare, as a game's link is very long.
+Hand the Study over as that Skill's Step 6 says: in a coding agent, open it and give its full path as a link. Put one line on how to use the Study or the board under your first line. Any link goes on words, as in `[Step through the game](link)`, never bare, as a game's link is very long.
 
 ### For me
 

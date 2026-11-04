@@ -29,10 +29,13 @@ A page to step through one game and see where it turned: the Board with the move
 
 ## The page
 
+In the frame ([frame.md](frame.md)), with `data-moves`. The header: "Your game against {opponent}", and "Step through with ← → or the moves, and play your own to try an idea."
+
 - **The Board:** `pgn`, `ply: 0`, `orientation` the person's side, `moves: true`, `mode: "play-both"`, `players` from the PGN's headers, and `annotations` for every `inaccuracy`, `mistake` and `blunder` (board.md, Verdicts), with a turning point's explanation as its comment. The person tries their own moves and comes back with "Back to the game" under it (board.md, Trying moves).
-- **The graph** under the Board: White's win chance after each move, one point per ply, with the turning points as dots in their verdict's colour (blunder red, mistake orange, the costliest move your accent colour). Clicking the graph sets `ply`. Plain SVG.
-- **The panel** beside the Board on wide screens and under it on phones, in step with `ply`: the move just played and the evaluation before and after, with `eval` on the Board, from `ply: 0`: there, the first move's `eval_before`, so its bar is there from the start. At a turning point, "Show the best move", which goes to the ply before the move with the two arrows from board.md. The verdict and explanation are the Board's, under its move list: don't repeat them.
-- **Turning points** as a short list at the top: clicking one goes to the ply after the move, where the Board shows its verdict and explanation.
+- **The panel,** three cards, in step with `ply`:
+  - **On the board:** the move just played and the evaluation before and after, with `eval` on the Board, from `ply: 0`: there, the first move's `eval_before`, so its bar is there from the start. At a turning point, "Show the best move", which goes to the ply before the move with the two arrows from board.md. The verdict and explanation are the Board's, under its move list: don't repeat them.
+  - **Turning points,** a `.cd-list`, each with its verdict's `.cd-tag`: clicking one goes to the ply after the move, where the Board shows its verdict and explanation.
+  - **White's chance to win:** a plain SVG graph, 80 px tall and the card's width, one point per ply, with the turning points as dots in their verdict's colour (`--mistake`, `--blunder`, and `--brand` for the costliest move) and the ply on view as a `--brand` dot. Clicking the graph sets `ply`.
 - **Keys:** ← → step, from your own listener (board.md, Keys).
 
 ## Where the app can't show a page

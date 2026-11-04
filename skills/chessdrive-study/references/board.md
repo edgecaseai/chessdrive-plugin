@@ -2,19 +2,9 @@
 
 ## Load it
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/@chessdrive/board@0.1.2/dist/board.umd.js"></script>
-<chessdrive-board id="board"></chessdrive-board>
-```
+The frame's `<head>` loads it ([frame.md](frame.md)), from `https://cdn.jsdelivr.net/npm/@chessdrive/board@0.1.2/dist/board.umd.js`. Keep that exact URL: jsDelivr's `/npm/` path and an exact version. It's the script host every Claude artifact allows. The Board needs nothing else, as its pieces, squares and rules are inside it.
 
-Keep this exact URL: jsDelivr's `/npm/` path and an exact version. It's the script host every Claude artifact allows. The Board needs nothing else, as its pieces, squares and rules are inside it.
-
-**Give it a width.** The Board fills its box and has no width of its own, so in a box that sizes to its content it collapses to a sliver: never `flex: 0 0 auto`, `width: fit-content` or `display: inline-block` around it. In a flex row:
-
-```css
-chessdrive-board { display: block; width: 100%; }
-.board-col { flex: 0 1 760px; min-width: 0; width: 100%; } /* 560px with no move list */
-```
+**Keep it in `.cd-board`,** which gives it its width. The Board fills its box and has no width of its own, so in a box that sizes to its content it collapses to a sliver: never `flex: 0 0 auto`, `width: fit-content` or `display: inline-block` around it. A second Board, as in a grid of diagrams, needs `display: block` and a width of its own too.
 
 ## The State
 
@@ -107,6 +97,5 @@ function tryMoves(board, button, shown, onBack) {
 - **Right or wrong:** in `play-*` mode, on the person's `move`, compare its `san` with the sourced answers, leaving out `+` and `#`, then a `green` or `red` square on its `uci`'s third and fourth letters. For a miss, wait a beat and `set({fen, lastMove, marks: []})` back to the position. Go back with `fen`, not `ply`: a `play-*` Board takes moves only at the end of its game.
 - **The other side replies:** on the person's correct `move`, `board.play(nextMove)`.
 - **A line without losing the game:** show it as text, or `set({fen})` the position and `animate` the line, then `set({pgn, ply})` to come back. Set the annotations again with that `pgn`.
-- **Phones:** at `full` the Board fits a narrow column by itself and puts its moves below. Put your panel under it.
 - **Keys:** with a game in `view` mode, ← → step it while the Board has focus, and arrive as `ply` events. In `play-both` the squares keep those keys for their cursor, and the Board's buttons and move list step it. A page that steps from anywhere listens on `document`, and ignores a keydown whose `target` is the Board, or it steps twice.
-- **Print:** `mode: "view"`, and `size: "thumb"` from a `beforeprint` listener, back to `embed` on `afterprint`: `embed` prints its buttons and link, and is too tall for a grid. `@media print` rules hide your buttons. The squares print without the browser's background graphics. Write "White to play" beside each diagram yourself. A page in Claude can't open the print dialog, so offer no Print button there: tell the person to download the artifact and print it from their browser. A local file can have a Print button (`window.print()`).
+- **Print:** the frame's Save as PDF prints the page as it is, in light, without your buttons. A grid of diagrams goes to `mode: "view"`, and `size: "thumb"` from a `beforeprint` listener, back to `embed` on `afterprint`: `embed` prints its buttons and link, and is too tall for a grid. The squares print without the browser's background graphics. Write "White to play" beside each diagram yourself.

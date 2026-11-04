@@ -121,14 +121,14 @@ python3 <here>/examples.py games.npy picks.json --out back-rank-mates.pgn --titl
 
 Each example is its whole game with your note at the moment. The file opens as a Lichess study: in a study, New chapter, PGN, paste the file. Each game becomes a chapter, up to 64 in a study. Lichess's single-game import isn't the place for it, as it reads only the first game of a paste.
 
-Then build the person a Study with the `chessdrive-study` Skill beside this one: a page with a heading for each example, its note, and a Board at its `pgn` and `ply`, in `mode: "play-both"` with its way back. Read `<this Skill's folder>/../chessdrive-study/references/board.md`, Trying moves included. It makes no ChessDrive calls and needs no Connector. If that Skill isn't there, call the Connector's `engine` tool once with `positions` holding your best three as `{"fen": "<its fen>"}` and `depth: 10`, and make each one's move a link to its `board_url`, using its `show_board` tool for a mate. With no Connector either, point to each by its game and move.
+Then build the person a Study with the `chessdrive-study` Skill beside this one: a page in the frame without `data-moves`, with one Board and, in its panel, a `.cd-list` of the examples with their notes. Clicking an example puts it on the Board, at its `pgn` and `ply`, in `mode: "play-both"` with its way back. Read `frame.md` and `board.md`, Trying moves included, in `<this Skill's folder>/../chessdrive-study/references/`. Open the page for the person with `open`, `xdg-open` or `start`. It makes no ChessDrive calls and needs no Connector. If that Skill isn't there, call the Connector's `engine` tool once with `positions` holding your best three as `{"fen": "<its fen>"}` and `depth: 10`, and make each one's move a link to its `board_url`, using its `show_board` tool for a mate. With no Connector either, point to each by its game and move.
 
 Then answer in exactly this shape, with no table:
 
 ```markdown
 **I found 4 back rank mates in your games.** I read 20 hits, and the engine checked 7.
 
-How to open the Study, and its path in a coding agent, in one line.
+The Study's full path as a link, and how to use and share it, in one line.
 
 ### Carlsen vs Anand, 28.Rc8#
 Your note on it, in one or two sentences.

@@ -76,7 +76,7 @@ Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the
 
 ## Step 5: Show a board
 
-Build the person a Study with the `chessdrive-study` Skill beside this one: a page in `patterns/` with a heading for each group you kept and, under it, the example its name fits best on a Board, at its `pgn` and `ply`, facing their `colour`, in `mode: "play-both"` with its way back. Read `<this Skill's folder>/../chessdrive-study/references/board.md`, Trying moves included, and take the moves from the scripts' output. It makes no ChessDrive calls and needs no Connector.
+Build the person a Study with the `chessdrive-study` Skill beside this one: a page in `patterns/`, in the frame without `data-moves`, with one Board and, in its panel, a `.cd-list` of the groups you kept by name. Clicking a group puts the example its name fits best on the Board, at its `pgn` and `ply`, facing their `colour`, in `mode: "play-both"` with its way back. Read `frame.md` and `board.md`, Trying moves included, in `<this Skill's folder>/../chessdrive-study/references/`, and take the moves from the scripts' output. Open the page for the person with `open`, `xdg-open` or `start`. It makes no ChessDrive calls and needs no Connector.
 
 If that Skill isn't there, make one call to the Connector's `engine` tool with `{"engine": "stockfish", "positions": [{"fen": "<its fen>"}], "depth": 10}`, one entry per example, and make each example's move a link to its `board_url`. With no Connector either, point to the example by its game and move.
 
@@ -85,7 +85,7 @@ If that Skill isn't there, make one call to the Connector's `engine` tool with `
 ```markdown
 **Your most common mistake is moving a piece that was guarding another.** The engine marked 96 mistakes across your last 30 games, and three kinds came up most.
 
-How to open the Study, in one line.
+The Study's full path as a link, and how to use and share it, in one line.
 
 ### 1. Moving the piece that guarded another
 24 mistakes in 14 games, and {the number that fit} of the five I checked show this. What to check before you move, in one sentence.

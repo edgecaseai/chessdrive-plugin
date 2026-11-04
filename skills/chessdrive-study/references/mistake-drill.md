@@ -15,6 +15,9 @@ A page that puts the person back in the positions where they went wrong and asks
 
 ## The page
 
-- One position at a time: `fen` the move's `fen`, `lastMove` the move before it, as `squares(<its fen>, <its move.san>)` (board.md, Moves in SAN), `orientation` the person's side, `mode` `play-white` or `play-black`. Caption: "Move 23 from your game against …: find a better move than {the move played}."
+In the frame ([frame.md](frame.md)), without `data-moves`. The header: "Your mistakes" or "The moves that cost you most", and "Find a better move than the one you played."
+
+- One position at a time: `fen` the move's `fen`, `lastMove` the move before it, as `squares(<its fen>, <its move.san>)` (board.md, Moves in SAN), `orientation` the person's side, `mode` `play-white` or `play-black`.
+- **The panel:** a card with the caption, "Move 23 from your game against …: find a better move than {the move played}.", what the last try got, and the buttons; then a card with the progress strip.
 - On the person's `move`, compare its `san` with the accepted answers (board.md, Right or wrong). A hit gets a green square, "Show the line" and "Next". "Show the line" sets the position back and animates the first Line. A miss gets a red square, "Not one of the engine's top choices", and the position back. After two misses offer "Hint", when there are hints, and "Show": a green arrow for the best move, with its `eval`.
-- A progress strip of the positions, solved ones ticked. Any can be tried again.
+- The progress strip is a row of numbered `.cd-btn`s, solved ones ticked and the one on view `aria-current`. Any can be tried again.
