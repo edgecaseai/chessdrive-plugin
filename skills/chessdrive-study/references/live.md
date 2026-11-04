@@ -4,7 +4,7 @@ A Study with a Board the person moves on gets a card that asks about the positio
 
 ## Make the key
 
-- **In a coding agent,** make one Study key per page while you build it: the Connector's `study_key` tool with `name`, the page's `<title>`, or `chessdrive study-key "<title>"`, which prints the key alone. It's free. Make one, never more for the same page, and none when you rebuild a page that has one: keep its key.
+- **In a coding agent,** make one Study key per page while you build it: `chessdrive study-key "<title>"`, with the page's `<title>`, which prints the key alone, or with no CLI the Connector's `study_key` tool with `name`. It's free. Make one, never more for the same page, and none when you rebuild a page that has one: keep its key.
 - **In Claude, ChatGPT or any app that shows the page itself,** make none. The page can't reach the API there, so the card stays hidden and says nothing; a copy the person downloads and opens shows the quiet "Add your key" line instead.
 
 Never print the key in the chat, and never write it anywhere but the page's `<meta>`.

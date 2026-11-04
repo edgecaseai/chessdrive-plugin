@@ -1,6 +1,6 @@
 # In Claude's chat app
 
-Claude's chat runs your code in a sandbox, not on the person's computer. Every new chat gets an empty one, so the person asks for the CLI and signs in once per chat. Python and NumPy are already there. After these steps, the Skill runs as written, with the sandbox as the machine.
+Claude's chat runs your code in a sandbox, not on the person's computer, and every ChessDrive call goes through the CLI there, as `calls.md` beside this file says. If the person doesn't want the CLI installed, use the Connector's tools instead, and skip what needs code. Every new chat gets an empty one, so the person asks for the CLI and signs in once per chat. Python and NumPy are already there. After these steps, the Skill runs as written, with the sandbox as the machine.
 
 ## 1. Check the way in
 
@@ -16,7 +16,7 @@ curl -sS -o /dev/null -w '%{http_code}\n' https://api-staging.chessdrive.io/v1/m
 
 ## 2. Install the CLI
 
-Claude's safety check lets this run only when the person asks for it by name. A "yes" to you isn't enough, and the installer script is refused either way, so try no other way in. If their messages don't already ask for it, say that the CLI is what runs Engine and Embed here, that it goes in this chat's sandbox only, and ask them to send this line, then wait:
+Claude's safety check lets this run only when the person asks for it by name. A "yes" to you isn't enough, and the installer script is refused either way, so try no other way in. If their messages don't already ask for it, say that the CLI is what runs ChessDrive's engine and chess models here, that it goes in this chat's sandbox only, and ask them to send this line, then wait:
 
 > Install the chessdrive CLI in your sandbox with npm install -g chessdrive.
 
@@ -26,7 +26,7 @@ Once they have:
 npm install -g chessdrive
 ```
 
-`chessdrive version` needs to say 0.4.0 or later.
+`chessdrive version` needs to say 0.6.0 or later.
 
 ## 3. Sign in
 

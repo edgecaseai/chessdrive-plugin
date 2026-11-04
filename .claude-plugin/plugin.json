@@ -1,7 +1,7 @@
 {
   "name": "chessdrive",
-  "version": "0.20.0-staging",
-  "description": "Chess Skills for your agent, and the ChessDrive Connector they call: positions, games and players, with the engine, the chess models and the game corpus.",
+  "version": "0.21.0-staging",
+  "description": "Chess Skills for your agent, calling ChessDrive through its CLI where code runs and its Connector where none does: positions, games and players, with the engine, the chess models and the game corpus.",
   "author": {
     "name": "ChessDrive",
     "email": "contact@edgecaselabs.dev"

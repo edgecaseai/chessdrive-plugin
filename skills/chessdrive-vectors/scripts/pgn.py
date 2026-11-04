@@ -1,9 +1,20 @@
+#!/usr/bin/env python3
 """Read a PGN file's games and tags. The Python standard library only, on Python 3.11 or later, so a script that only
 reads games needs no NumPy. It splits a file as `chessdrive embed` splits it.
+
+Run, it writes one player's newest games to a file of their own, before `chessdrive engine --games` bills each game:
+
+    python3 pgn.py games.pgn --player MyHandle --newest 30 --out patterns/games.pgn
+
+It prints one JSON object: the games written, the player's games in the file, and the file. A name not in the file
+stops it, naming the ones that are.
 """
 
+import argparse
 import hashlib
+import json
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -121,3 +132,48 @@ def split_games(pgn):
 
 def read_pgn(path):
     return Path(path).read_bytes().decode("utf-8", "surrogateescape")
+
+
+def player_games(games, player, newest):
+    """The player's newest games, oldest first, whatever order the file is in. Games with no date keep the file's."""
+    def tags(game):
+        return dict(TAG.findall(game.text))
+
+    def played(game):
+        t = tags(game)
+        return t.get("UTCDate") or t.get("Date") or "", t.get("UTCTime") or t.get("Time") or ""
+
+    wanted = player.casefold()
+    theirs = [g for g in games if wanted in (tags(g).get("White", "").casefold(), tags(g).get("Black", "").casefold())]
+    return sorted(theirs, key=played)[-newest:], theirs
+
+
+def names_in(games):
+    seen = {}
+    for game in games:
+        for colour in ("White", "Black"):
+            if name := dict(TAG.findall(game.text)).get(colour):
+                seen[name] = seen.get(name, 0) + 1
+    return sorted(seen, key=seen.get, reverse=True)[:5]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("pgn", help="a PGN file holding the player's games")
+    parser.add_argument("--player", required=True, help="the player's name as the PGN's White and Black tags write it")
+    parser.add_argument("--newest", type=int, default=30, help="how many of their newest games (default 30)")
+    parser.add_argument("--out", required=True, help="the PGN file to write")
+    args = parser.parse_args()
+    games = split_games(read_pgn(args.pgn))
+    chosen, theirs = player_games(games, args.player, args.newest)
+    if not chosen:
+        sys.exit(f'No game in {args.pgn} has "{args.player}" as White or Black. The names there: {", ".join(names_in(games))}.')
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes("".join(g.text + "\n\n" for g in chosen).encode("utf-8", "surrogateescape"))
+    print(json.dumps({"games": len(chosen), "theirs": len(theirs), "file": str(out)}))
+
+
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
+    main()

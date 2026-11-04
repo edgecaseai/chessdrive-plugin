@@ -21,7 +21,7 @@ Say this, and wait: "Give me a PGN file of your last 30 games and your username 
 
 This builds on `<this Skill's folder>/../chessdrive-vectors/`, where `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. Run every command from the person's own folder, by the scripts' full paths. If that folder isn't there, only part of the Plugin was installed: ask them to add the whole Plugin from https://platform-staging.chessdrive.io/skills, and stop.
 
-Before anything else, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says. It checks each of these and walks the person through whatever is missing, one step at a time. This Skill needs somewhere to run code, the CLI at 0.2.0 or later, signed in, and Python with NumPy. The Connector is for `generate`. Without it, use the CLI as Step 4 says, so don't stop for it.
+Before anything else, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says. It checks each of these and walks the person through whatever is missing, one step at a time. This Skill needs somewhere to run code, the CLI at 0.6.0 or later, signed in, and Python with NumPy. Every call goes through the CLI, so it needs no Connector.
 
 ## Step 1: Get the games
 
@@ -34,12 +34,49 @@ Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take
 ## Step 2: Mark the mistakes
 
 ```bash
-python3 <this Skill's folder>/scripts/mistakes.py games.pgn --player "<their name>" --folder patterns
+python3 <this Skill's folder>/../chessdrive-vectors/scripts/pgn.py games.pgn --player "<their name>" --newest 30 --out patterns/games.pgn
+chessdrive engine --games patterns/games.pgn --out patterns/answers.jsonl
 ```
 
-It takes their newest 30 games and calls Engine once per game, about 10 seconds each. Engine takes parallel requests up to the Plan's limit, 2 on Free, 6 on Hobby and 18 on Pro, and the script reads the Plan and sends that many at once, so never run games one by one yourself. Give the call a 10-minute timeout, or run it in the background and wait to be told it has finished, rather than checking on it. Stopped, the same command carries on and bills no game twice. It prints a line per game, then the totals: `games`, `rating`, `refused`, `positions`, `blunders` and the costs so far. Name any `refused` game in your answer.
+The first keeps their newest 30 games; if the name isn't in the file, it says which names are. The second reviews each game whole, about 10 seconds a game, as many at once as the Plan allows, so never run games one by one yourself. Give it a 10-minute timeout, or run it in the background and wait to be told it has finished, rather than checking on it. Stopped, the same command carries on and bills no game twice. It ends with how many games it analysed and refused. Name any refused game in your answer.
 
-If the name isn't in the file, it says which names are. If `positions` is under 6, there's too little to group: say so, and offer a review of their worst game instead.
+Then mark their mistakes with code. Write this example to `patterns/mark.py` and run `python3 patterns/mark.py "<their name>"`:
+
+```python
+import json, sys
+player = sys.argv[1].casefold()  # their name as the PGN's White and Black tags write it
+MARK = {"blunder": "??", "mistake": "?", "inaccuracy": "?!"}
+def words(e):  # an evaluation from White's side, in words
+    if e.get("mate") is not None:
+        return "the game is over" if e["mate"] == 0 else ("White" if e["mate"] > 0 else "Black") + " is mating"
+    cp = e.get("cp") or 0
+    side = "White" if cp > 0 else "Black"
+    return "about equal" if abs(cp) < 50 else side + " is " + ("a little better" if abs(cp) < 150 else "clearly better" if abs(cp) < 300 else "winning")
+rows = [json.loads(line) for line in open("patterns/answers.jsonl", encoding="utf-8")]
+played = lambda t: (t.get("UTCDate") or t.get("Date") or "", t.get("UTCTime") or t.get("Time") or "")
+side = lambda t: next((c for c in ("White", "Black") if t.get(c, "").casefold() == player), None)
+games = sorted((r for r in rows if r["status"] == "ok" and side(r["tags"])), key=lambda r: played(r["tags"]))  # oldest first, so the groups stay as they are
+found = []
+for n, g in enumerate(games):
+    colour = side(g["tags"])
+    for at, m in enumerate(g["moves"]):
+        keep = m["verdict"] in ("mistake", "blunder")
+        if keep and m["color"] == colour.lower():
+            after = g["moves"][at + 1] if at + 1 < len(g["moves"]) else {}  # the reply's best Line: what the mistake allowed
+            found.append({"game": n, "ply": m["ply"], "move": f"{m['move_number']}{'.' if colour == 'White' else '...'}{m['move']['san']}{MARK[m['verdict']]}",
+                "verdict": m["verdict"], "colour": colour, "opponent": g["tags"].get("Black" if colour == "White" else "White", ""), "date": played(g["tags"])[0],
+                "site": g["tags"].get("Site", ""), "best": [x["san"] for x in m.get("best_line") or []], "allowed": [x["san"] for x in after.get("best_line") or []],
+                "before": words(m["eval_before"]), "after": words(m["eval_after"]), "lost": m["win_chance_lost"], "fen": m["fen"], "pgn": g["pgn"]})
+json.dump([{"type": "position", "pgn": f["pgn"], "ply": f["ply"] + 1} for f in found], open("patterns/items.json", "w", encoding="utf-8"))
+open("patterns/mistakes.jsonl", "w", encoding="utf-8").writelines(json.dumps(f, ensure_ascii=False) + "\n" for f in found)
+newest = games[-1]["tags"] if games else {}
+print(json.dumps({"games": len(games), "rating": newest.get(f"{side(newest)}Elo"),
+    "refused": [r["game"] for r in rows if r["status"] != "ok"], "positions": len(found), "blunders": sum(f["verdict"] == "blunder" for f in found)}))
+```
+
+It's an example: change it to fit what they ask, and say in your answer what you changed. For "count my inaccuracies too", make the `keep` line `keep = m["verdict"] in ("inaccuracy", "mistake", "blunder")`. For "only endgames", add `and sum(p in "QRBNqrbn" for p in m["fen"].split()[0]) <= 4` to it. Leave the rest as it is: Steps 3 and 5 read every field, and the sort keeps the groups the same from run to run.
+
+It prints `games`, `rating`, `refused`, `positions` and `blunders`. If `positions` is under 6, there's too little to group: say so, and offer a review of their worst game instead.
 
 ## Step 3: Group them
 
@@ -54,7 +91,7 @@ A group holds at least 3 mistakes from at least 3 games. A player with few mista
 
 ## Step 4: Name the groups
 
-Call `generate` once per group, on the first example, with `model: "queen"`, `position: {"pgn": "<its pgn>", "ply": <its ply>}`, and this `system`, filling in the player's rating. Make these calls two at a time, two in one message: they don't use each other's answers, so they needn't run one by one. Never send more than two at once, as the engine's notes behind each reply are then skipped without a word, and the replies get worse.
+Ask Queen once per group, about the first example, with this `system`, filling in the player's rating. Pipe the example's `pgn` to `chessdrive generate --model queen --pgn - --ply <its ply> --no-stream --system "<system>" "<message>"`. Run these two at a time, two processes at once: they don't use each other's answers, so they needn't run one by one. Never run more than two at once, as the engine's notes behind each reply are then skipped without a word, and the replies get worse.
 
 ```text
 You help a chess player of about {rating} see what their mistakes have in common. You get a few of their mistakes.
@@ -70,7 +107,7 @@ These mistakes were grouped as alike:
 What do they have in common?
 ```
 
-Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it. If a call answers `plan_required`, make it and the rest on Knight, with `model: "knight"`, and say so in one line of your answer. If it answers `429 rate_limited`, wait for `Retry-After` and retry the same call. If it answers `upstream_unavailable`, make the same call once more. If that fails too, name the group from its examples alone, and add no note about it. With no Connector, pipe the `pgn` to `chessdrive generate --model queen --pgn - --ply <ply> --no-stream --system "<system>" "<message>"`, one process per group, at most two at once.
+Leave `--max-tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it. If a call answers `plan_required`, make it and the rest with `--model knight`, and say so in one line of your answer. If it answers `429 rate_limited`, wait the `retry after` it gives and run the same command again. If it answers `upstream_unavailable`, run it once more. If that fails too, name the group from its examples alone, and add no note about it.
 
 **Check each name against its five examples.** Go through them one at a time: read `move`, `best` and `allowed`, and decide whether that example's moves show the name. The count is what you found for that group, and groups differ. Add no tactic of your own. Two groups with the same name are one idea: keep the larger, and count the other as left out.
 
@@ -92,7 +129,7 @@ It keeps each group whose name fits at least 3 of its 5 examples, takes the firs
 
 It prints a line for each group kept, with `name`, `check`, `size`, `games`, `fit`, `checked` and its 3 `examples`, each with `move`, `opponent`, `date`, `site`, `better`, `allowed` and `why`, Knight's line. Then the totals: `kept`, `left_out` and `study`, the page's full path. Open it for the person with `open`, `xdg-open` or `start`. Don't build or change the page by hand.
 
-If `kept` is 0, no name held and there's no page: say so plainly, with how many groups were left out, name no habit, and offer a review of their worst game instead. Otherwise, if `study` is `null`, the `chessdrive-study` Skill isn't there: make one call to the Connector's `engine` tool with `{"engine": "stockfish", "positions": [{"fen": "<its fen>"}], "depth": 10}`, one entry per example, and make each example's move a link to its `board_url`. With no Connector either, point to each example by its game and move.
+If `kept` is 0, no name held and there's no page: say so plainly, with how many groups were left out, name no habit, and offer a review of their worst game instead. Otherwise, if `study` is `null`, the `chessdrive-study` Skill isn't there: make each example's move a link to its position on the Board, as Board links in `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says, with no new call.
 
 ## Step 6: Answer
 

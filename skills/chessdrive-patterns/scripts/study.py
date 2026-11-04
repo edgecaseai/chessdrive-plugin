@@ -251,7 +251,7 @@ def page(data):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("folder", help="the folder mistakes.py and groups.py wrote, with your names.json")
+    parser.add_argument("folder", help="the folder Step 2 of the Skill and groups.py wrote, with your names.json")
     parser.add_argument("--rating", help="the player's rating, for Knight")
     parser.add_argument("--out", help="where the Study goes (default: your-mistakes.html in the folder)")
     parser.add_argument("--cli", default="chessdrive", help="the CLI to call")

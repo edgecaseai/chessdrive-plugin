@@ -1,6 +1,6 @@
 # ChessDrive for Claude
 
-Chess Skills for your agent, and the ChessDrive Connector they call. Ask about a position, a game or a player in plain words; the Skills use ChessDrive's engine, chess models and game corpus to answer, and show you a board.
+Chess Skills for your agent. Where your agent runs code, they call ChessDrive through its CLI; in a chat that runs none, through the ChessDrive Connector. Ask about a position, a game or a player in plain words; the Skills use ChessDrive's engine, chess models and game corpus to answer, and show you a board.
 
 ## Install
 

@@ -7,14 +7,14 @@ A person may meet ChessDrive here first, so get them through this in their own a
 Stop at the first that's missing, walk them through it, then carry on down the list. Run a check alone, so you stop before the next, and skip those the Skill doesn't need.
 
 1. **Somewhere to run code.** If you can't run a command at all, say what's needed in one line: Claude's chat app on a paid plan, or an agent that runs code, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor. Then stop. In Claude's chat app, follow `claude-chat.md` beside this file instead of steps 2 and 3, which covers the domain step, the CLI and the sign-in.
-2. **The CLI.** Run `chessdrive version`. If the command isn't found, see [Install the CLI](#install-the-cli). If it's older than the Skill needs, see [Update the CLI](#update-the-cli).
+2. **The CLI,** which makes every ChessDrive call where code runs (`calls.md` beside this file). Run `chessdrive version`. If the command isn't found, see [Install the CLI](#install-the-cli). If it's older than 0.6.0, see [Update the CLI](#update-the-cli). If the person says no to installing it, skip to step 5 and use the Connector instead.
 3. **The sign-in.** Run `chessdrive balance`, which costs nothing. If it says there's no API key, or that the key was refused, see [Sign in](#sign-in).
 4. **Python 3.11 or later with NumPy.** Run `python3 -c "import sys, numpy; assert sys.version_info >= (3, 11)"`. If it fails and `uv` is there, run the scripts with `uv run --python 3.11 --with numpy python`. If Python is older than 3.11, ask them to install the latest from https://www.python.org/downloads/ and tell you when it's done. Otherwise ask whether you can run `python3 -m pip install numpy`, and wait for their yes.
-5. **The Connector,** if the Skill needs it: the tools `engine` and `generate`. If they aren't there, see [Connect](#connect).
+5. **The Connector,** only where you can't run code, or the person said no to the CLI: the tools `engine` and `generate`. If they aren't there, see [Connect](#connect).
 
 ## Install the CLI
 
-Say that the CLI is a small program that lets you call ChessDrive from here, and ask if you can install it. On their yes, run:
+Say that the CLI is a small program that lets you call ChessDrive's engine and chess models from here, and ask if you can install it. On their yes, run:
 
 ```bash
 npm install -g chessdrive

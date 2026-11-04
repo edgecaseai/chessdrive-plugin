@@ -1,6 +1,6 @@
 ---
 name: chessdrive-prep
-description: Prepare someone for a game against one opponent with ChessDrive, from a PGN file of that opponent's games, or their public Lichess and chess.com games. Use when someone says "prep me for my game tomorrow against X", "what does this player play against 1.e4", "help me prepare for my next opponent", or a coach or parent prepares a student. A local script counts what the opponent plays by colour, the engine checks where their top lines end, and the chess model writes a game plan. Gives what they play against this colour, their recent form, a plan, and how many games it read and what the file leaves out, then builds a Study, a page to explore their lines. Runs in an agent that runs code, such as Claude Code, Codex or Cursor, and in Claude's chat app on a paid plan. Calls the ChessDrive Connector's engine, generate and show_board tools.
+description: Prepare someone for a game against one opponent with ChessDrive, from a PGN file of that opponent's games, or their public Lichess and chess.com games. Use when someone says "prep me for my game tomorrow against X", "what does this player play against 1.e4", "help me prepare for my next opponent", or a coach or parent prepares a student. A local script counts what the opponent plays by colour, the engine checks where their top lines end, and the chess model writes a game plan. Gives what they play against this colour, their recent form, a plan, and how many games it read and what the file leaves out, then builds a Study, a page to explore their lines. Runs in an agent that runs code, such as Claude Code, Codex or Cursor, and in Claude's chat app on a paid plan. Calls ChessDrive's engine and chess model through the `chessdrive` CLI.
 ---
 
 # Opponent prep
@@ -21,7 +21,7 @@ Say this, and wait: "Tell me your opponent's username and site, or give me a PGN
 ## What you need
 
 - **Somewhere to run code.** That's the person's machine in a coding agent, or Claude's sandbox in Claude's chat app. The scripts need Python 3.11 or later and nothing else, make no ChessDrive call and cost nothing. If you can't run code at all, tell the person this needs Claude's chat app on a paid plan, or an agent that runs code, such as Claude Code, Codex or Cursor, and stop.
-- **The ChessDrive Connector,** for `engine` and `generate`. If its tools aren't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what its Connect section says.
+- **The `chessdrive` CLI at 0.6.0 or later, signed in,** for `engine` and `generate`, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says. If it isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says. If the person won't install it, make the same calls with the ChessDrive Connector's tools.
 
 ## Step 1: Get what you need
 
@@ -75,13 +75,13 @@ If `few_games` is true, say the picture rests on few games. If `used` is 0, say 
 
 ## Step 3: Check where their lines end
 
-Call `engine` once: `{"engine": "stockfish", "positions": <positions as printed>, "lines": 3}`, with every entry of `positions`, `weak_spot`'s too. Each result has `lines`, `fen` and `board_url`. Each Line's score is from White's side, in `cp` or `mate`: under 50 either way is about equal, under 150 a little better, under 300 clearly better, more is winning, and a `mate` is mating. Turn them into those words, and use the words everywhere.
+Call `engine` once, on every entry of `positions`, `weak_spot`'s too, with `lines: 3`. With the CLI, write them one a line to `prep/positions.jsonl` with code, then run `chessdrive engine --positions prep/positions.jsonl --lines 3 --out prep/engine.jsonl`, and read the results with code: line 7 answers line 7. With the Connector, it's `{"engine": "stockfish", "positions": <positions as printed>, "lines": 3}`. Each result has `lines` and `fen`, and from the Connector `board_url`. Each Line's score is from White's side, in `cp` or `mate`: under 50 either way is about equal, under 150 a little better, under 300 clearly better, more is winning, and a `mate` is mating. Turn them into those words, and use the words everywhere.
 
-If a result is `game_over`, skip that line. If it's `not_run`, send those positions again, once. Copy each Line's first moves as they are, and write them after the line's last move: a Line is the engine's play, not the opponent's, so never say they played it.
+If a result is `game_over`, skip that line. If it's `not_run`, send those positions again, once. With the CLI, a position not run has no line yet: run the same command again, once. Copy each Line's first moves as they are, and write them after the line's last move: a Line is the engine's play, not the opponent's, so never say they played it.
 
 ## Step 4: Write the plan
 
-Call `generate` once, with `model: "queen"`, no `position`, and this `system`. Without a position it talks only about what you send, rather than bringing in lines of its own:
+Call `generate` once, with `model: "queen"`, no `position`, and this `system`: `chessdrive generate --model queen --no-stream --system "<system>" "<message>"`. Without a position it talks only about what you send, rather than bringing in lines of its own:
 
 ```text
 You prepare a chess player for a game against one opponent. You know only what you are given: the counts from their games and the engine's lines.
@@ -109,7 +109,7 @@ Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the
 
 Before you write your answer, build the person a Study with the `chessdrive-study` Skill beside this one: read `frame.md`, `board.md` and `opponent-prep.md` in `<this Skill's folder>/../chessdrive-study/references/`, and fill the page from what you already have. Hand it over as that Skill's Step 6 says: in a coding agent, open it and give its full path as a link. Do this in every run. Don't offer it or ask first, and make no new ChessDrive calls.
 
-A coding agent always builds the Study, as the page is a file it opens: `show_board` isn't a way round it. If your app can't show a page, as in a chat with no artifacts, or that Skill isn't there, call `show_board` instead, once, before your answer, with `pgn` the first line's `line`, its `ply`, `orientation` the person's colour, `moves: true` and `mode: "play-both"`, so they can try their own moves. With no `show_board`, make the moves of each line's heading a link to its `board_url`.
+A coding agent always builds the Study, as the page is a file it opens: `show_board` isn't a way round it. If your app can't show a page, as in a chat with no artifacts, or that Skill isn't there, call `show_board` instead, once, before your answer, with `pgn` the first line's `line`, its `ply`, `orientation` the person's colour, `moves: true` and `mode: "play-both"`, so they can try their own moves. With no `show_board`, make the moves of each line's heading a link to its position on the Board: its `board_url`, or the link Board links in `calls.md` builds.
 
 ## Step 6: Answer
 

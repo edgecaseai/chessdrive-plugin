@@ -31,7 +31,7 @@ SHOWN = ("move", "verdict", "colour", "opponent", "date", "site", "best", "allow
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("folder", help="the folder mistakes.py wrote")
+    parser.add_argument("folder", help="the folder Step 2 of the Skill wrote")
     parser.add_argument("--top", type=int, default=3, help="how many groups to show (default 3)")
     parser.add_argument("--examples", type=int, default=5, help="examples per group, from different games (default 5)")
     parser.add_argument("--groups", type=int, help="how many groups to make (default: group.py's, from the number of rows)")

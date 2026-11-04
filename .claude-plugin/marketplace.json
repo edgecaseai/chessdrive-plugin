@@ -5,13 +5,13 @@
     "email": "contact@edgecaselabs.dev"
   },
   "metadata": {
-    "description": "Chess Skills for your agent, and the ChessDrive Connector they call: positions, games and players, with the engine, the chess models and the game corpus."
+    "description": "Chess Skills for your agent, calling ChessDrive through its CLI where code runs and its Connector where none does: positions, games and players, with the engine, the chess models and the game corpus."
   },
   "plugins": [
     {
       "name": "chessdrive",
       "source": "./",
-      "description": "Chess Skills for your agent, and the ChessDrive Connector they call: positions, games and players, with the engine, the chess models and the game corpus."
+      "description": "Chess Skills for your agent, calling ChessDrive through its CLI where code runs and its Connector where none does: positions, games and players, with the engine, the chess models and the game corpus."
     }
   ]
 }
