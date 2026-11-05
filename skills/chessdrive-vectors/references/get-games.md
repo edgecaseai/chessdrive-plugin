@@ -13,6 +13,19 @@ python3 <the scripts folder>/fetch_games.py chesscom USERNAME --max 30 --out gam
 
 It takes their newest games and prints how many it wrote. Use only this script, as it tells the sites what it is. If it says the site has no games for that name, check the spelling with the person.
 
+### Only the games they want
+
+Give the script what the request says, so it downloads only those games:
+
+- **`--speed`** with one or more of `bullet`, `blitz`, `rapid`, `classical` and `correspondence`, comma-separated: "my rapid games" is `--speed rapid`. chess.com has no classical, so there it's the rapid games of 25 minutes or more, and correspondence is its daily games.
+- **`--since YYYY-MM-DD`** and **`--until YYYY-MM-DD`,** each day included: "the last two months" is `--since` two months before today.
+
+**Ask for the scope only when it matters.** Unless `--max` keeps it to 500 games or fewer, run the command first with `--how-long` in place of `--out`. It downloads nothing and prints `games` and `seconds`. If `games` is over 500 and the request didn't say which time controls or how far back, ask both in one question, with the count and the time, and fetch with their answer:
+
+> You have 14,530 games on Lichess, about 12 minutes to download. Which time controls should I take, and from how far back?
+
+Don't ask when it's 500 or fewer, or when the request already says, as in "my rapid games from the last two months": go ahead. With `exact: false`, `games` is a guide: with dates, Lichess gives the most there can be, and chess.com counts only rated games.
+
 **If it can't reach the site or is refused, or you can't run code, stop and give the person the link below.** That's how it goes in Claude's chat app, whose sandbox can't reach the sites. Don't go around it: no fetch of your own, no browser, no Claude in Chrome, no script in a page, and never pose as a browser. The link gets them the file in one click. Games in ChessBase need the steps below too.
 
 ## Or the person exports them
@@ -27,7 +40,7 @@ Give them the link on words that say whose games and how many, with the bracket 
 [Your last 30 games](https://lichess.org/api/games/user/USERNAME?max=30) (it downloads by itself)
 ```
 
-It needs no sign-in, works for any player's username, and a file called `lichess_USERNAME_<date>.pgn` lands in their Downloads folder. Change 30 for more or fewer games, or leave `?max=30` off for all of them.
+It needs no sign-in, works for any player's username, and a file called `lichess_USERNAME_<date>.pgn` lands in their Downloads folder. Change 30 for more or fewer games, or leave `?max=30` off for all of them. For one time control, add `&perfType=rapid`, or `bullet`, `blitz`, `classical` or `correspondence`, and say so on the words.
 
 To choose the games by date, colour or opponent, sign in to Lichess and open `https://lichess.org/@/USERNAME/download`. Fill in what you want, put the number in Maximum number, and press Download.
 

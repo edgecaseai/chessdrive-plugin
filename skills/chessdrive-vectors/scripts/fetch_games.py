@@ -5,11 +5,14 @@ and with no ChessDrive call. The Python standard library only, on Python 3.11 or
     python3 fetch_games.py lichess cemoss17 --how-long
     python3 fetch_games.py lichess cemoss17 --out games.pgn
     python3 fetch_games.py chesscom cemoss17 --out games.pgn --max 30
+    python3 fetch_games.py lichess cemoss17 --speed rapid --since 2026-09-01 --out games.pgn
     python3 fetch_games.py --url https://lichess.org/abcdefgh --out game.pgn
     python3 fetch_games.py --url https://www.chess.com/game/live/123456789 --username cemoss17 --out game.pgn
 
-It takes every game, or their newest `--max`. `--url` takes the one game a link names, in any form the sites give: a
-chess.com link needs either player's username, as chess.com finds a game only among a player's months. `--how-long` asks how long that takes, with no download. Lichess sends
+It takes every game, or their newest `--max`, of the time controls `--speed` names and played from `--since` to
+`--until`. Lichess sends only those games, and chess.com, which serves whole months, has only the months in that range
+read and keeps that month's games of those speeds. `--url` takes the one game a link names, in any form the sites give: a
+chess.com link needs either player's username, as chess.com finds a game only among a player's months. `--how-long` asks how many games that is and how long it takes, with no download. Lichess sends
 about 20 games a second, and a program may run one such download at a time. chess.com serves a month at a time, one
 request after another. Both sites ask a program to say what it is, and refuse a plain one.
 
@@ -19,6 +22,7 @@ and the person downloads the file in their browser.
 """
 
 import argparse
+import datetime
 import json
 import os
 import re
@@ -31,22 +35,74 @@ from pathlib import Path
 
 AGENT = "ChessDrive-skills/0.1 (contact@edgecaselabs.dev)"
 LICHESS_PLAYER = "https://lichess.org/api/user/{name}"
+LICHESS_SPEED = "https://lichess.org/api/user/{name}/perf/{speed}"
 LICHESS_GAMES = "https://lichess.org/api/games/user/{name}?clocks=false&evals=false&opening=true"
 CHESSCOM = "https://api.chess.com/pub/player/{name}/games/archives"
+CHESSCOM_STATS = "https://api.chess.com/pub/player/{name}/stats"
 LICHESS_GAME = "https://lichess.org/game/export/{id}?clocks=false&evals=false&opening=true"
 CHESSCOM_MONTHS = 6  # how far back a link's game is looked for, as the Connector's get_game does
 LICHESS_GAMES_A_SECOND = 20
 CHESSCOM_SECONDS_A_MONTH = 3
 BUSY_SECONDS = int(os.environ.get("CHESSDRIVE_RETRY_SECONDS", 60))  # Lichess asks for a full minute after a 429
 CHUNK = 65_536
-GAME_START = re.compile(rb'^(?=\[Event ")', re.M)
-PLAYED = re.compile(rb'^\[UTC(?:Date|Time) "([^"]*)"', re.M)
 EXPORT = "Ask the person to download the file in their browser instead."
 PASTE = "Ask the person to paste the game's PGN instead."
 LICHESS_ID = re.compile(r"^[a-zA-Z0-9]{8}(?:[a-zA-Z0-9]{4})?$")
 CHESSCOM_ID = re.compile(r"^[0-9]{1,20}$")
 LANGUAGE = re.compile(r"^[a-z]{2}(?:-[a-zA-Z]{2})?$")
 TAG = re.compile(r'^\[(\w+) "((?:[^"\\]|\\.)*)"\]', re.M)
+SPEEDS = ("bullet", "blitz", "rapid", "classical", "correspondence")
+# chess.com's time classes. It has no classical, so classical is its rapid games of 25 minutes or more, by Lichess's line:
+# the base time and 40 increments.
+TIME_CLASS = {"bullet": "bullet", "blitz": "blitz", "rapid": "rapid", "classical": "rapid", "correspondence": "daily"}
+CLASSICAL_SECONDS = 1500
+DAY = datetime.timedelta(days=1)
+
+
+class Scope:
+    """Which games to take: the speeds, none for all, and the first and last day, as UTC dates."""
+
+    def __init__(self, speeds=(), since=None, until=None):
+        self.speeds, self.since, self.until = tuple(speeds), since, until
+
+    def __bool__(self):
+        return bool(self.speeds or self.since or self.until)
+
+    def lichess_query(self):
+        """Lichess's own filter, so it sends only these games. Its until is exclusive, so it's the day after."""
+        query = {"perfType": ",".join(self.speeds)} if self.speeds else {}
+        for key, day in (("since", self.since), ("until", self.until and self.until + DAY)):
+            if day:
+                query[key] = int(datetime.datetime.combine(day, datetime.time(), datetime.UTC).timestamp() * 1000)
+        return "&" + urllib.parse.urlencode(query) if query else ""
+
+    def months(self, addresses):
+        """chess.com's monthly addresses inside the dates, which end in /YYYY/MM."""
+        first = self.since and (self.since.year, self.since.month)
+        last = self.until and (self.until.year, self.until.month)
+        return [a for a in addresses if (not first or month_of(a) >= first) and (not last or month_of(a) <= last)]
+
+    def takes(self, game):
+        """Whether a game from chess.com's month JSON is in scope: its speed, standard chess for a speed, and its day."""
+        if self.speeds:
+            if game.get("rules") != "chess" or not any(self.of_speed(game, speed) for speed in self.speeds):
+                return False
+        day = datetime.datetime.fromtimestamp(game.get("end_time", 0), datetime.UTC).date()
+        return (not self.since or day >= self.since) and (not self.until or day <= self.until)
+
+    @staticmethod
+    def of_speed(game, speed):
+        if game.get("time_class") != TIME_CLASS[speed]:
+            return False
+        if speed != "classical":
+            return True
+        base, _, increment = game.get("time_control", "").partition("+")
+        return base.isdigit() and int(base) + 40 * int(increment or 0) >= CLASSICAL_SECONDS
+
+
+def month_of(address):
+    year, month = address.rstrip("/").split("/")[-2:]
+    return int(year), int(month)
 
 
 def opened(url, accept):
@@ -69,8 +125,8 @@ def games_in(text):
     return text.count(b'[Event "')
 
 
-def lichess(name, most, out):
-    url = LICHESS_GAMES.format(name=name) + (f"&max={most}" if most else "")
+def lichess(name, most, out, scope):
+    url = LICHESS_GAMES.format(name=name) + (f"&max={most}" if most else "") + scope.lichess_query()
     answer = opened(url, "application/x-chess-pgn")
     while answer and (chunk := answer.read(CHUNK)):
         out.write(chunk)
@@ -82,19 +138,20 @@ def months_of(name):
     return list(reversed(json.load(answer)["archives"])) if answer else None
 
 
-def newest_first(month):
-    """A chess.com month's games, which come oldest first."""
-    return sorted((g for g in GAME_START.split(month) if g.strip()), key=PLAYED.findall, reverse=True)
+def newest_first(month, scope):
+    """A chess.com month's PGNs in scope, newest first, from its JSON, whose games come oldest first."""
+    games = [g for g in json.load(month)["games"] if g.get("pgn") and scope.takes(g)]
+    return [g["pgn"].encode() for g in sorted(games, key=lambda g: g.get("end_time", 0), reverse=True)]
 
 
-def chesscom(name, most, out):
+def chesscom(name, most, out, scope):
     left = most
-    for month in months_of(name) or []:
+    for month in scope.months(months_of(name) or []):
         time.sleep(1)  # one at a time, as chess.com asks
-        answer = opened(f"{month}/pgn", "application/x-chess-pgn")
+        answer = opened(month, "application/json")
         if answer is None:
             continue
-        games = newest_first(answer.read())
+        games = newest_first(answer, scope)
         out.writelines(game.rstrip() + b"\n\n" for game in games[: left or None])
         if most:
             left -= min(left, len(games))
@@ -170,14 +227,53 @@ def one_game(url, name, path):
             "date": tags.get("UTCDate") or tags.get("Date"), "result": tags["Result"], "color": colour, "file": str(path)}
 
 
-def how_long(site, name, most):
-    if site == "lichess":
+def lichess_count(name, scope):
+    """Lichess's count of a player's games, of the speeds in scope, from its player API, or None if it has no player."""
+    if not scope.speeds:
         answer = opened(LICHESS_PLAYER.format(name=name), "application/json")
-        games = json.load(answer)["count"]["all"] if answer else 0
+        return json.load(answer)["count"]["all"] if answer else None
+    counts = [opened(LICHESS_SPEED.format(name=name, speed=speed), "application/json") for speed in scope.speeds]
+    return sum(json.load(a)["stat"]["count"]["all"] for a in counts if a) if any(counts) else None
+
+
+def chesscom_count(name, scope):
+    """chess.com's count of a player's rated games, of the speeds in scope: its stats count no others."""
+    answer = opened(CHESSCOM_STATS.format(name=name.lower()), "application/json")
+    stats = json.load(answer) if answer else {}
+    classes = {TIME_CLASS[s] for s in scope.speeds} or set(TIME_CLASS.values())
+    return sum(sum(stats.get(f"chess_{c}", {}).get("record", {}).get(k, 0) for k in ("win", "loss", "draw")) for c in classes)
+
+
+def how_long(site, name, most, scope):
+    """How many games, and the seconds to download them. A count is exact only for Lichess with no dates: Lichess
+    counts by speed but not by date, so with dates it's the most there can be, and chess.com counts only rated games."""
+    exact = site == "lichess" and not (scope.since or scope.until)
+    if site == "lichess":
+        games = lichess_count(name, scope)
+        if games is None:
+            return None
         games = min(games, most) if most else games
-        return {"games": games, "seconds": max(1, games // LICHESS_GAMES_A_SECOND)} if games else None
+        return {"games": games, "exact": exact, "seconds": max(1, games // LICHESS_GAMES_A_SECOND)}
     months = months_of(name)
-    return {"months": len(months), "seconds": CHESSCOM_SECONDS_A_MONTH * len(months)} if months else None
+    if not months:
+        return None
+    months = scope.months(months)
+    return {"games": chesscom_count(name, scope), "exact": exact, "months": len(months),
+            "seconds": CHESSCOM_SECONDS_A_MONTH * len(months)}
+
+
+def speeds(text):
+    named = [s.strip().lower() for s in text.split(",") if s.strip()]
+    if not named or any(s not in SPEEDS for s in named):
+        raise argparse.ArgumentTypeError(f"name one or more of {', '.join(SPEEDS)}, comma-separated")
+    return tuple(dict.fromkeys(named))
+
+
+def day(text):
+    try:
+        return datetime.date.fromisoformat(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError("give a date as YYYY-MM-DD")
 
 
 def main():
@@ -188,7 +284,10 @@ def main():
     parser.add_argument("--username", help="with a chess.com --url, either player's username")
     parser.add_argument("--out", help="the PGN file to write")
     parser.add_argument("--max", type=int, default=0, help="only their newest games, this many")
-    parser.add_argument("--how-long", action="store_true", help="say how long it takes, and download nothing")
+    parser.add_argument("--speed", type=speeds, default=(), help=f"only these time controls, comma-separated: {', '.join(SPEEDS)}")
+    parser.add_argument("--since", type=day, help="only games played on this day or later, as YYYY-MM-DD")
+    parser.add_argument("--until", type=day, help="only games played on this day or earlier, as YYYY-MM-DD")
+    parser.add_argument("--how-long", action="store_true", help="say how many games and how long it takes, and download nothing")
     args = parser.parse_args()
     if args.url:
         if not args.out:
@@ -198,21 +297,27 @@ def main():
         return
     if not args.site or not args.player:
         parser.error("give a site and a username, or a game's --url")
+    scope = Scope(args.speed, args.since, args.until)
+    if scope.since and scope.until and scope.since > scope.until:
+        parser.error("--since is after --until")
+    asked = {k: v for k, v in (("speed", ",".join(scope.speeds)), ("since", str(scope.since or "")), ("until", str(scope.until or ""))) if v}
     missing = f"{args.site} has no games for {args.player}. Check the spelling with the person."
+    if scope:
+        missing = f"{args.site} has no games for {args.player} of {', '.join(f'{k} {v}' for k, v in asked.items())}. Check the spelling, or ask the person for a wider scope."
     if args.how_long:
-        print(json.dumps({"site": args.site, "player": args.player, **(how_long(args.site, args.player, args.max) or sys.exit(missing))}))
+        print(json.dumps({"site": args.site, "player": args.player, **asked, **(how_long(args.site, args.player, args.max, scope) or sys.exit(missing))}))
         return
     if not args.out:
         parser.error("say where to write the games with --out")
     path = Path(args.out)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("wb") as out:
-        (lichess if args.site == "lichess" else chesscom)(args.player, args.max, out)
+        (lichess if args.site == "lichess" else chesscom)(args.player, args.max, out, scope)
     games = games_in(path.read_bytes())
     if not games:
         path.unlink()
         sys.exit(missing)
-    print(json.dumps({"site": args.site, "player": args.player, "games": games, "file": str(path)}))
+    print(json.dumps({"site": args.site, "player": args.player, **asked, "games": games, "file": str(path)}))
 
 
 if __name__ == "__main__":

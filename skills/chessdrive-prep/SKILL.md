@@ -38,7 +38,7 @@ Ask only for what's missing, once, in one message:
 python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py lichess <name> --how-long
 ```
 
-Tell the person how long, in minutes, then start without waiting. If it's over 8 minutes, add `--max 8000` to the Lichess download, which keeps it to about 7, and say you read their newest 8,000:
+Choose the scope as `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` says under Only the games they want, and give both downloads the same `--speed` and `--since`. Tell the person how long, in minutes, then start without waiting. If it's still over 8 minutes, add `--max 8000` to the Lichess download, which keeps it to about 7, and say you read their newest 8,000:
 
 ```bash
 python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py lichess <name> --out prep/lichess.pgn
