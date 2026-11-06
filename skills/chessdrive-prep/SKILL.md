@@ -101,7 +101,7 @@ Their last 12 games: {won} wins, {drawn} draws, {lost} losses.
 Which line should I aim for, and what should I watch for?
 ```
 
-Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it. If the call answers `plan_required`, make it on `model: "knight"`, and say so in one line of your answer. If it answers `429 rate_limited`, wait for `Retry-After` and retry the same call. If it answers `upstream_unavailable`, make the same call once more. If that fails too, give the lines and the engine's words with no plan, and say once that the plan isn't available right now.
+If it refuses, do as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says, and if it fails twice, give the lines and the engine's words with no plan, and say once that the plan isn't available right now.
 
 **Check the reply before you use it.** Go through every move it names: if a move isn't in what you sent, with the same number, drop that sentence. Drop a sentence too if it names an opening, or says something about the opponent that you didn't send.
 
@@ -138,7 +138,7 @@ Start with the bold answer, with nothing before it. Start a line's heading with 
 
 ## Follow-ups
 
-- **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": never answer from your own reading of the board. Call `engine` on that one position, with `depth` left out and `lines` too, for one Line, or `lines: 3` if they ask what else to play, unless you have its answer already. Step 3's result for a line's last position is the engine's answer there, so a question about it needs no `engine` call. Then call `generate` with Queen, with the question and the Line in the message. Answer in two to four sentences from those two alone. A threat, an attack or a tactic goes in only if a Line plays it against a piece that stands on that square now: a piece that moves there first in the Line and is taken was given up, so give that as the Line's moves. Add no reason of your own, and no note on what you left out. Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` has the rest.
+- **A question about a position** they saw: as `calls.md` says. Step 3's result for a line's last position is the engine's answer there, so a question about it needs no `engine` call.
 
 These read the same file, so the script costs nothing:
 
@@ -153,5 +153,4 @@ These read the same file, so the script costs nothing:
 - Name no price unless they ask, and then add up `cost_usd` and never guess.
 - Every call is billed to the person's ChessDrive Account: one `engine` call and one `generate` call a run, and none for the script.
 - The PGN file and `prep/` stay where this code runs. What goes out is the positions and counts you send to `engine` and `generate`.
-- When a tool says the Balance is empty, pass on its message and its link to Pricing, give what you already have, and stop.
 - Before you send, read your answer once for a number judging a position, a move that isn't in the script's output or an `engine` Line, an opening's name where `opening` is null, such as Sicilian or Caro-Kann for a line that has none, even in a passing phrase, a Line, or a `next` of the person's colour, given as the opponent's own moves, a price they didn't ask for, and anything the tools didn't say. Fix what you find.

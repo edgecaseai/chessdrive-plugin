@@ -12,6 +12,10 @@ Every Study is the same page: ChessDrive's colours and type, a header that says 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your game against Ana</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<script>(() => { // An error once the page runs shows at its top, as a line to paste back to the agent.
+  const say = (why) => document.body?.prepend(Object.assign(document.createElement('p'), { className: 'cd-error', textContent: 'This page hit an error. Paste this line to the agent that made it: ' + why }));
+  for (const on of ['error', 'unhandledrejection']) addEventListener(on, (e) => say(e.reason ? String(e.reason.message ?? e.reason) : e.message + (e.lineno ? ' (line ' + e.lineno + ')' : '')));
+})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@chessdrive/board@0.1.2/dist/board.umd.js"></script>
 <meta name="chessdrive-api" content="https://api-staging.chessdrive.io">
 <style>/* The style, below */</style>
@@ -50,7 +54,7 @@ Every Study is the same page: ChessDrive's colours and type, a header that says 
 - **Buttons** are `.cd-btn`, and `.cd-btn.cd-main` for the one to press next. A list the person clicks through is `.cd-list` of `<button>`s; mark the one on view with `aria-current="true"`. A small label is `.cd-tag`, with `.cd-inaccuracy`, `.cd-mistake` or `.cd-blunder` for a verdict.
 - **Numbers and moves** go in `.cd-num`, which sets them in the mono face.
 
-Load nothing else: no other script, font or stylesheet. The page calls nothing but the keeping script's fetch and live.md's card.
+Load nothing else: no other script, font or stylesheet. The page calls nothing but the keeping script's fetch and live.md's card. The script in `<head>` shows any error the page hits at its top, for the person to paste back to you.
 
 ## The style
 
@@ -159,6 +163,7 @@ chessdrive-board { display: block; width: 100%; --board-font: var(--font-body); 
 .cd-inaccuracy { background: var(--inaccuracy); }
 .cd-mistake { background: var(--mistake); }
 .cd-blunder { background: var(--blunder); }
+.cd-error { margin: 0; padding: 8px 16px; background: var(--danger-soft); color: var(--danger); font: 13px/1.4 var(--font-mono); }
 .cd-made { color: var(--ink-3); font-size: 13px; }
 .cd-made a { color: var(--ink); text-decoration: none; background: linear-gradient(var(--brand), var(--brand)) 0 100% / 100% 2px no-repeat; padding-bottom: 1px; }
 

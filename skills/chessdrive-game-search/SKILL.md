@@ -80,36 +80,34 @@ Use this to ask for more once you have a good example: the moment you confirmed 
 
 ## Step 4: Check every hit you keep
 
-The list holds the closest moments, whether or not they show the idea. First say to yourself in one line what the idea needs on the board, and hold every hit to that line. A back rank mate, for example, is a mate along the mated king's own first rank, which is rank 1 for White and rank 8 for Black, so a mate on the far edge of the board isn't one, however alike it looks.
+The list holds the closest moments, whether or not they show the idea. Knight says which do, never your own reading of the board, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says.
 
 **The number they ask for is the most to show, not a target.** Go down the list in order until you have it, 10 examples if they named no number. A small file may hold fewer: if the list runs out, answer with what you have, as in "I found 2", and never go through the games to reach the number. Take the next hits of the list in batches of up to 100, with `--top` raised, and stop at about 500 positions for one question, or at the end of the list, then say what you have, even if it's fewer than they asked for. That is about a cent and under a minute.
 
 For each batch:
 
-1. **Read the moves around `ply` in each hit's `pgn`.** A hit often sits a move or two before or after the idea, so find the exact moment and use that ply.
-2. **Check them all with one command, `chessdrive engine --positions`.** It's how every hit gets checked: never call the engine once per position or once per game. Write one line per position to a file, `{"pgn": "<pgn>", "ply": <ply>}`, and run:
+1. **The engine, in one command.** Write a line per hit to a file, `{"pgn": "<pgn>", "ply": <ply>}`, and run:
 
    ```bash
    chessdrive engine --positions checks/back-rank-mate.jsonl --depth 10 --out checks/back-rank-mate-results.jsonl
    ```
 
-   Line 7 of the results answers line 7 of the list, with `status`, `fen`, `best_move` and `lines`. A position with no legal moves comes back as `game_over`, so for a mate check the ply before it. A question with a new list gets a new pair of files.
-3. **Only after that, for a hit where the idea may have been missed,** run its whole game, at most 3 games a question, as each takes about 10 seconds. Write those games to one PGN file and run `chessdrive engine --games checks/games.pgn --out checks/games-results.jsonl`, which runs as many at once as the Plan allows: each line gives every move of a game its `verdict` and `best_line`, so read the `best_line` of the moves marked `mistake` or `blunder` with code.
-4. **Keep it only if the board shows the idea.** It has to happen in the moves of the game or in the engine's best line, and you must be able to say where. For a tactic, name the piece that moves, what it hits and what it wins. If only the best line has it, say the player missed it. Drop anything you can only call similar.
+   Line 7 of the results answers line 7 of the list, with `status`, `fen`, `best_move` and `lines`. A position with no legal moves comes back as `game_over`, so for a mate send the ply before it. A question with a new list gets a new pair of files. Never call the engine once per position, and never run one on this machine: every engine answer comes from ChessDrive.
+2. **Knight, all at once.** One Knight call a hit with `ask.py`, `"id"` its game and ply, on its `pgn` and `ply`, with this `system`, and a `message` of the game's moves from four before `ply` to four after it, numbered, the engine's first Line, and `Does this show "<the idea in the person's words>"?`:
 
-**Never run an engine on this machine,** even if one is installed. Most people have none, so the same question would give them less. Every engine answer comes from ChessDrive.
+   ```text
+   You check whether a moment of a chess game shows an idea. Answer "yes" or "no" first. On yes, name the move where it happens, and say in one sentence what happens there: the piece that moves, what it hits and what it wins. If only the engine's Line has it, say the player missed it. Use only the moves you are given.
+   ```
 
-**Don't write chess code to check a hit.** The engine's answer gives the position as a `fen`, so read the board from it. To test many positions by rule, use a chess library, such as python-chess through `uv run --with chess python`, and never move logic of your own. A check that takes more than a few tool calls is a sign to drop the hit and take the next.
+3. **Keep a hit on Knight's yes, and only then,** with no second reading of your own, at the move it names, found in the `pgn` with code, with its sentence as the hit's note.
 
-Judge positions in words, never with an evaluation number, and name only moves from the game or from a tool. Count the hits you read, the ones the engine checked and the ones you dropped, and report those counts as they are.
+Judge positions in words, never with an evaluation number, and name only moves from the game or from a tool. Count the hits you read, the ones the engine checked and the ones Knight kept, and report those counts as they are.
 
-**Few hits never prove an idea is absent.** The list is nearest neighbours: it can miss real examples, and scores say nothing about whether one exists. Say "I found 4", never "there are only 4" or "your games have no pins". If the person needs every example, tell them this finds good ones, not all of them.
-
-A `score` only orders the hits of one search, and for words it's about 0.3 to 0.5 even for the best. Leave it out of your answer.
+**Few hits never prove an idea is absent.** The list is nearest neighbours: it can miss real examples, and scores say nothing about whether one exists. Say "I found 4", never "there are only 4" or "your games have no pins". If the person needs every example, tell them this finds good ones, not all of them. A `score` only orders the hits of one search, and for words it's about 0.3 to 0.5 even for the best. Leave it out of your answer.
 
 ## Step 5: Hand back the examples
 
-Write the examples you kept to `picks.json`, best first, each with its moment and a one-line note on what happens there. Add `"source"` as well if the run had several PGN files:
+Write the examples you kept to `picks.json`, in the list's order, each with its moment and Knight's sentence as its note. Add `"source"` as well if the run had several PGN files:
 
 ```json
 [{"game": 29, "ply": 55, "note": "28.Rc8# mates on the back rank: the pawns on f7, g7 and h7 box in the king."}]
@@ -121,7 +119,7 @@ python3 <here>/examples.py games.npy picks.json --out back-rank-mates.pgn --titl
 
 Each example is its whole game with your note at the moment. The file opens as a Lichess study: in a study, New chapter, PGN, paste the file. Each game becomes a chapter, up to 64 in a study. Lichess's single-game import isn't the place for it, as it reads only the first game of a paste.
 
-Then build the person a Study with the `chessdrive-study` Skill beside this one: a page in the frame without `data-moves`, with one Board and, in its panel, a `.cd-list` of the examples with their notes. Clicking an example puts it on the Board, at its `pgn` and `ply`, in `mode: "play-both"` with its way back. Read `frame.md` and `board.md`, Trying moves included, in `<this Skill's folder>/../chessdrive-study/references/`. Open the page for the person with `open`, `xdg-open` or `start`. It makes no ChessDrive calls and needs no Connector. If that Skill isn't there, call the Connector's `engine` tool once with `positions` holding your best three as `{"fen": "<its fen>"}` and `depth: 10`, and make each one's move a link to its `board_url`, using its `show_board` tool for a mate. With no Connector either, point to each by its game and move.
+Then build the person a Study with the `chessdrive-study` Skill beside this one: a page in the frame without `data-moves`, with one Board and, in its panel, a `.cd-list` of the examples with their notes. Clicking an example puts it on the Board, at its `pgn` and `ply`, in `mode: "play-both"` with its way back. Read `frame.md` and `board.md`, Trying moves included, in `<this Skill's folder>/../chessdrive-study/references/`, and run its `../scripts/check.py <the page>` until it prints `ok`. Open the page for the person with `open`, `xdg-open` or `start`. It makes no ChessDrive calls and needs no Connector. If that Skill isn't there, call the Connector's `engine` tool once with `positions` holding your best three as `{"fen": "<its fen>"}` and `depth: 10`, and make each one's move a link to its `board_url`, using its `show_board` tool for a mate. With no Connector either, point to each by its game and move.
 
 Then answer in exactly this shape, with no table:
 
@@ -140,18 +138,17 @@ The PGN file and the vector file, with its size in positions: paths in a coding 
 
 Later questions read that file, so finish by saying so in one short line: the search takes seconds, and the checks take as long as you do. If they ask what one costs: a new phrase is one Embed item, a position already in the file is no Embed call at all, and 100 engine checks are about a fifth of a cent, so a question costs about a cent at most.
 
-**To explain an example,** call `generate` with `model: "queen"` on the same `{pgn, ply}`. If it answers `plan_required`, use Knight and say so in one line. If it answers `upstream_unavailable`, make the same call once more. If that fails too, give the engine's Line with no explanation, and add no note about it. Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it.
+**To explain an example,** ask Queen on the same `{pgn, ply}`, as `calls.md` says.
 
 ## Follow-ups
 
-- **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": never answer from your own reading of the board. Call `engine` on that one position, with `depth` left out and `lines` too, for one Line, or `lines: 3` if they ask what else to play, unless you have its answer already. A hit's row in the results file is the engine's answer for its position, so a question about it needs no `engine` call, and To explain an example in Step 5 is the same call to `generate`. Then call `generate` with Queen, with the question and the Line in the message. Answer in two to four sentences from those two alone. A threat, an attack or a tactic goes in only if a Line plays it against a piece that stands on that square now: a piece that moves there first in the Line and is taken was given up, so give that as the Line's moves. Add no reason of your own, and no note on what you left out. Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` has the rest.
+- **A question about a position** they saw: as `calls.md` says. A hit's row in the results file is the engine's answer for its position, so a question about it needs no `engine` call.
 
 ## When a call is refused
 
 `chessdrive embed`, `chessdrive engine --positions` and `--games` handle `429 rate_limited` themselves: they wait and carry on. The rest is in `chessdrive-vectors`, and after you act the same command carries on from the rows written:
 
 - `daily_limit_reached` stops a run on Free. Run the command again after midnight UTC, or after the person moves to a paid Plan.
-- **The Balance is empty:** pass on the message and its link to Pricing, and stop.
 - **One bad game** stops the run, naming the row, the game and the ply. Ask to remove that game from the file, then run the command again.
 
 ## Rules

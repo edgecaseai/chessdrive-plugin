@@ -5,13 +5,13 @@ description: Find the mistakes a chess player keeps making across their last 30 
 
 # Patterns
 
-You find what a player keeps getting wrong. The engine marks their mistakes, code groups them, the chess model names the groups and explains each example, so nothing rests on your own reading of the board. It needs somewhere to run code, and is built on the `chessdrive-vectors` Skill beside this one.
+You find what a player keeps getting wrong. The engine marks their mistakes, code groups them, Queen names the groups, and Knight checks each name against its examples and explains them, so nothing rests on your own reading of the board. It needs somewhere to run code, and is built on the `chessdrive-vectors` Skill beside this one. Read its `references/calls.md` before your first call: it has who judges what, how to make calls at once and what to do when one is refused.
 
 Three limits hold in everything you write:
 
 - **Judge positions in words.** Never write centipawns, a score such as `+1.3`, a win percentage or a closeness score.
 - **Name only moves the tools gave you:** a move of the game, a `best`, an `allowed`, or a `generate` answer's `lines`. Copy them exactly.
-- **A group is a lead, not a proof.** A group holds mistakes that look alike on the board and in what the engine's lines say they allowed, and a name is the chess model's reading of five of them. Say how many of the five show it, and never say every mistake in a group is that kind.
+- **A group is a lead, not a proof.** A group holds mistakes that look alike on the board and in what the engine's lines say they allowed, and a name is the chess model's reading of five of them. Say how many of the five Knight found show it, and never say every mistake in a group is that kind.
 
 ## If they ask what this does, or give too little
 
@@ -95,7 +95,7 @@ A group holds at least 3 mistakes from at least 3 games. A player with few mista
 
 ## Step 4: Name the groups
 
-Ask Queen once per group, about the first example, with this `system`, filling in the player's rating. Pipe the example's `pgn` to `chessdrive generate --model queen --pgn - --ply <its ply> --no-stream --system "<system>" "<message>"`. Run these two at a time, two processes at once: they don't use each other's answers, so they needn't run one by one. Never run more than two at once, as the engine's notes behind each reply are then skipped without a word, and the replies get worse.
+Ask Queen once per group, all at once with `ask.py` as `calls.md` says, each with the first example's `pgn` and `ply`, `"id"` the group's number, and this `system`, filling in the player's rating.
 
 ```text
 You help a chess player of about {rating} see what their mistakes have in common. You get a few of their mistakes.
@@ -103,7 +103,7 @@ In a phrase of at most eight plain words, name what links at least two of them, 
 Then say in one sentence what to check before moving. Use only the moves you are given, and no numbers. If nothing links even two of them, say "No clear idea".
 ```
 
-Send one `user` message, with a line for each example:
+Its `message`, with a line for each example:
 
 ```text
 These mistakes were grouped as alike:
@@ -111,17 +111,11 @@ These mistakes were grouped as alike:
 What do they have in common?
 ```
 
-Leave `--max-tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it. If a call answers `plan_required`, make it and the rest with `--model knight`, and say so in one line of your answer. If it answers `429 rate_limited`, wait the `retry after` it gives and run the same command again. If it answers `upstream_unavailable`, run it once more. If that fails too, name the group from its examples alone, and add no note about it.
-
-**Check each name against its five examples.** Go through them one at a time: read `move`, `best`, `allowed` and `text`, and decide whether that example's moves show the name. The count is what you found for that group, and groups differ. Add no tactic of your own. Two groups with the same name are one idea: keep the larger, and count the other as left out.
-
-Then write `patterns/names.json`, one object for each group you named, "No clear idea" included:
+A group with no answer, `null`, is named "No clear idea". Two groups with the same name are one idea: keep the larger, and count the other as left out. Then write `patterns/names.json`, one object for each group, "No clear idea" included, with the reply's name and its sentence on what to check before moving, word for word:
 
 ```json
-[{"group": 1, "name": "Moving the piece that guarded another", "check": "Before you move a piece, ask what it was guarding.", "fit": [2, 1, 4]}]
+[{"group": 1, "name": "Moving the piece that guarded another", "check": "Before you move a piece, ask what it was guarding."}]
 ```
-
-`name` is the name, `check` the sentence on what to check before moving, and `fit` the examples whose moves show the name, numbered from 1 in the order Step 3 printed them, the best fit first. A name stays only if at least **3 of the 5** fit. Step 5 leaves out the rest, and you say how many.
 
 ## Step 5: Explain them, and build the Study
 
@@ -129,11 +123,11 @@ Then write `patterns/names.json`, one object for each group you named, "No clear
 python3 <this Skill's folder>/scripts/study.py patterns --rating <their rating>
 ```
 
-It keeps each group whose name fits at least 3 of its 5 examples, takes the first 3 that fit, each from a different game, and makes one Knight call for each, all at once, saying what the move allowed from the engine's Lines, and how that shows the group's name where the Lines do. A reply that names a move it wasn't given, or a number, is asked again, then replaced by the engine's Line. It then builds the Study, `patterns/your-mistakes.html`, in the `chessdrive-study` Skill's frame: the Board, and beside it the groups by name with their examples, which put each mistake on the Board, facing their side, with its move in red and the better one in green, to try moves from and come back. Stopped, the same command bills no example twice.
+It asks Knight whether each of a group's five examples shows its name, keeps the group if at least **3 of the 5** do, takes the first 3 that do, each from a different game, and asks Knight what each move allowed, from the engine's Lines, and how that shows the group's name where the Lines do, 6 calls at once. A reply that names a move it wasn't given, or a number, is asked again, then labelled and given the engine's Line. It then builds the Study, `patterns/your-mistakes.html`, in the `chessdrive-study` Skill's frame: the "Ask about this position" card, the Board, and beside it the groups by name with their examples, which put each mistake on the Board, facing their side, with its move in red and the better one in green, to try moves from and come back. Stopped, the same command bills no call twice.
 
 It prints a line for each group kept, with `name`, `check`, `size`, `games`, `fit`, `checked` and its 3 `examples`, each with `move`, `opponent`, `date`, `site`, `better`, `allowed` and `why`, Knight's line. Then the totals: `kept`, `left_out` and `study`, the page's full path. Open it for the person with `open`, `xdg-open` or `start`. Don't build or change the page by hand.
 
-If `kept` is 0, no name held and there's no page: say so plainly, with how many groups were left out, name no habit, and offer a review of their worst game instead. Otherwise, if `study` is `null`, the `chessdrive-study` Skill isn't there: make each example's move a link to its position on the Board, as Board links in `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says, with no new call.
+If `kept` is 0, no name held and there's no page: say so plainly, with how many groups were left out, name no habit, and offer a review of their worst game instead. An example whose `from_knight` is false says the chess model didn't explain it: say how many. Otherwise, if `study` is `null`, the `chessdrive-study` Skill isn't there: make each example's move a link to its position on the Board, as Board links in `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says, with no new call.
 
 ## Step 6: Answer
 
@@ -162,7 +156,7 @@ Start with the bold answer, with nothing before it. Give each group its three ex
 
 ## Follow-ups
 
-- **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": never answer from your own reading of the board. Call `engine` on that one position, with `depth` left out and `lines` too, for one Line, or `lines: 3` if they ask what else to play, unless you have its answer already. Every mistake the engine marked is a line of `patterns/mistakes.jsonl`, with its `pgn`, `ply`, `best` and `allowed`, not only the examples you showed: look a move up there by `opponent` and `move` before you say it wasn't marked. A position the game never reached, such as the one after a move of `allowed`, is still one to answer: Follow-ups says how to send it. `best` and `allowed` are the engine's Lines from a mistake's `fen` and from the position after its `move`, so a question about either needs no `engine` call. Then call `generate` with Queen, with the question and the Line in the message. Answer in two to four sentences from those two alone. A threat, an attack or a tactic goes in only if a Line plays it against a piece that stands on that square now: a piece that moves there first in the Line and is taken was given up, so give that as the Line's moves. Add no reason of your own, and no note on what you left out. Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` has the rest.
+- **A question about a position** they saw: as `calls.md` says. Every mistake the engine marked is a line of `patterns/mistakes.jsonl`, with its `pgn`, `ply`, `best` and `allowed`, not only the examples you showed: look a move up there by `opponent` and `move` before you say it wasn't marked. `best` and `allowed` are the engine's Lines from a mistake's `fen` and from the position after its `move`, so a question about either needs no `engine` call.
 - **"Turn group 1 into a drill":** run `python3 <this Skill's folder>/scripts/groups.py patterns --examples 10`, which shows more of the same groups, and make one game per mistake, in one PGN block, each with `[SetUp "1"]`, `[FEN "<fen>"]` and `[Result "*"]`. Its moves are `best`, after a first comment such as `{ You played 14...Qd7 here. Find better. }`.
 
 ## Rules
@@ -173,5 +167,4 @@ Start with the bold answer, with nothing before it. Give each group its three ex
 - Never print or read vectors, and open `.npy` files only through the scripts. Knight's lines in `patterns/texts.json` are for grouping: quote `text` in an answer only as a group's examples, never as a list. If a vector does reach your output, leave it out of your answer and fix the code.
 - Low closeness or a small group doesn't show a player never makes a mistake of some kind. Only say what the groups show, and never say something is absent.
 - `daily_limit_reached` stops a run on Free: tell the person, and run the same command after midnight UTC or after they move to a paid Plan.
-- When a tool says the Balance is empty, pass on its message and its link to Pricing, give what you already have, and stop.
 - Before you send, read your answer once for a number judging a position, a closeness score, a mark that isn't the move's `verdict`, a group without its three examples, a name that fits fewer than three of five, a price they didn't ask for, and anything the tools didn't say. Fix what you find.

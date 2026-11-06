@@ -33,7 +33,7 @@ The Board draws verdicts itself: in the move list, on the move's square, and the
 - The key is the Board `ply` after the move: `moves[i].ply + 1`.
 - Build them in page code from `DATA.moves`, so none goes missing, not by hand.
 - The glyph comes only from `verdict`: `?!` for `inaccuracy`, `?` for `mistake`, `??` for `blunder`. A `best` or `good` move gets none: the Board's `!` and `!!` would read as praise the engine didn't give.
-- The comment starts with the verdict's word: "Mistake. …", then `generate`'s explanation. Where you have none, it's only "Inaccuracy. Better was 14...Nf6.", from `best_line`, with no reason of your own.
+- The comment starts with the verdict's word: "Mistake. …", then the move's note. Where no model gave one, it says so, as in "Inaccuracy. No explanation: the chess model didn't answer.", never a note of your own.
 - Set them with the `pgn`, in the same `set`. A new game clears them, and a move played from an earlier ply drops those on the moves it replaced.
 
 ## Commands and events
