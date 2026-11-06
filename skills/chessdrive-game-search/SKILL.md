@@ -13,7 +13,7 @@ Say this, and wait: "Give me your PGN files and an idea in a few words, such as 
 
 ## What you need
 
-This builds on `<this Skill's folder>/../chessdrive-vectors/`. If that folder isn't there, only part of the Plugin was installed: ask them to add the whole Plugin from https://platform-staging.chessdrive.io/skills, and stop.
+This builds on `<this Skill's folder>/../chessdrive-vectors/`. If that folder isn't there, only part of the Plugin was installed: ask them to add the whole Plugin from https://platform.chessdrive.io/skills, and stop.
 
 Before anything else, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says. It checks each of these and walks the person through whatever is missing, one step at a time. This Skill needs somewhere to run code, the CLI at 0.6.0 or later, signed in, and Python with NumPy. In Claude's chat app, read "the person's machine" in `chessdrive-vectors` as Claude's sandbox.
 

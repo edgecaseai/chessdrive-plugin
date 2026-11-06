@@ -14,20 +14,20 @@ Chess Skills for your agent. Where your agent runs code, they call ChessDrive th
   claude plugin install chessdrive@chessdrive
   ```
 
-- **Cursor, Codex and other agents:** paste the setup prompt from [Add ChessDrive to your AI](https://platform-staging.chessdrive.io/cookbook/add-to-your-ai).
+- **Cursor, Codex and other agents:** paste the setup prompt from [Add ChessDrive to your AI](https://platform.chessdrive.io/cookbook/add-to-your-ai).
 
 Signing in connects your ChessDrive Account. Calls are billed to its Balance, as API calls are.
 
 ## The CLI
 
-The Skills that run code use the `chessdrive` CLI. On Windows, follow [the CLI docs](https://platform-staging.chessdrive.io/docs/cli).
+The Skills that run code use the `chessdrive` CLI. On Windows, follow [the CLI docs](https://platform.chessdrive.io/docs/cli).
 
 ```bash
 npm install -g chessdrive
 chessdrive login
 ```
 
-Without npm, `curl -fsSL https://platform-staging.chessdrive.io/install.sh | sh`.
+Without npm, `curl -fsSL https://platform.chessdrive.io/install.sh | sh`.
 
 ## Skills
 

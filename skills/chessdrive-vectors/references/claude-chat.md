@@ -5,7 +5,7 @@ Claude's chat runs your code in a sandbox, not on the person's computer, and eve
 ## 1. Check the way in
 
 ```bash
-curl -sS -o /dev/null -w '%{http_code}\n' https://api-staging.chessdrive.io/v1/models
+curl -sS -o /dev/null -w '%{http_code}\n' https://api.chessdrive.io/v1/models
 ```
 
 `200` means carry on. Anything else, often `CONNECT tunnel failed, response 403`, means the sandbox can't reach ChessDrive yet. Stop, try no other way in, and tell the person in plain words:
@@ -31,13 +31,13 @@ npm install -g chessdrive
 ## 3. Sign in
 
 ```bash
-chessdrive login --no-wait --base-url https://api-staging.chessdrive.io
+chessdrive login --no-wait --base-url https://api.chessdrive.io
 ```
 
 It prints a link and a code, then returns. Give the person the link, ask them to check the code and choose Allow, and wait until they say they have. Then finish:
 
 ```bash
-chessdrive login --base-url https://api-staging.chessdrive.io
+chessdrive login --base-url https://api.chessdrive.io
 ```
 
 If it says the sign-in has run out, start again from the first command. The key stays in the sandbox and never passes through the chat.

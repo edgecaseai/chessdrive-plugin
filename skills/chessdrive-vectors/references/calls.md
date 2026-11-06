@@ -64,4 +64,4 @@ The CLI prints the API's code and message, and exits with a code of its own. Do 
 
 ## Board links
 
-The CLI gives no `board_url`. Where a Skill links a position to the Board and no Study shows it, build the link from the position with code, as in `python3 -c 'import sys, urllib.parse as u; print("https://platform-staging.chessdrive.io/board#fen=" + u.quote_plus(sys.argv[1]))' "<fen>"`, or for a game `#pgn=<pgn>&ply=<ply>`, each quoted the same way.
+The CLI gives no `board_url`. Where a Skill links a position to the Board and no Study shows it, build the link from the position with code, as in `python3 -c 'import sys, urllib.parse as u; print("https://platform.chessdrive.io/board#fen=" + u.quote_plus(sys.argv[1]))' "<fen>"`, or for a game `#pgn=<pgn>&ply=<ply>`, each quoted the same way.

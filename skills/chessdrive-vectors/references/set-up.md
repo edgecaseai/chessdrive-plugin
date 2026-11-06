@@ -20,7 +20,7 @@ Say that the CLI is a small program that lets you call ChessDrive's engine and c
 npm install -g chessdrive
 ```
 
-Without `npm`, run `curl -fsSL https://platform-staging.chessdrive.io/install.sh | sh`, or on Windows give them https://platform-staging.chessdrive.io/docs/cli, which has the download.
+Without `npm`, run `curl -fsSL https://platform.chessdrive.io/install.sh | sh`, or on Windows give them https://platform.chessdrive.io/docs/cli, which has the download.
 
 If it says its folder isn't on the `PATH`, run the `export` line it prints, and use the same line in each later command.
 
@@ -33,13 +33,13 @@ Ask to run `chessdrive update`. If the CLI doesn't have `update`, install it aga
 Signing in is the person's to do, in their browser, so a key never passes through the chat. It's free, and it makes a ChessDrive account if they have none.
 
 ```bash
-chessdrive login --no-wait --base-url https://api-staging.chessdrive.io
+chessdrive login --no-wait --base-url https://api.chessdrive.io
 ```
 
 It prints a link and a code, then returns. Give them the link, ask them to check the code and choose Allow, and wait until they say they have. Then finish:
 
 ```bash
-chessdrive login --base-url https://api-staging.chessdrive.io
+chessdrive login --base-url https://api.chessdrive.io
 ```
 
 If it says the sign-in has run out, start again from the first command. If `--no-wait` is an unknown flag, the CLI is too old: update it first. Never ask for a key, or for a password.
@@ -49,16 +49,16 @@ If it says the sign-in has run out, start again from the first command. If `--no
 Say that ChessDrive isn't connected to your app yet, and give them the steps for their app, one at a time. They only do this once.
 
 - **Claude's chat or desktop app:** in a chat, open Customize, then Plugins, then ChessDrive. On its Connectors tab, press Connect, sign in to ChessDrive and pick a daily limit.
-- **Claude Code:** the Plugin's Connector uses the key `chessdrive login` saved. Once the CLI is signed in, ask them to type `/mcp`, choose `chessdrive` and press Reconnect. If it isn't listed, ask to run `claude mcp add-json --scope user chessdrive '{"type":"http","url":"https://api-staging.chessdrive.io/mcp","headersHelper":"chessdrive key --headers"}'`, then restart Claude Code.
+- **Claude Code:** the Plugin's Connector uses the key `chessdrive login` saved. Once the CLI is signed in, ask them to type `/mcp`, choose `chessdrive` and press Reconnect. If it isn't listed, ask to run `claude mcp add-json --scope user chessdrive '{"type":"http","url":"https://api.chessdrive.io/mcp","headersHelper":"chessdrive key --headers"}'`, then restart Claude Code.
 - **Codex:** ask to add this to `~/.codex/config.toml`, with the full path `command -v chessdrive` gives, then restart Codex:
 
   ```toml
   [mcp_servers.chessdrive]
-  url = "https://api-staging.chessdrive.io/mcp"
+  url = "https://api.chessdrive.io/mcp"
   http_headers_helper = "/full/path/to/chessdrive key --headers"
   ```
 
-- **Cursor:** ask to add a `chessdrive` server to `~/.cursor/mcp.json` with `"url": "https://api-staging.chessdrive.io/mcp"` and `"headers": { "Authorization": "Bearer ${env:CHESSDRIVE_CONNECTOR_KEY}" }`, and `export CHESSDRIVE_CONNECTOR_KEY="$(chessdrive key 2>/dev/null)"` in their shell's startup file, then restart Cursor. On Windows, leave out the headers and sign in when Cursor asks.
-- **Any other agent:** add `https://api-staging.chessdrive.io/mcp` as a remote MCP server named `chessdrive`, sending `Authorization: Bearer` and the key `chessdrive key` prints, or sign in when it asks.
+- **Cursor:** ask to add a `chessdrive` server to `~/.cursor/mcp.json` with `"url": "https://api.chessdrive.io/mcp"` and `"headers": { "Authorization": "Bearer ${env:CHESSDRIVE_CONNECTOR_KEY}" }`, and `export CHESSDRIVE_CONNECTOR_KEY="$(chessdrive key 2>/dev/null)"` in their shell's startup file, then restart Cursor. On Windows, leave out the headers and sign in when Cursor asks.
+- **Any other agent:** add `https://api.chessdrive.io/mcp` as a remote MCP server named `chessdrive`, sending `Authorization: Bearer` and the key `chessdrive key` prints, or sign in when it asks.
 
 Then ask them to start a new chat if the tools still don't appear, as some apps load them only at the start.

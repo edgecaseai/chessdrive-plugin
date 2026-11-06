@@ -17,7 +17,7 @@ Every Study is the same page: ChessDrive's colours and type, a header that says 
   for (const on of ['error', 'unhandledrejection']) addEventListener(on, (e) => say(e.reason ? String(e.reason.message ?? e.reason) : e.message + (e.lineno ? ' (line ' + e.lineno + ')' : '')));
 })();</script>
 <script src="https://cdn.jsdelivr.net/npm/@chessdrive/board@0.1.2/dist/board.umd.js"></script>
-<meta name="chessdrive-api" content="https://api-staging.chessdrive.io">
+<meta name="chessdrive-api" content="https://api.chessdrive.io">
 <style>/* The style, below */</style>
 </head>
 <body>
@@ -35,7 +35,7 @@ Every Study is the same page: ChessDrive's colours and type, a header that says 
   </aside>
   <p class="cd-keep" hidden><button class="cd-btn" data-keep="download">Download</button> <button class="cd-btn" data-keep="pdf">Save as PDF</button></p>
   <section class="cd-more">…</section>
-  <footer class="cd-made">Made with <a href="https://platform-staging.chessdrive.io/?utm_source=study&utm_campaign=KIND" target="_blank" rel="noopener">ChessDrive</a></footer>
+  <footer class="cd-made">Made with <a href="https://platform.chessdrive.io/?utm_source=study&utm_campaign=KIND" target="_blank" rel="noopener">ChessDrive</a></footer>
 </div>
 <script>
 (() => {

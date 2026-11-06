@@ -285,7 +285,7 @@ def page(data, api=None, key=None):
     out = put(out, '<section class="cd-card"><h2>Turning points</h2>…</section>', card.strip() + "\n    " + PANEL)
     if api:
         metas = f'<meta name="chessdrive-api" content="{html.escape(api)}">' + (f'\n<meta name="chessdrive-key" content="{html.escape(key)}">' if key else "")
-        out = put(out, '<meta name="chessdrive-api" content="https://api-staging.chessdrive.io">', metas)
+        out = put(out, '<meta name="chessdrive-api" content="https://api.chessdrive.io">', metas)
     out = put(out, '<section class="cd-more">…</section>', MORE)
     out = put(out, "utm_campaign=KIND", "utm_campaign=other")
     out = put(out, "<style>/* The style, below */</style>", "<style>\n" + style + live_style + STYLE + "</style>")

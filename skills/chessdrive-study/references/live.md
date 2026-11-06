@@ -16,7 +16,7 @@ Never print the key in the chat, and never write it anywhere but the page's `<me
 In the frame's `<head>`, after the Board's script, the API's address from the key's answer (`api_url`), and the key itself when you made one:
 
 ```html
-<meta name="chessdrive-api" content="https://api-staging.chessdrive.io">
+<meta name="chessdrive-api" content="https://api.chessdrive.io">
 <meta name="chessdrive-key" content="ck_…">
 ```
 

@@ -26,7 +26,7 @@ WRAPPED = re.compile(r"^\(\s*(?:\(\s*\)\s*=>|(?:async\s+)?function\b[^(]*\(\s*\)
 UNSAFE = re.compile(r"\.(?:innerHTML|outerHTML)\s*[+]?=|insertAdjacentHTML|document\.write")
 KEY = re.compile(r"\b(?:ck|sk|cd)_[A-Za-z0-9]{20,}")
 STUDY_KEY = re.compile(r'<meta name="chessdrive-key" content="[^"]*">')
-SITE = "https://platform-staging.chessdrive.io/"
+SITE = "https://platform.chessdrive.io/"
 FOOTER = re.compile(re.escape(f'<footer class="cd-made">Made with <a href="{SITE}?utm_source=study&') + r'(?:amp;)?utm_campaign=[a-z]+"')
 
 
