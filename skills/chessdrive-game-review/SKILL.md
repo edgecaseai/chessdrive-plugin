@@ -56,26 +56,29 @@ With the Connector, it's `{"engine": "stockfish", "position": {"pgn": "<the PGN>
 - `best_line`, the engine's Line from before the move
 - `board_url`, from the Connector only, on inaccuracies, mistakes and blunders: that position, with the engine's move drawn on it
 
-Read `review/engine.json` with code, never by eye: a game's answer is long. This example prints the moves that went wrong; change it to print what you need:
+Read `review/engine.json` with code, never by eye: a game's answer is long. This example prints the moves that went wrong, each with the words for the position before and after it, which you copy into your answer; change it to print what you need:
 
 ```python
 import json
+def words(e):
+    if e.get("mate") is not None: return "mating"
+    cp = e["cp"]; side = "White" if cp > 0 else "Black"; a = abs(cp)
+    return "about equal" if a < 50 else f"{side} a little better" if a < 150 else f"{side} clearly better" if a < 300 else f"{side} winning"
 for m in json.load(open("review/engine.json", encoding="utf-8"))["moves"]:
     if m["verdict"] in ("inaccuracy", "mistake", "blunder"):
-        score = lambda e: f"mate {e['mate']}" if e.get("mate") is not None else f"cp {e.get('cp')}"
         print(m["ply"], f"{m['move_number']}{'.' if m['color'] == 'white' else '...'}{m['move']['san']}", m["verdict"], m["win_chance_lost"],
-              score(m["eval_before"]), score(m["eval_after"]), " ".join(x["san"] for x in m["best_line"][:6]))
+              f"before: {words(m['eval_before'])}; after: {words(m['eval_after'])}", " ".join(x["san"] for x in m["best_line"][:6]))
 ```
 
 With the Connector, a long game's answer can be too big for your app to show you at once. If it saves the answer to a file, read `moves` from there with your own tools; don't call `engine` again.
 
 If `engine` says the PGN doesn't parse, tell them a move in its main line is illegal or the text isn't a game, and ask them to copy it again. Don't try to repair it. On `limit_too_high` the game is too long for one call: call again with `depth: 10`, `--depth 10` with the CLI, and say so in one line.
 
-Turn evaluations into words, and use them everywhere: under 50 `cp` either way is about equal, under 150 a little better, under 300 clearly better, more is winning, and a `mate` is mating.
+Turn evaluations into words, and use them everywhere: under 50 `cp` either way is about equal, under 150 a little better, under 300 clearly better, 300 or more is winning, and a `mate` is mating. Every "about equal", "a little better", "clearly better" or "winning" you write is the band of one number, as `words` above prints it: the position before a move is its `eval_before`, the one after it its `eval_after`. Take the words from the number each time, and never from a reply's words or from how the game went on. A move that "threw away a win" had a winning `eval_before`; one that "let the win go to a draw" has an `eval_after` that's about equal.
 
 ## Step 3: Pick the moves
 
-- **For me:** the person's three worst moves are their mistakes and blunders with the highest `win_chance_lost`. The turning points are up to three mistakes or blunders, by either side, after which a different side stood better or a level game stopped being level. The moves to explain are those two groups, the worst three first, at most 5.
+- **For me:** the person's three worst moves are their mistakes and blunders with the highest `win_chance_lost`. The turning points are up to three mistakes or blunders, by either side, after which a different side stood better or a level game stopped being level. The moves to explain are those two groups, the worst three first, at most 5. An inaccuracy never goes in while the person has a mistake or a blunder, however early or costly it was.
 - **For a video or article:** the 5 mistakes and blunders, by either side, with the highest `win_chance_lost`.
 
 **No mistakes:** if the person made no mistake or blunder, say so plainly: "The engine found no mistakes or blunders by you in this game." Then explain their worst inaccuracy if they have one, and any mistake of their opponent's that decided the game. With fewer than three, give the ones there are. Never pad the list.
@@ -99,13 +102,13 @@ Send one `user` message:
 
 Leave `max_tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it.
 
-If a call answers `plan_required`, make it and the rest on `model: "knight"`, and say so in one line of your answer. If it answers `429 rate_limited`, wait for `Retry-After` and retry the same call. If it answers `upstream_unavailable`, make the same call once more. If that fails too, give that move's verdict and the engine's Line with no explanation, and add no note about it. If every call fails, say once that the explanations aren't available right now.
+If a call answers `plan_required`, make it and the rest on `model: "knight"`, and say so in one line of your answer. If it answers `429 rate_limited`, wait for `Retry-After` and retry the same call. If it answers `upstream_unavailable`, make the same call once more. If that fails too, give that move's verdict and the engine's Line with no explanation, and add no note about it. If every call fails, say once that the explanations aren't available right now. A reply that stops mid-sentence and lists no Lines was cut off by its own thinking: the CLI notes "cut off at --max-tokens" under it, and the Connector answers `finish_reason` `max_tokens`. Make the same call once more, which most often finishes, and treat a second cut-off as a failed call. Every move you list gets its call: never skip one to save a call.
 
-Replies link each move as `[text](line:L1)`, and `lines` holds the moves that passed as legal; the CLI marks them `[L1]` and lists the Lines after the reply. Write the moves as plain text. A link with no match in `lines` named an illegal move, so drop that sentence. Where a reply and the engine disagree, the engine is right. Build your answer from the replies and the Lines, and add no tactics of your own: the lesson and every "what it allowed" must be something they show.
+Replies link each move as `[text](line:L1)`, and `lines` holds the moves that passed as legal; the CLI marks them `[L1]` and lists the Lines after the reply. Write the moves as plain text. A link with no match in `lines` named an illegal move, so drop that sentence. Where a reply and the engine disagree, the engine is right. Build your answer from the replies and the Lines, and add no tactics of your own: the lesson and every "what it allowed" must be something they show. A reply's claim about material, such as a piece won or the bishop pair, or its name for a pattern, such as a Greek gift, stands only when the Line's moves show it, as a capture there; otherwise keep the moves and drop the claim.
 
 ## Step 5: Build a Study
 
-Before you write your answer, build the person a page of this game with the `chessdrive-study` Skill: the Board, the verdicts on the moves and your explanations, to step through. Do this in every run. Don't offer it or ask first, and make no new ChessDrive calls. Read `frame.md`, `board.md` and `review.md` in `<this Skill's folder>/../chessdrive-study/references/`, and fill the page from the `engine` answer and the `generate` replies you already have, writing `DATA` from `review/engine.json` with code. Its orientation is the person's colour, or White if you don't know it.
+Before you write your answer, build the person a page of this game with the `chessdrive-study` Skill: the Board, the verdicts on the moves and your explanations, to step through. Do this in every run, in both modes: a video or article gets the same Game review page, whose explanations are the comments you wrote for the annotated PGN, so the person steps through the game while they record or write. Don't offer it or ask first, and make no new ChessDrive calls. Read `frame.md`, `board.md` and `review.md` in `<this Skill's folder>/../chessdrive-study/references/`, and fill the page from the `engine` answer and the `generate` replies you already have, writing `DATA` from `review/engine.json` with code. Its orientation is the person's colour, or White if you don't know it.
 
 A coding agent always builds the Study, as the page is a file it opens: `show_board` isn't a way round it. If your app can't show a page, as in a chat with no artifacts, or that Skill isn't there, call `show_board` instead, once, before your answer, with `pgn`, `ply: 0`, `orientation`, `moves: true`, `mode: "play-both"`, so the person can try their own moves, and `annotations`. Each key is a move's `ply + 1`, each glyph is the mark above, and each comment is `generate`'s explanation or empty. Where no board shows, or you have no `show_board`, make the move in its heading a link to its position on the Board, its `board_url` or the link Board links in `calls.md` builds, as in `### [14...Qd7??](link) The queen left f7`.
 
@@ -134,7 +137,7 @@ What it allowed, and the move to play instead.
 Want a drill of your three worst moves?
 ```
 
-List the moves from Step 3 once each, in game order, so a move that is both a turning point and one of the worst three gets one heading. A heading is the move with its mark and a few words on what it did. Under it, write one or two sentences at the player's level: a beginner gets plain ideas such as "the knight was undefended", a strong player gets the idea behind the Line. End with one short line offering a drill PGN of these mistakes for a Lichess study, or, for a coach, homework for the student.
+List the moves from Step 3 once each, in game order, so a move that is both a turning point and one of the worst three gets one heading. A heading is the move with its mark, `?!` for an inaccuracy, `?` for a mistake and `??` for a blunder, as its `verdict` says, and a few words on what it did. Under it, write one or two sentences at the player's level: a beginner gets plain ideas such as "the knight was undefended", a strong player gets the idea behind the Line. End with one short line offering a drill PGN of these mistakes for a Lichess study, or, for a coach, homework for the student.
 
 ### For a video or article
 
@@ -179,4 +182,4 @@ These reuse what you already have, with no new calls:
 - Use Queen for what the person reads and Knight for bulk steps, such as a note on every move if they ask for one.
 - Every call is billed to the person's ChessDrive Account. Make one whole-game `engine` call and about 5 `generate` calls, plus at most 5 for talking points, and reuse them for follow-ups.
 - When a tool says the Balance is empty, pass on its message and its link to Pricing, give what you already have, and stop.
-- Before you send, read your answer once for a number judging a position or a move, a mark that isn't the move's `verdict`, a move with two headings, a price they didn't ask for, and anything the tools didn't say. Fix what you find.
+- Before you send, read your answer once for a number judging a position or a move, a word for a position that isn't the band of its evaluation, a mark that isn't the move's `verdict`, an inaccuracy listed beside a mistake or blunder of the person's, a listed move with no reply behind it, a move with two headings, a Study not built or not linked, a price they didn't ask for, and anything the tools didn't say. Fix what you find.

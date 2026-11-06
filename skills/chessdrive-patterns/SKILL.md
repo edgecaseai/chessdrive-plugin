@@ -11,11 +11,11 @@ Three limits hold in everything you write:
 
 - **Judge positions in words.** Never write centipawns, a score such as `+1.3`, a win percentage or a closeness score.
 - **Name only moves the tools gave you:** a move of the game, a `best`, an `allowed`, or a `generate` answer's `lines`. Copy them exactly.
-- **A group is a lead, not a proof.** A group holds positions that look alike, and a name is the chess model's reading of five of them. Say how many of the five show it, and never say every mistake in a group is that kind.
+- **A group is a lead, not a proof.** A group holds mistakes that look alike on the board and in what the engine's lines say they allowed, and a name is the chess model's reading of five of them. Say how many of the five show it, and never say every mistake in a group is that kind.
 
 ## If they ask what this does, or give too little
 
-Say this, and wait: "Give me a PGN file of your last 30 games and your username on the site, and I'll find the kinds of mistake you make most, each with three examples on a board. It takes about 4 minutes, or 5 on Free. No file? Tell me your site and username, and I'll fetch them."
+Say this, and wait: "Give me a PGN file of your last 30 games and your username on the site, and I'll find the kinds of mistake you make most, each with three examples on a board. It takes about 5 minutes, or 8 on Free. No file? Tell me your site and username, and I'll fetch them."
 
 ## What you need
 
@@ -29,7 +29,7 @@ You need about 30 of the player's games in a PGN file, and their name as the fil
 
 **No file?** Read `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` and do what it says: with a username, fetch their games with its script, and otherwise give the person its steps for their site as they're written, never from memory. It covers Lichess, chess.com and ChessBase. Never call `search`, and don't bring it up: it can't find a player's games.
 
-Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 4 minutes, or 5 on Free. Name the cost only if they ask: about 35 cents.
+Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 5 minutes, on Free too. Name the cost only if they ask: about 45 cents.
 
 ## Step 2: Mark the mistakes
 
@@ -81,11 +81,15 @@ It prints `games`, `rating`, `refused`, `positions` and `blunders`. If `position
 ## Step 3: Group them
 
 ```bash
-chessdrive embed --input patterns/items.json --out patterns/vectors.npy
+python3 <this Skill's folder>/scripts/describe.py patterns --rating <their rating>
+chessdrive embed --input patterns/items.json --out patterns/boards.npy
+chessdrive embed --input patterns/texts.json --out patterns/texts.npy
 python3 <this Skill's folder>/scripts/groups.py patterns
 ```
 
-It prints the top three groups, largest first, then `positions`, `games` and `repeated_groups`. Each group has its `size`, the `games` it spans and five `examples` from different games, with `move`, written with its mark, `verdict`, `colour`, `opponent`, `date`, `site`, `best`, `allowed`, `before`, `after`, `fen`, `pgn` and `ply`. `allowed` is the engine's best play for the other side after the move. `ply` is the position the move was played from.
+The first asks Knight for one line on each mistake, what the move gave the other side as the engine's Lines show it, eight mistakes a call and every call at once: about a minute. A line that names a move it wasn't given, or a number, is asked again, then built from the Lines alone, and the lines are kept, so running it again bills nothing. It prints `described`, `from_knight`, `from_lines` and `knight_calls`. Then Embed takes the position after each mistake, and each line, and `groups.py` joins the two, so a group holds mistakes that look alike on the board and in what they allowed. Give it a 5-minute timeout, or run it in the background.
+
+`groups.py` prints the top three groups, largest first, then `positions`, `games` and `repeated_groups`. Each group has its `size`, the `games` it spans and five `examples` from different games, with `move`, written with its mark, `verdict`, `colour`, `opponent`, `date`, `site`, `best`, `allowed`, `before`, `after`, `fen`, `pgn`, `ply` and `text`, Knight's line on it. `allowed` is the engine's best play for the other side after the move. `ply` is the position the move was played from.
 
 A group holds at least 3 mistakes from at least 3 games. A player with few mistakes gets fewer groups, or none: say so plainly, and never pad the list. The groups also go to `patterns/groups.json`, for Step 5.
 
@@ -103,13 +107,13 @@ Send one `user` message, with a line for each example:
 
 ```text
 These mistakes were grouped as alike:
-1. FEN {fen}. {colour} played {move}, a {verdict}. Better was {best, its first 4 moves}. It allowed {allowed, its first 3 moves}. Before: {before}; after: {after}.
+1. FEN {fen}. {colour} played {move}, a {verdict}. Better was {best, its first 4 moves}. It allowed {allowed, its first 3 moves}. Before: {before}; after: {after}. In short: {text}
 What do they have in common?
 ```
 
 Leave `--max-tokens` out: Queen's thinking counts toward it, so a low cap cuts the reply short or loses it. If a call answers `plan_required`, make it and the rest with `--model knight`, and say so in one line of your answer. If it answers `429 rate_limited`, wait the `retry after` it gives and run the same command again. If it answers `upstream_unavailable`, run it once more. If that fails too, name the group from its examples alone, and add no note about it.
 
-**Check each name against its five examples.** Go through them one at a time: read `move`, `best` and `allowed`, and decide whether that example's moves show the name. The count is what you found for that group, and groups differ. Add no tactic of your own. Two groups with the same name are one idea: keep the larger, and count the other as left out.
+**Check each name against its five examples.** Go through them one at a time: read `move`, `best`, `allowed` and `text`, and decide whether that example's moves show the name. The count is what you found for that group, and groups differ. Add no tactic of your own. Two groups with the same name are one idea: keep the larger, and count the other as left out.
 
 Then write `patterns/names.json`, one object for each group you named, "No clear idea" included:
 
@@ -125,7 +129,7 @@ Then write `patterns/names.json`, one object for each group you named, "No clear
 python3 <this Skill's folder>/scripts/study.py patterns --rating <their rating>
 ```
 
-It keeps each group whose name fits at least 3 of its 5 examples, takes the first 3 that fit, each from a different game, and makes one Knight call for each, all at once, saying what the move allowed from the engine's Lines. A reply that names a move it wasn't given, or a number, is asked again, then replaced by the engine's Line. It then builds the Study, `patterns/your-mistakes.html`, in the `chessdrive-study` Skill's frame: the Board, and beside it the groups by name with their examples, which put each mistake on the Board, facing their side, with its move in red and the better one in green, to try moves from and come back. Stopped, the same command bills no example twice.
+It keeps each group whose name fits at least 3 of its 5 examples, takes the first 3 that fit, each from a different game, and makes one Knight call for each, all at once, saying what the move allowed from the engine's Lines, and how that shows the group's name where the Lines do. A reply that names a move it wasn't given, or a number, is asked again, then replaced by the engine's Line. It then builds the Study, `patterns/your-mistakes.html`, in the `chessdrive-study` Skill's frame: the Board, and beside it the groups by name with their examples, which put each mistake on the Board, facing their side, with its move in red and the better one in green, to try moves from and come back. Stopped, the same command bills no example twice.
 
 It prints a line for each group kept, with `name`, `check`, `size`, `games`, `fit`, `checked` and its 3 `examples`, each with `move`, `opponent`, `date`, `site`, `better`, `allowed` and `why`, Knight's line. Then the totals: `kept`, `left_out` and `study`, the page's full path. Open it for the person with `open`, `xdg-open` or `start`. Don't build or change the page by hand.
 
@@ -149,7 +153,7 @@ The Study's full path as a link, and how to use and share it, in one line.
 
 One more group was left out, as fewer than three of its five examples showed one idea.
 
-**How far to trust this:** a group holds mistakes whose boards look alike, and each name comes from five of them, so not every mistake in a group is that kind.
+**How far to trust this:** a group holds mistakes that look alike on the board and in what the engine's lines say they allowed, and each name comes from five of them, so not every mistake in a group is that kind.
 
 Want a drill of group 1?
 ```
@@ -166,7 +170,7 @@ Start with the bold answer, with nothing before it. Give each group its three ex
 - Name no price unless they ask, including what this run cost.
 - Every call is billed to the person's ChessDrive Account. Reuse `patterns/`: a new question about the same games costs nothing more than the `engine` and `generate` calls it needs. A fresh run over the same games can mark a few different mistakes, as the engine's search varies, so the groups can shift; reusing the folder keeps them.
 - The person's PGN files and `patterns/` stay where this code runs, apart from what each Engine and Embed call sends. That's their machine, or in Claude's chat app Claude's sandbox, which resets with each new chat.
-- Never print or read vectors, and open `.npy` files only through the scripts. If a vector does reach your output, leave it out of your answer and fix the code.
+- Never print or read vectors, and open `.npy` files only through the scripts. Knight's lines in `patterns/texts.json` are for grouping: quote `text` in an answer only as a group's examples, never as a list. If a vector does reach your output, leave it out of your answer and fix the code.
 - Low closeness or a small group doesn't show a player never makes a mistake of some kind. Only say what the groups show, and never say something is absent.
 - `daily_limit_reached` stops a run on Free: tell the person, and run the same command after midnight UTC or after they move to a paid Plan.
 - When a tool says the Balance is empty, pass on its message and its link to Pricing, give what you already have, and stop.

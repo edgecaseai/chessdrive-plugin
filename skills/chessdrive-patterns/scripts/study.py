@@ -43,8 +43,10 @@ TRIES = 2  # Knight's answers, before an example falls back to the engine's Line
 
 SYSTEM = (
     "You explain one chess mistake to a player{rating}. In one plain sentence of at most 25 words, say what the move "
-    "allowed, as the engine's line shows it: what the other side wins or threatens, and how. Name a piece as won only if "
-    "a move of the line takes it. Use only the moves you are given, written as given, and no numbers, scores or evaluations."
+    "allowed, as the engine's line shows it: what the other side wins or threatens, and how. The mistake was grouped "
+    "under a name you are given: where the line shows that idea, let the sentence show it through the moves, and "
+    "never quote the name, say the mistake fits it, or mention the group. Name a piece as won only if a move of the "
+    "line takes it. Use only the moves you are given, written as given, and no numbers, scores or evaluations."
 )
 LINK = re.compile(r"\[([^\]]*)\]\(line:([^)\s]+)\)")
 # A move a reply names: a piece's move or any capture, or castling. A bare square such as "e4" may be a square.
@@ -68,9 +70,11 @@ def numbered(ply, sans, count):
     return " ".join(out)
 
 
-def message(example):
+def message(example, name=""):
     ply, other = example["ply"], "Black" if example["colour"] == "White" else "White"
     lines = [f"{example['colour']} played {example['move']}, a {example['verdict']}."]
+    if name:
+        lines.append(f"It was grouped under: {name}.")
     if example["allowed"]:
         lines.append(f"After it, the engine's best play for {other} is {numbered(ply + 1, example['allowed'], 3)}.")
     lines.append(f"Before the move: {example['before']}; after it: {example['after']}.")
@@ -92,11 +96,12 @@ def sourced(reply, example):
     return text
 
 
-def call_knight(cli, example, system):
+def call_knight(cli, example, system, name=""):
     """Knight's line on what the example's move allowed, its cost, the calls made, and whether it came from Knight. It
-    gets the position after the move, where the Line it allowed is legal, so the Lines it names pass."""
+    gets the position after the move, where the Line it allowed is legal, so the Lines it names pass, and the group's
+    name, to say how the example shows it where the Line does."""
     args = [cli, "generate", "--model", "knight", "--pgn", "-", "--ply", str(example["ply"] + 1), "--no-stream", "--json",
-            "--system", system, message(example)]
+            "--system", system, message(example, name)]
     cost, tries = 0.0, 0
     for attempt in range(RETRIES):
         done = subprocess.run(args, input=example["pgn"], capture_output=True, text=True, encoding="utf-8")
@@ -139,7 +144,7 @@ PANEL = """<section class="cd-card"><h2>On the board</h2>
     <section class="cd-card"><h2>The kinds of mistake you make most</h2><div id="groups"></div></section>"""
 
 MORE = """<section class="cd-more"><section class="cd-card"><h2>How far to trust this</h2>
-    <p>A group holds mistakes whose boards look alike. Its name comes from five of them, and a name stays only when at least three of the five show it, so not every mistake in a group is that kind.</p>
+    <p>A group holds mistakes that look alike on the board and in what the engine's lines say they allowed. Its name comes from five of them, and a name stays only when at least three of the five show it, so not every mistake in a group is that kind.</p>
     <p id="left-out" hidden></p></section></section>"""
 
 STYLE = """
@@ -274,12 +279,12 @@ def main():
 
     cache_file = folder / "explained.json"
     cache = json.loads(cache_file.read_text(encoding="utf-8")) if cache_file.exists() else {}
-    shown = [(group["examples"][n - 1]) for _, group, fit in kept for n in fit[:SHOWN]]
-    todo = [ex for ex in shown if f"{ex['site'] or ex['date']}:{ex['ply']}:{ex['move']}" not in cache]
+    shown = [(group["examples"][n - 1], named["name"]) for named, group, fit in kept for n in fit[:SHOWN]]
+    todo = [(ex, name) for ex, name in shown if f"{ex['site'] or ex['date']}:{ex['ply']}:{ex['move']}" not in cache]
     system = SYSTEM.format(rating=f" of about {args.rating}" if args.rating else "")
     cost, calls = 0.0, 0
     with ThreadPoolExecutor(max(1, len(todo))) as pool:
-        for ex, (why, spent, made, by_knight) in zip(todo, pool.map(lambda ex: call_knight(args.cli, ex, system), todo)):
+        for (ex, _), (why, spent, made, by_knight) in zip(todo, pool.map(lambda job: call_knight(args.cli, job[0], system, job[1]), todo)):
             cost, calls = cost + spent, calls + made
             cache[f"{ex['site'] or ex['date']}:{ex['ply']}:{ex['move']}"] = {"why": why, "knight": by_knight}
     cache_file.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
