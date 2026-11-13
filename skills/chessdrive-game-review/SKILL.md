@@ -25,7 +25,7 @@ Say this, and wait: "Paste a game's PGN or its Lichess or chess.com link, or tel
 
 - **A pasted PGN:** use it as given; moves with no headers are fine. Engine reads only the first game of a PGN, so if the paste holds several, ask which one and send only that.
 - **A Lichess or chess.com link,** where you run code on the person's machine: `python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py --url "<the link>" --out review/game.pgn`, with the link as they gave it. It reads every form of both sites' links and prints the game's players, date and result. Its `color`, when it has one, is the person's colour; otherwise match the name they gave against `white` and `black`. A chess.com link needs their chess.com username, which finds the game: ask for it, then add `--username <username>`.
-- **A link in Claude's chat app,** whose sandbox can't reach either site, or with no code at all: call the Connector's `get_game` with `{"url": "<the link>"}`, and `"username"` for chess.com. Use its `pgn`; in Claude's chat app, write it to `review/game.pgn` for the CLI. Its `color` is as above.
+- **A link in Claude's chat app or ChatGPT,** whose sandboxes can't reach either site, or with no code at all: call the Connector's `get_game` with `{"url": "<the link>"}`, and `"username"` for chess.com. Use its `pgn`; in Claude's chat app, write it to `review/game.pgn` for the CLI. Its `color` is as above.
 
 - **A username:** ask which site if they didn't say, then fetch only their last game with `python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py lichess <username> --max 1 --out review/game.pgn`, or `chesscom`, and go on without offering first. For "my last rapid game" or a game from a date, add `--speed` or `--since` as `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` says. Say which game you found, with the opponent and the date, so they can stop you if it's the wrong one. Never call `search`, and don't bring it up: it can't find a player's games. If the script can't reach the site, or you can't run code, ask which game instead, as below.
 
@@ -85,10 +85,10 @@ Turn evaluations into words, and use them everywhere: under 50 `cp` either way i
 
 ## Step 4: Explain them
 
-Make every note in one go, as soon as `engine` has answered, up to 6 at once as `calls.md` says: one `generate` per marked move, with `position: {"pgn": "<the PGN>", "ply": <the move's ply>}`, `model: "queen"` for a mistake or blunder and `model: "knight"` for an inaccuracy, and this `system`, filling in the rating. With the CLI, write `review/questions.jsonl` with code, a line per move with its `id` the move as in `14...Qd7`, start `ask.py` on it in the background, and build the Study, Step 5, while it runs: never answer before the Study is built. For a video or article, start the `system` with "You explain a chess game to an audience of club players." instead of its first sentence. For Knight, "In one plain sentence of at most 20 words" replaces "In at most three sentences, in plain words".
+Make every note in one go, as soon as `engine` has answered, up to 6 at once as `calls.md` says: one `generate` per marked move, with `position: {"pgn": "<the PGN>", "ply": <the move's ply>}`, `model: "queen"` for a mistake or blunder and `model: "knight"` for an inaccuracy, and this `system`, filling in the rating and the verdict with its article: `a mistake`, `a blunder` or `an inaccuracy`. With the CLI, write `review/questions.jsonl` with code, a line per move with its `id` the move as in `14...Qd7`, start `ask.py` on it in the background, and build the Study, Step 5, while it runs: never answer before the Study is built. For a video or article, start the `system` with "You explain a chess game to an audience of club players." instead of its first sentence. For Knight, "In one plain sentence of at most 20 words" replaces "In at most three sentences, in plain words".
 
 ```text
-You review a chess game for a player rated about {rating}, who had {Black}. The move they ask about was a {verdict}.
+You review a chess game for a player rated about {rating}, who had {Black}. The move they ask about was {a blunder}.
 In at most three sentences, in plain words, say what the move allowed and why the engine's best move is better.
 Use the engine's Line you are given, and name only moves from that Line or from the game.
 Judge positions in words, such as "Black is losing", never in numbers.
@@ -97,10 +97,10 @@ Judge positions in words, such as "Black is losing", never in numbers.
 The `message`:
 
 ```text
-{Black} played {14...Qd7}, a {blunder}. Instead of it, the engine's best Line was {14...Nf6 15.Qe2 O-O}. Before the move {Black was a little better}; after it {White is winning}. What went wrong?
+{Black} played {14...Qd7}, {a blunder}. Instead of it, the engine's best Line was {14...Nf6 15.Qe2 O-O}. Before the move {Black was a little better}; after it {White is winning}. What went wrong?
 ```
 
-Each `text` is that move's note, word for word: the page, the PGN and the board take it from `review/answers.jsonl` with code, never reworded or added to. A `null` is one no model gave, which you label as `calls.md` says. Build your answer from the notes and the Lines, and add no tactics of your own: the lesson and every "what it allowed" must be something they show. In your own words, a note's claim about material, such as a piece won or the bishop pair, or its name for a pattern, such as a Greek gift, stands only when the Line's moves show it, as a capture there. If every call fails, say once that the explanations aren't available right now.
+Each `text` is that move's note, word for word: the page, the PGN and the board take it from `review/answers.jsonl` with code, never reworded or added to. A `null` is one no model gave, which you label as `calls.md` says. A move in a note's `lines` is one the tools gave, played or not, and `ask.py` has already dropped every sentence with a move outside them. Drop a sentence yourself only where it names a move outside its `lines`, with the Connector, or where the engine disagrees with it, such as a different verdict or a different side better. Drop that sentence on its own and keep the rest of the note, and never label a note a model gave as missing. Build your answer from the notes and the Lines, and add no tactics of your own: the lesson and every "what it allowed" must be something they show. In your own words, a note's claim about material, such as a piece won or the bishop pair, or its name for a pattern, such as a Greek gift, stands only when the Line's moves show it, as a capture there. If every call fails, say once that the explanations aren't available right now.
 
 ## Step 5: Build a Study
 
@@ -110,7 +110,7 @@ A coding agent always builds the Study, as the page is a file it opens: `show_bo
 
 ## Step 6: Answer
 
-Hand the Study over as that Skill's Step 6 says: in a coding agent, open it and give its full path as a link. Put one line on how to use the Study or the board under your first line, saying that the verdict and note of the move on view are in its top card, On the board. If a note is missing, say how many. Any link goes on words, as in `[Step through the game](link)`, never bare, as a game's link is very long.
+Hand the Study over as that Skill's Step 6 says: in a coding agent, open it and give its full path as a link. Put one line on how to use the Study or the board under your first line, saying that the verdict and note of the move on view are in its top card, On the board. If a note is missing, say how many. Any link goes on words, as in `[Step through the game](link)`, never bare, as a game's link is very long. Copy a link whole, from a tool or the Study's path: never shorten one or make one up. A board `show_board` showed is already in the chat above your answer, so say so with no link.
 
 ### For me
 
@@ -174,6 +174,7 @@ These reuse what you already have, with no new calls:
 ## Rules
 
 - Name moves in algebraic notation (`Nf3`, `O-O`), never UCI, with their number (`14...Qd7`).
+- Copy a Line's moves in order with none left out, numbered on from its first move, so `best_line` `dxe5 Bxe5 Bh6 h5 Qf5 Qe2` for 13...Ng4 is `13...dxe5 14.Bxe5 Bh6 15.h5 Qf5 16.Qe2`. Give the first few moves rather than skip one, as a Line with a move left out is illegal.
 - Marks come only from `verdict`: `?!`, `?` or `??`, and none on a `best` or `good` move.
 - Every call is billed to the person's ChessDrive Account. Make one whole-game `engine` call and one note per marked move, Queen's at most 12, plus at most 5 Queen calls for talking points, and reuse them for follow-ups.
-- Before you send, read your answer once for a Study you haven't built and opened, a number judging a position or a move, a mark that isn't the move's `verdict`, a word for a position that isn't the band of its evaluation, an inaccuracy heading your answer beside a mistake or blunder of the person's, a move with two headings, a price they didn't ask for, and anything the tools didn't say. Fix what you find.
+- Before you send, read your answer once for a Study you haven't built and opened, a marked move you made no `generate` call for, a number judging a position or a move, a mark that isn't the move's `verdict`, a word for a position that isn't the band of its evaluation, an inaccuracy heading your answer beside a mistake or blunder of the person's, a move with two headings, a price they didn't ask for, and anything the tools didn't say. Fix what you find.

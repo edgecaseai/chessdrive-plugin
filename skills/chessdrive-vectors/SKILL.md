@@ -9,7 +9,7 @@ You turn chess positions and texts into vectors with ChessDrive Embed, then answ
 
 ## What you need
 
-- **Somewhere to run code:** the person's machine, or in Claude's chat app on a paid plan, Claude's sandbox. There, read "the person's machine" below as that sandbox. The ChessDrive Connector has no `embed` tool.
+- **Somewhere to run code:** the person's machine, or in Claude's chat app on a paid plan, Claude's sandbox. There, read "the person's machine" below as that sandbox. The ChessDrive Connector has no `embed` tool, so this Skill doesn't run in ChatGPT.
 - **The `chessdrive` CLI at 0.6.0 or later, signed in, or its local MCP tool `embed`.** If you have neither, read `references/set-up.md` and do what it says: it walks the person through what's missing, one step at a time, with Claude's chat app's own steps.
 - **Python 3.11 or later with NumPy.** Check with `python3 -c "import numpy"`. If it fails and `uv` is there, run the scripts with `uv run --with numpy python`; otherwise ask to run `python3 -m pip install numpy`.
 
@@ -25,7 +25,7 @@ Count first. Embed is 4 cents per 1K items, and every position of a game is an i
 python3 <this Skill's folder>/scripts/vectorfile.py games.pgn
 ```
 
-Over 25,000 items that run costs over a dollar, so stop first: tell the person the items, the cost and the time, and wait for their yes. Below that, say how long it will take and go ahead, giving the cost only if they ask. Time is about 300 items a minute on Free, 1,000 on Hobby and 2,000 on Pro.
+Over 25,000 items that run costs over a dollar, so stop first: tell the person the items, the cost and the time, and wait for their yes. Below that, say how long it will take and go ahead, giving the cost only if they ask. Time is about 9,000 items a minute on Free, 18,000 on Hobby and 35,000 on Pro with the CLI at 0.7.0 or later, which `chessdrive version` shows; with an older CLI, 10,000 on Hobby and Pro.
 
 Then write the vectors, always with `--out`, as a call without it prints them:
 

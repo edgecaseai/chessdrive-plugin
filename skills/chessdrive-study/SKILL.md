@@ -21,7 +21,7 @@ Build without asking whether they want a page. Match the request to one kind, th
 | sheets of positions to print or hand out | Worksheet | [worksheet.md](references/worksheet.md) | None with the coach's answers, else `engine` 1 a position |
 | to prepare against an opponent, from a PGN file of their games | Opponent prep | [opponent-prep.md](references/opponent-prep.md) | `engine` 1, `generate` 0 or 1 |
 
-- **One position or one game to look at or play** needs no page where your app draws boards: in Claude's chat or desktop app, where the Connector has `show_board`, call it and stop. A coding agent builds the page. It takes the Board's State. Add `opponent: {"engine": "stockfish", "level": 5}` to play the person with the engine.
+- **One position or one game to look at or play** needs no page where your app draws boards: in Claude's chat or desktop app or ChatGPT, where the Connector has `show_board`, call it and stop. A coding agent builds the page. It takes the Board's State. Add `opponent: {"engine": "stockfish", "level": 5}` to play the person with the engine.
 - **Something else,** such as a table of their games: build it from the closest kind and keep every rule here.
 - **Preparing against an opponent with no file of their games:** run the `chessdrive-prep` Skill first, and build nothing from memory of their games.
 

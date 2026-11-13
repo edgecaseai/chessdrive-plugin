@@ -26,7 +26,7 @@ Give the script what the request says, so it downloads only those games:
 
 Don't ask when it's 500 or fewer, or when the request already says, as in "my rapid games from the last two months": go ahead. With `exact: false`, `games` is a guide: with dates, Lichess gives the most there can be, and chess.com counts only rated games.
 
-**If it can't reach the site or is refused, or you can't run code, stop and give the person the link below.** That's how it goes in Claude's chat app, whose sandbox can't reach the sites. Don't go around it: no fetch of your own, no browser, no Claude in Chrome, no script in a page, and never pose as a browser. The link gets them the file in one click. Games in ChessBase need the steps below too.
+**If it can't reach the site or is refused, or you can't run code, stop and give the person the link below.** That's how it goes in Claude's chat app and ChatGPT, whose sandboxes can't reach the sites. Don't go around it: no fetch of your own, no browser, no Claude in Chrome, no script in a page, and never pose as a browser. The link gets them the file in one click. Games in ChessBase need the steps below too.
 
 ## Or the person exports them
 
@@ -69,7 +69,7 @@ It's the whole month, and a month that has just started may hold few games. For 
 ### When they have it
 
 - **A coding agent:** ask where it is. It's usually their Downloads folder. Ask before you look there, then copy it into the folder you're working in.
-- **Claude's chat app:** ask them to attach the file to this chat.
+- **Claude's chat app or ChatGPT:** ask them to attach the file to this chat.
 
 Check a file they exported before you spend anything. A PGN file starts with `[Event `, and this counts its games:
 

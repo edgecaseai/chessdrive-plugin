@@ -35,9 +35,11 @@ The time depends on their Plan, which `chessdrive balance` shows:
 
 | Plan | Positions a minute | 200 games | 1,000 games | 5,000 games |
 |---|---|---|---|---|
-| Free | 300 | 53 min | 4.4 h | 22 h, over 4 days |
-| Hobby | 1,000 | 16 min | 80 min | 6.7 h |
-| Pro | about 2,000 | 8 min | 40 min | 3.3 h |
+| Free | about 9,000 | 2 min | 9 min | over 4 days, at 128K a day |
+| Hobby | about 18,000 | 1 min | 5 min | 22 min |
+| Pro | about 35,000 | under a minute | 3 min | 12 min |
+
+Hobby and Pro get their figures from the CLI at 0.7.0 or later, which sends several calls at once; `chessdrive version` shows it. With an older CLI they run about 10,000 a minute: 2 min for 200 games, 8 for 1,000, 40 for 5,000.
 
 A game is about 80 positions. Free stops at 500 calls a day, about 128K positions, so the rest waits for the next day, and its Trial credits cover about 3,000 games.
 

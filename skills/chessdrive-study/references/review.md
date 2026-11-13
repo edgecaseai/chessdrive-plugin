@@ -13,7 +13,7 @@ A page to step through one game and see where it turned: the Board with the move
 3. **A note for every marked move,** all at once with `ask.py` as `calls.md` says, while you write the page: one `generate` each, `model: "queen"` for a mistake or blunder, up to 12, and `model: "knight"` for an inaccuracy, with `position: {"pgn": PGN, "ply": <the move's ply>}` and this `system`, filling in the rating from the PGN's `WhiteElo` or `BlackElo`, or "a club player" without one. For Knight, "In one plain sentence of at most 20 words" replaces "In at most three sentences, in plain words".
 
    ```text
-   You review a chess game for a player rated about {rating}, who had {Black}. The move they ask about was a {verdict}.
+   You review a chess game for a player rated about {rating}, who had {Black}. The move they ask about was {a blunder}.
    In at most three sentences, in plain words, say what the move allowed and why the engine's best move is better.
    Use the engine's Line you are given, and name only moves from that Line or from the game.
    Judge positions in words, such as "Black is losing", never in numbers.
@@ -22,7 +22,7 @@ A page to step through one game and see where it turned: the Board with the move
    and one `user` message:
 
    ```text
-   {Black} played {14...Qd7}, a {blunder}. Instead of it, the engine's best Line was {14...Nf6 15.Qe2 O-O}. The game went on {15.Rd1 Qe7 16.Nd5}. What went wrong?
+   {Black} played {14...Qd7}, {a blunder}. Instead of it, the engine's best Line was {14...Nf6 15.Qe2 O-O}. The game went on {15.Rd1 Qe7 16.Nd5}. What went wrong?
    ```
 
 ## The page

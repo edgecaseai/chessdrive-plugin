@@ -6,7 +6,7 @@ A person may meet ChessDrive here first, so get them through this in their own a
 
 Stop at the first that's missing, walk them through it, then carry on down the list. Run a check alone, so you stop before the next, and skip those the Skill doesn't need.
 
-1. **Somewhere to run code.** If you can't run a command at all, say what's needed in one line: Claude's chat app on a paid plan, or an agent that runs code, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor. Then stop. In Claude's chat app, follow `claude-chat.md` beside this file instead of steps 2 and 3, which covers the domain step, the CLI and the sign-in.
+1. **Somewhere to run code.** If you can't run a command at all, say what's needed in one line: Claude's chat app on a paid plan, or an agent that runs code, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor. Then stop. In Claude's chat app, follow `claude-chat.md` beside this file instead of steps 2 and 3, which covers the domain step, the CLI and the sign-in. In ChatGPT, skip steps 2 and 3, as the Connector makes every call there, and go to step 5. The Skills that embed, Patterns, Game search and Vectors, can't run in ChatGPT, as the Connector has no `embed` tool: say they need Codex, Claude Code, Cursor or Claude's chat app, and stop.
 2. **The CLI,** which makes every ChessDrive call where code runs (`calls.md` beside this file). Run `chessdrive version`. If the command isn't found, see [Install the CLI](#install-the-cli). If it's older than 0.6.0, see [Update the CLI](#update-the-cli). If the person says no to installing it, skip to step 5 and use the Connector instead.
 3. **The sign-in.** Run `chessdrive balance`, which costs nothing. If it says there's no API key, or that the key was refused, see [Sign in](#sign-in).
 4. **Python 3.11 or later with NumPy.** Run `python3 -c "import sys, numpy; assert sys.version_info >= (3, 11)"`. If it fails and `uv` is there, run the scripts with `uv run --python 3.11 --with numpy python`. If Python is older than 3.11, ask them to install the latest from https://www.python.org/downloads/ and tell you when it's done. Otherwise ask whether you can run `python3 -m pip install numpy`, and wait for their yes.
@@ -49,6 +49,7 @@ If it says the sign-in has run out, start again from the first command. If `--no
 Say that ChessDrive isn't connected to your app yet, and give them the steps for their app, one at a time. They only do this once.
 
 - **Claude's chat or desktop app:** in a chat, open Customize, then Plugins, then ChessDrive. On its Connectors tab, press Connect, sign in to ChessDrive and pick a daily limit.
+- **ChatGPT:** the ChessDrive plugin brings the Connector. Ask them to open ChessDrive in ChatGPT's Plugins, press Connect and sign in to ChessDrive.
 - **Claude Code:** the Plugin's Connector uses the key `chessdrive login` saved. Once the CLI is signed in, ask them to type `/mcp`, choose `chessdrive` and press Reconnect. If it isn't listed, ask to run `claude mcp add-json --scope user chessdrive '{"type":"http","url":"https://api.chessdrive.io/mcp","headersHelper":"chessdrive key --headers"}'`, then restart Claude Code.
 - **Codex:** ask to add this to `~/.codex/config.toml`, with the full path `command -v chessdrive` gives, then restart Codex:
 

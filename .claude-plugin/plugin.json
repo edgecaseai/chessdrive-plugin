@@ -1,11 +1,22 @@
 {
   "name": "chessdrive",
-  "version": "0.26.0",
+  "displayName": "ChessDrive",
+  "version": "0.26.4",
   "description": "Chess Skills for your agent, calling ChessDrive through its CLI where code runs and its Connector where none does: positions, games and players, with the engine, the chess models and the game corpus.",
   "author": {
     "name": "ChessDrive",
-    "email": "contact@edgecaselabs.dev"
+    "email": "contact@edgecaselabs.dev",
+    "url": "https://chessdrive.io"
   },
   "homepage": "https://platform.chessdrive.io/docs/mcp",
-  "license": "MIT"
+  "privacyPolicyUrl": "https://platform.chessdrive.io/legal/privacy",
+  "repository": "https://github.com/edgecaseai/chessdrive-plugin",
+  "license": "MIT",
+  "keywords": [
+    "chess",
+    "engine",
+    "stockfish",
+    "game review",
+    "opening prep"
+  ]
 }

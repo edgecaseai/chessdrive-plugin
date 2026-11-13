@@ -1,6 +1,6 @@
 # Call ChessDrive
 
-The Skills name their calls `engine` and `generate`, with the Connector's fields. **Wherever you can run code, make them with the `chessdrive` CLI**: on the person's machine, or in Claude's chat app's sandbox once `claude-chat.md` beside this file is done. Use the Connector's tools of the same name only where you can't run code, or when the person said no to installing the CLI. `set-up.md` beside this file checks for the CLI, at 0.6.0 or later, and signs it in. Every Skill reads this file before its first call.
+The Skills name their calls `engine` and `generate`, with the Connector's fields. **Wherever you can run code, make them with the `chessdrive` CLI**: on the person's machine, or in Claude's chat app's sandbox once `claude-chat.md` beside this file is done. Use the Connector's tools of the same name only where you can't run code, or when the person said no to installing the CLI. **In ChatGPT, use the Connector's tools for every call,** even where it runs code: its sandbox can't reach ChessDrive. `set-up.md` beside this file checks for the CLI, at 0.6.0 or later, and signs it in. Every Skill reads this file before its first call.
 
 **Read the CLI's text** for a call you answer from, such as one position. **Add `--json` only when code reads the answer**: write it to a file, and read the file with code, never by eye.
 
@@ -59,8 +59,8 @@ The CLI prints the API's code and message, and exits with a code of its own. Do 
 
 ## Only the Connector
 
-- **`show_board`,** a board drawn in Claude's chat or desktop app. Where code runs, a Study, a page of the `chessdrive-study` Skill, does its work, so call `show_board` only where the Skill says no Study can show.
-- **`get_game`,** in Claude's chat app, whose sandbox can't reach Lichess or chess.com. Everywhere else, `fetch_games.py --url` in this Skill's `scripts` folder gets the game.
+- **`show_board`,** a board drawn in Claude's chat or desktop app, or in ChatGPT. Where code runs, a Study, a page of the `chessdrive-study` Skill, does its work, so call `show_board` only where the Skill says no Study can show.
+- **`get_game`,** in Claude's chat app or ChatGPT, whose sandboxes can't reach Lichess or chess.com. Everywhere else, `fetch_games.py --url` in this Skill's `scripts` folder gets the game.
 
 ## Board links
 

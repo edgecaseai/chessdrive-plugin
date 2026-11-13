@@ -20,8 +20,8 @@ Say this, and wait: "Tell me your opponent's username and site, or give me a PGN
 
 ## What you need
 
-- **Somewhere to run code.** That's the person's machine in a coding agent, or Claude's sandbox in Claude's chat app. The scripts need Python 3.11 or later and nothing else, make no ChessDrive call and cost nothing. If you can't run code at all, tell the person this needs Claude's chat app on a paid plan, or an agent that runs code, such as Claude Code, Codex or Cursor, and stop.
-- **The `chessdrive` CLI at 0.6.0 or later, signed in,** for `engine` and `generate`, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says. If it isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says. If the person won't install it, make the same calls with the ChessDrive Connector's tools.
+- **Somewhere to run code.** That's the person's machine in a coding agent, or the app's sandbox in Claude's chat app or ChatGPT. The scripts need Python 3.11 or later and nothing else, make no ChessDrive call and cost nothing. If you can't run code at all, tell the person this needs Claude's chat app on a paid plan, ChatGPT, or an agent that runs code, such as Claude Code, Codex or Cursor, and stop.
+- **The `chessdrive` CLI at 0.6.0 or later, signed in,** for `engine` and `generate`, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says. If it isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says. If the person won't install it, or in ChatGPT, make the same calls with the ChessDrive Connector's tools.
 
 ## Step 1: Get what you need
 
@@ -47,7 +47,7 @@ python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py chess
 
 Give each a timeout of 10 minutes, or run it in the background and wait to be told it has finished. Run one at a time, and reuse a file you already have. Don't fetch with your own tools, as both sites refuse a plain request. With games from both sites, join them with `cat prep/lichess.pgn prep/chesscom.pgn > prep/games.pgn` and run Step 2 once, on that file.
 
-If the script can't reach the site or is refused, as in Claude's chat app, stop trying: no browser, Claude in Chrome or script in a page. Read `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` and give the person its steps under Or the person exports them, with the opponent's username in the links and `?max=1000` for Lichess, on words such as "their last 1,000 games". Wait for the file.
+If the script can't reach the site or is refused, as in Claude's chat app or ChatGPT, stop trying: no browser, Claude in Chrome or script in a page. Read `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` and give the person its steps under Or the person exports them, with the opponent's username in the links and `?max=1000` for Lichess, on words such as "their last 1,000 games". Wait for the file.
 
 ## Step 2: Count what they play
 
