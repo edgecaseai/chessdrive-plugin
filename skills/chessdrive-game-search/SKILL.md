@@ -84,26 +84,29 @@ Use this to ask for more once you have a good example: the moment you confirmed 
 
 The list holds the closest moments, whether or not they show the idea. Knight says which do, never your own reading of the board, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says.
 
-**The number they ask for is the most to show, not a target.** Go down the list in order until you have it, 10 examples if they named no number. A small file may hold fewer: if the list runs out, answer with what you have, as in "I found 2", and never go through the games to reach the number. Take the next hits of the list in batches of up to 100, with `--top` raised, and stop at about 500 positions for one question, or at the end of the list, then say what you have, even if it's fewer than they asked for. That is about a cent and under a minute.
+**The number they ask for is the most to show, not a target.** Go down the list in order until you have it, 10 examples if they named no number. A small file may hold fewer: if the list runs out, answer with what you have, as in "I found 2", and never go through the games to reach the number. Take the next hits of the list in batches of up to 100, with `--top` raised, and stop at about 300 positions for one question, or at the end of the list, then say what you have, even if it's fewer than they asked for. That takes a few minutes, as Knight goes through each hit's checks.
+
+**First, the idea's checks.** Read `<this Skill's folder>/references/ideas.md`. If the idea is there, copy its checks as written to a file, such as `checks/back-rank-mate.txt`. If not, write its checks as that file says, and give them to the person in your answer. A hit is the moment after the move at its `ply`: a mate's ply is the move with `#`.
 
 For each batch:
 
-1. **The engine, in one command.** Write a line per hit to a file, `{"pgn": "<pgn>", "ply": <ply>}`, and run:
+1. **The engine, in one command.** Write a line per hit to a file, `{"game": <game>, "ply": <ply>, "pgn": "<pgn>"}`, and run:
 
    ```bash
    chessdrive engine --positions checks/back-rank-mate.jsonl --depth 10 --out checks/back-rank-mate-results.jsonl
    ```
 
-   Line 7 of the results answers line 7 of the list, with `status`, `fen`, `best_move` and `lines`. A position with no legal moves comes back as `game_over`, so for a mate send the ply before it. A question with a new list gets a new pair of files. Never call the engine once per position, and never run one on this machine: every engine answer comes from ChessDrive.
-2. **Knight, all at once.** One Knight call a hit with `ask.py`, `"id"` its game and ply, on its `pgn` and `ply`, with this `system`, and a `message` of the game's moves from four before `ply` to four after it, numbered, the engine's first Line, and `Does this show "<the idea in the person's words>"?`:
+   Line 7 of the results answers line 7 of the list, with `status`, `fen`, `best_move` and `lines`. A mate comes back as `game_over`, which is right: it has no Line to show. A question with a new list gets a new pair of files. Never call the engine once per position, and never run one on this machine: every engine answer comes from ChessDrive.
+2. **Knight, all at once, with one command:**
 
-   ```text
-   You check whether a moment of a chess game shows an idea. Answer "yes" or "no" first. On yes, name the move where it happens, and say in one sentence what happens there: the piece that moves, what it hits and what it wins. If only the engine's Line has it, say the player missed it. Use only the moves you are given.
+   ```bash
+   python3 <here>/judge.py checks/back-rank-mate.jsonl --idea "<the idea in the person's words>" --checks checks/back-rank-mate.txt --engine checks/back-rank-mate-results.jsonl --out checks/back-rank-mate-judged.jsonl
    ```
 
-3. **Keep a hit on Knight's yes, and only then,** with no second reading of your own, at the move it names, found in the `pgn` with code, with its sentence as the hit's note.
+   For each hit, Knight reads the moves around it, the board after the move in words and the checks, and goes through them before its verdict. Each hit is asked twice, and kept only when both answers say yes. Line 7 of `--out` answers line 7 of the list, with `kept`, Knight's `note` on a kept hit, and `why` and any `error` on the rest. Its last printed line is the totals, with every hit Knight didn't answer and the error. Run the same command again after a stop: it bills no call already answered.
+3. **Keep a hit when `kept` is true, and only then,** with no second reading of your own, at its `move`, with its `note` as the hit's note, word for word. Say how many hits Knight didn't answer and why, from the totals' `unanswered`, as in "Knight didn't answer 2 of the hits (`upstream_unavailable`), so they aren't in the list."
 
-Judge positions in words, never with an evaluation number, and name only moves from the game or from a tool. Count the hits you read, the ones the engine checked and the ones Knight kept, and report those counts as they are.
+Judge positions in words, never with an evaluation number, and name only moves from the game or from a tool. Count the hits you read and the ones Knight kept, and report those counts as they are.
 
 **Few hits never prove an idea is absent.** The list is nearest neighbours: it can miss real examples, and scores say nothing about whether one exists. Say "I found 4", never "there are only 4" or "your games have no pins". If the person needs every example, tell them this finds good ones, not all of them. A `score` only orders the hits of one search, and for words it's about 0.3 to 0.5 even for the best. Leave it out of your answer.
 
@@ -126,7 +129,9 @@ Then build the person a Study with the `chessdrive-study` Skill beside this one:
 Then answer in exactly this shape, with no table:
 
 ```markdown
-**I found 4 back rank mates in your games.** I read 20 hits, and the engine checked 7.
+**I found 4 back rank mates in your games.** I read 20 hits, and Knight kept 4 of them.
+
+The checks, in one line, only if you wrote them yourself. Any hits Knight didn't answer, how many and why, in one line.
 
 The Study's full path as a link, and how to use and share it, in one line.
 
@@ -138,7 +143,7 @@ Your note on it, in one or two sentences.
 The PGN file and the vector file, with its size in positions: paths in a coding agent, names alone in Claude's chat app.
 ```
 
-Later questions read that file, so finish by saying so in one short line: the search takes seconds, and the checks take as long as you do. If they ask what one costs: a new phrase is one Embed item, a position already in the file is no Embed call at all, and 100 engine checks are about a fifth of a cent, so a question costs about a cent at most.
+Later questions read that file, so finish by saying so in one short line: the search takes seconds, and the checks take as long as you do. If they ask what one costs: a new phrase is one Embed item, a position already in the file is no Embed call at all, 100 engine checks are about a fifth of a cent, and Knight's checks are about a tenth of a cent a hit, a little more for each hit it says yes to, so a question of 100 hits costs about 15 cents.
 
 **To explain an example,** ask Queen on the same `{pgn, ply}`, as `calls.md` says.
 

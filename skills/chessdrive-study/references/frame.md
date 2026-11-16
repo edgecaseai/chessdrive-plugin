@@ -2,6 +2,13 @@
 
 Every Study is the same page: ChessDrive's colours and type, a header that says what the page is, the Board, and a panel beside it on a wide screen and under it on a narrow one. The kind's reference says what goes in each part. Copy the three blocks below as they stand, then fill them in.
 
+Whichever Skill sent you here, every page also needs:
+
+- for a Board the person moves on, [live.md](live.md)'s card, styles and `live(board)`, and in a coding agent its Study key: read live.md now;
+- `KIND` in the footer: `review`, `drill`, `opening`, `worksheet`, `prep` or `other`;
+- text from a PGN or a tool set with `textContent`, never `innerHTML`;
+- in a coding agent, the file in the folder you were started in, even if your app gives you a scratchpad or temporary folder: the page is the person's to keep. Tool answers and build scripts stay in your scratch folder, not beside the page or above it.
+
 ## The page
 
 ```html

@@ -9,7 +9,7 @@ The browser's Stockfish is [stockfish.js](https://github.com/nmrugg/stockfish.js
 - **In a coding agent,** make one Study key per page while you build it: `chessdrive study-key "<title>"`, with the page's `<title>`, which prints the key alone, or with no CLI the Connector's `study_key` tool with `name`. It's free. Make one, never more for the same page, and none when you rebuild a page that has one: keep its key.
 - **In Claude, ChatGPT or any app that shows the page itself,** make none. The page can't reach the API there, so the card shows the engine's Line where the browser can run Stockfish, and no questions; a copy the person downloads and opens shows the quiet "Add your key" line for them.
 
-Never print the key in the chat, and never write it anywhere but the page's `<meta>`.
+Never print the key in the chat, and never write it anywhere but the page's `<meta>`: read it straight into the code that writes the page, as in `key = subprocess.run(["chessdrive", "study-key", title], capture_output=True, text=True, check=True).stdout.strip()`, not into a file of its own. If one ended up in a file, delete that file before you hand the page over.
 
 ## The page
 

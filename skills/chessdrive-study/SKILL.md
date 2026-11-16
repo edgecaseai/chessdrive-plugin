@@ -45,7 +45,7 @@ One self-contained HTML file in the frame, [frame.md](references/frame.md), so e
 - the fields of each tool answer your page reads, inline as one `const DATA = {…}` of JSON, leaving out `board_url` and what you don't use. If you can run code, write `DATA` from the answers with code. Never retype a move from memory: one wrong letter in a Line is an illegal move on the page;
 - page code after the keeping script that sets the Board's State and listens to its events, as the kind's reference says, all inside `(() => { … })();`. At the top level of a script, a name the browser already uses, such as `top`, stops the whole script.
 
-In Claude it's an artifact, in ChatGPT a canvas, and in a coding agent a `.html` file in the person's working folder, never a scratch or temporary folder, so they can find and keep it.
+In Claude it's an artifact, in ChatGPT a canvas, and in a coding agent a `.html` file in the person's working folder, never a scratch or temporary folder, even one your app tells you to use, so they can find and keep it. Only the page goes there: keep tool answers and any build script in your scratch or temporary folder, not beside the page or in the folder above it.
 
 **If your app can't show a page,** fall back, though a coding agent always can, as the page is a file it opens: `show_board` with the game and its verdicts (see [review.md](references/review.md)), or the position, where the Connector has it. Without `show_board`, give the `board_url` links from the tool answers.
 
@@ -72,13 +72,13 @@ Run `python3 <this Skill's folder>/scripts/check.py <file>` and fix each line it
 
 In a coding agent, open the file for them first: `open <file>` on macOS, `xdg-open <file>` on Linux, `start "" <file>` on Windows.
 
-Then up to three short lines:
+Then up to three short lines, not a line for every marked move:
 
-- the answer to what they asked, when the page has one ("Engine found no mistakes by you; 7...h6 cost you the most"), and where on the page to look: a Game review's verdicts and notes are in its top card, On the board;
+- the answer to what they asked, when the page has one ("Engine found no mistakes by you; 7...h6 cost you the most"), from the tool answers alone: name the one to three moves that cost most with their verdicts, and give no reason for a move that `generate` didn't write: "8...Nxd5 was a blunder; the engine preferred 8...O-O", not "…because after 9.fxe4 White wins a piece"; and where on the page to look: a Game review's verdicts and notes are in its top card, On the board;
 - how to use the page ("Click a move or use ← →"), and, for a file, where it is: its full path as a link, as in `[/Users/ana/chess/review.html](file:///Users/ana/chess/review.html)`;
 - how to keep and share it: for a file, "Download saves a copy that opens anywhere, without your key; send it, or Save as PDF"; in Claude, "Download or share it from the artifact's menu". For a page with a Study key, add that the engine's Line runs in their browser, free, that its questions work for 7 days, up to a dollar a day, and that the key is listed on the Dashboard under Study keys.
 
-Say nothing about how you checked the page. Name no price unless they ask. If they ask what it cost, add up `cost_usd` and never guess ("2 ChessDrive calls, 4 cents").
+Nothing else: no note on moves you left out or notes you dropped. Say nothing about how you checked the page, or that you haven't opened it in a browser: the page shows its own errors. Name no price unless they ask. If they ask what it cost, add up `cost_usd` and never guess ("2 ChessDrive calls, 4 cents").
 
 ## Follow-ups
 
