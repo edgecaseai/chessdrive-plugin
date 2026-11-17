@@ -1,3 +1,8 @@
+# study.py
+
+The whole text of `study.py`, a script of the `chessdrive-patterns` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+````python
 #!/usr/bin/env python3
 """The groups whose names hold, three examples each with a Knight line, and the Study that shows them. Python 3.11 or
 later, with the `chessdrive` CLI signed in.
@@ -370,3 +375,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+````

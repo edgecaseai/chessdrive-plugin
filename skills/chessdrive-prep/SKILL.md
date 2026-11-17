@@ -5,6 +5,8 @@ description: Prepare someone for a game against one opponent with ChessDrive, fr
 
 # Opponent prep
 
+**Unpack the scripts first.** This plugin holds its Python scripts as text, one `.py.md` file each. Wherever you can run code, before anything else read `chessdrive-vectors/references/unpack.md`, in the folder beside the one this file is in, and run its one command, which prints a folder. From then on `<this Skill's folder>` is this Skill's folder inside the printed one, `<the printed folder>/chessdrive-prep`: read every file and run every script from there. Where you can't run code, skip this, and `<this Skill's folder>` is the folder this file is in.
+
 You prepare someone for a game against one opponent. A script counts what the opponent plays from a file of their games, the engine checks where their lines end, and the chess model writes the plan, so nothing rests on what you remember about any player or opening.
 
 Four limits hold in everything you write:
@@ -32,7 +34,7 @@ Ask only for what's missing, once, in one message:
 - **The person's colour.** If they don't know yet, run Steps 2 to 4 for both colours, with the top two lines of each.
 - **The moves they usually open with,** if they'd like the prep to fit them. "Not sure" is a fine answer: carry on without.
 
-**With a username, fetch their games yourself.** The script is in the `chessdrive-vectors` Skill beside this one. This Skill's folder is the one this file is in, which your app gave you, so don't search for it. If they didn't say which site, try both. First ask how long it takes, with no download:
+**With a username, fetch their games yourself.** The script is in the `chessdrive-vectors` Skill beside this one. Your app gave you the folder this file is in, so don't search for it. If they didn't say which site, try both. First ask how long it takes, with no download:
 
 ```bash
 python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py lichess <name> --how-long

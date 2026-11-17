@@ -1,3 +1,8 @@
+# compare.py
+
+The whole text of `compare.py`, a script of the `chessdrive-vectors` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+```python
 #!/usr/bin/env python3
 """The items of a vector file closest to a text or a position. NumPy only, on Python 3.11 or later.
 
@@ -84,3 +89,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```

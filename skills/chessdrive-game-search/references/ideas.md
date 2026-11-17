@@ -12,7 +12,8 @@ Copy an idea's checks below, as written, into a file of their own, such as `chec
 3. The piece that gives mate is a rook or a queen, and the board's line about the move says it attacks the king along that same rank.
 4. The board's line about the move says the mating piece isn't next to the enemy king.
 5. The board's line about the mated king names at least one of its own pieces in front of it, usually a pawn, so the king is shut in on its first rank.
-6. It isn't a bare ending: each side has more than a king and the mating piece.
+6. The board's line about the move says only pawns and the checking piece keep the king off the squares in front of it.
+7. It isn't a bare ending: each side has more than a king and the mating piece.
 ```
 
 ## Knight fork
@@ -35,8 +36,8 @@ Copy an idea's checks below, as written, into a file of their own, such as `chec
 Write its checks in the same shape before the first hit, and give them to the person in your answer, as "I counted a hit as a smothered mate when: …", so they can correct them:
 
 - **One fact a line,** in the board's own words: the move, the piece that moves, where the kings stand, the squares around a king, what the moved piece attacks, what the next moves take. Knight reads those from the board's lines.
-- **Name the near misses a coach would turn down,** and add a check that fails for each, as checks 4 and 6 of a back rank mate do for a queen mating next to the king and for a bare ending.
+- **Name the near misses a coach would turn down,** and add a check that fails for each, as checks 4, 6 and 7 of a back rank mate do for a queen mating next to the king, for a king boxed in by other pieces and for a bare ending.
 - **What the moves must win, if anything:** say so in the moves that follow, not as an evaluation.
-- Three to six checks. Leave out anything Knight can't read from the board and the moves, such as a player's plan.
+- Three to seven checks. Leave out anything Knight can't read from the board and the moves, such as a player's plan.
 
 Never judge a hit yourself, against the checks or otherwise. Knight goes through them.

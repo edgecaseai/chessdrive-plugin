@@ -1,3 +1,8 @@
+# describe.py
+
+The whole text of `describe.py`, a script of the `chessdrive-patterns` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+```python
 #!/usr/bin/env python3
 """One line on each mistake, from Knight, for Embed to group them by: what the move allowed, as the engine's Lines
 show it. Python 3.11 or later, with the `chessdrive` CLI signed in.
@@ -162,3 +167,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```

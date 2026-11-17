@@ -4,8 +4,6 @@ A page to step through one game and see where it turned: the Board with the move
 
 **Input:** the game as a PGN, and which side the person played. Take a pasted PGN as given. For a link, fetch the PGN as the `chessdrive-game-review` Skill does; if you can't, ask for it. Never rebuild the moves from a page or from memory. `engine` reads only the first game of a PGN, so if a paste holds several, ask which one. Ask for the side only if neither the person nor the PGN's names say.
 
-**From Game review:** the `chessdrive-game-review` Skill hands you the `engine` answer and a note for every marked move. Skip the calls below: its turning points are the ones it heads, and each note is its move's explanation.
-
 ## Calls
 
 1. `engine` with `{"engine": "stockfish", "position": {"pgn": PGN}}`, no `ply`: one answer for the whole game. Each of `moves` has `ply`, `move_number`, `color`, `move.san`, `fen`, `eval_before`, `eval_after`, `win_chance_lost`, `verdict` (`best`, `good`, `inaccuracy`, `mistake`, `blunder`) and `best_line`. If it says the PGN doesn't parse, say a move in its main line is illegal or the text isn't a game, and ask them to copy it again. On `limit_too_high`, call again with `depth: 10` and say so in one line.

@@ -50,7 +50,7 @@ Say that ChessDrive isn't connected to your app yet, and give them the steps for
 
 - **Claude's chat or desktop app:** in a chat, open Customize, then Plugins, then ChessDrive. On its Connectors tab, press Connect, sign in to ChessDrive and pick a daily limit.
 - **ChatGPT:** the ChessDrive plugin brings the Connector. Ask them to open ChessDrive in ChatGPT's Plugins, press Connect and sign in to ChessDrive.
-- **Claude Code:** the Plugin's Connector uses the key `chessdrive login` saved. Once the CLI is signed in, ask them to type `/mcp`, choose `chessdrive` and press Reconnect. If it isn't listed, ask to run `claude mcp add-json --scope user chessdrive '{"type":"http","url":"https://api.chessdrive.io/mcp","headersHelper":"chessdrive key --headers"}'`, then restart Claude Code.
+- **Claude Code:** ask them to type `/mcp`, choose `chessdrive` and sign in to ChessDrive in the browser that opens. It's a sign-in of its own, apart from the CLI's, to the same account.
 - **Codex:** ask to add this to `~/.codex/config.toml`, with the full path `command -v chessdrive` gives, then restart Codex:
 
   ```toml

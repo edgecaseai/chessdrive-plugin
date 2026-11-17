@@ -1,3 +1,8 @@
+# check.py
+
+The whole text of `check.py`, a script of the `chessdrive-study` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+```python
 #!/usr/bin/env python3
 """Checks a Study before you hand it over, with no browser. Python 3.8 or later; Node, when it's there, checks the
 scripts' syntax too.
@@ -94,3 +99,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```

@@ -5,7 +5,9 @@ description: Find examples of a chess idea across someone's own PGN files, in pl
 
 # Game search
 
-You find moments that show an idea across a person's PGN files, check them with the engine, and hand back a PGN of examples. You work from the `chessdrive-vectors` Skill beside this one: its rules hold here, and `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. In the commands below `<vectors>` is `<this Skill's folder>/../chessdrive-vectors/scripts`, and `<here>` is `<this Skill's folder>/scripts`. Vectors stay in the file. You read rows, counts and moves.
+**Unpack the scripts first.** This plugin holds its Python scripts as text, one `.py.md` file each. Wherever you can run code, before anything else read `chessdrive-vectors/references/unpack.md`, in the folder beside the one this file is in, and run its one command, which prints a folder. From then on `<this Skill's folder>` is this Skill's folder inside the printed one, `<the printed folder>/chessdrive-game-search`: read every file and run every script from there. Where you can't run code, skip this, and `<this Skill's folder>` is the folder this file is in.
+
+You find moments that show an idea across a person's PGN files, check them with the engine, and hand back a PGN of examples. You work from the `chessdrive-vectors` Skill beside this one: its rules hold here, and Your app gave you the folder this file is in, so don't search for it. In the commands below `<vectors>` is `<this Skill's folder>/../chessdrive-vectors/scripts`, and `<here>` is `<this Skill's folder>/scripts`. Vectors stay in the file. You read rows, counts and moves.
 
 ## If they ask what this does, or give too little
 

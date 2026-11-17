@@ -1,3 +1,8 @@
+# vectorfile.py
+
+The whole text of `vectorfile.py`, a script of the `chessdrive-vectors` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+```python
 """Read the two files `chessdrive embed --out` writes. NumPy only, on Python 3.11 or later.
 
 x.npy holds one vector per row, and x.jsonl says what each row is. compare.py and group.py are built on this, and a
@@ -146,3 +151,4 @@ if __name__ == "__main__":
     games = [g for path in sys.argv[1:] for g in split_games(read_pgn(path))]
     items = sum(g.plies + 1 for g in games)
     emit({"games": len(games), "items": items, "cost_usd": round(items / 1000 * USD_PER_1K_ITEMS, 4)})
+```

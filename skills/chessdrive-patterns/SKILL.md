@@ -5,6 +5,8 @@ description: Find the mistakes a chess player keeps making across their last 30 
 
 # Patterns
 
+**Unpack the scripts first.** This plugin holds its Python scripts as text, one `.py.md` file each. Wherever you can run code, before anything else read `chessdrive-vectors/references/unpack.md`, in the folder beside the one this file is in, and run its one command, which prints a folder. From then on `<this Skill's folder>` is this Skill's folder inside the printed one, `<the printed folder>/chessdrive-patterns`: read every file and run every script from there. Where you can't run code, skip this, and `<this Skill's folder>` is the folder this file is in.
+
 You find what a player keeps getting wrong. The engine marks their mistakes, code groups them, Queen names the groups, and Knight checks each name against its examples and explains them, so nothing rests on your own reading of the board. It needs somewhere to run code, and is built on the `chessdrive-vectors` Skill beside this one. Read its `references/calls.md` before your first call: it has who judges what, how to make calls at once and what to do when one is refused.
 
 Three limits hold in everything you write:
@@ -15,11 +17,11 @@ Three limits hold in everything you write:
 
 ## If they ask what this does, or give too little
 
-Say this, and wait: "Give me a PGN file of your last 30 games and your username on the site, and I'll find the kinds of mistake you make most, each with three examples on a board. It takes about 5 minutes, or 8 on Free. No file? Tell me your site and username, and I'll fetch them."
+Say this, and wait: "Give me a PGN file of your last 30 games and your username on the site, and I'll find the kinds of mistake you make most, each with three examples on a board. It takes about 4 minutes. No file? Tell me your site and username, and I'll fetch them."
 
 ## What you need
 
-This builds on `<this Skill's folder>/../chessdrive-vectors/`, where `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. Run every command from the person's own folder, by the scripts' full paths. If that folder isn't there, only part of the Plugin was installed: ask them to add the whole Plugin from https://platform.chessdrive.io/skills, and stop.
+This builds on `<this Skill's folder>/../chessdrive-vectors/`, where Your app gave you the folder this file is in, so don't search for it. Run every command from the person's own folder, by the scripts' full paths. If that folder isn't there, only part of the Plugin was installed: ask them to add the whole Plugin from https://platform.chessdrive.io/skills, and stop.
 
 Before anything else, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says. It checks each of these and walks the person through whatever is missing, one step at a time. This Skill needs somewhere to run code, the CLI at 0.6.0 or later, signed in, and Python with NumPy. Every call goes through the CLI, so it needs no Connector.
 
@@ -29,7 +31,7 @@ You need about 30 of the player's games in a PGN file, and their name as the fil
 
 **No file?** Read `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` and do what it says: with a username, fetch their games with its script, and otherwise give the person its steps for their site as they're written, never from memory. It covers Lichess, chess.com and ChessBase. Never call `search`, and don't bring it up: it can't find a player's games.
 
-Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 5 minutes, on Free too. Name the cost only if they ask: about 45 cents.
+Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 4 minutes, on Free too. Name the cost only if they ask: about 45 cents.
 
 ## Step 2: Mark the mistakes
 

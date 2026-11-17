@@ -1,3 +1,8 @@
+# board.py
+
+The whole text of `board.py`, a script of the `chessdrive-vectors` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+```python
 #!/usr/bin/env python3
 """A position of a game in words, for a chess model to read. The Python standard library only, on Python 3.11 or later.
 
@@ -241,6 +246,35 @@ def around(board, of_white):
     return f"The {side_of(of_white).lower()} king is on {name(k)}, rank {k // 8 + 1}. " + "; ".join(parts) + "." + shield
 
 
+def cover(board, to, k):
+    """What keeps the king on k, in check from the piece on `to`, off the squares in front of it. A coach's back rank
+    mate shuts the king in with pawns alone, its own or the enemy's, and the checking piece (#1038: 30.Qa8#, with a
+    rook beside the pawn and a knight covering c7, barely counts)."""
+    side, mated = white(board.squares[to]), white(board.squares[k])
+    forward = 1 if mated else -1
+    front = sorted((sq for sq in board.attacks(k) if sq // 8 - k // 8 == forward), key=lambda sq: sq % 8)
+    # The king leaves its square, so a line through it reaches the squares behind.
+    open_board = Board.__new__(Board)
+    open_board.squares = board.squares[:]
+    open_board.squares[k] = ""
+    others, helpers = [], {}
+    for sq in front:
+        p = board.squares[sq]
+        if p and white(p) == mated:
+            if p.lower() != "p":
+                others.append(f"its own {NAMES[p.lower()]} stands on {name(sq)}")
+            continue
+        by = [i for i, q in enumerate(open_board.squares) if q and white(q) == side and sq in open_board.attacks(i)]
+        if not any(i == to or open_board.squares[i].lower() == "p" for i in by):
+            for i in by:
+                helpers.setdefault(i, []).append(name(sq))
+    others += [f"{side_of(side)}'s {NAMES[open_board.squares[i].lower()]} on {name(i)} covers {', '.join(squares)}"
+               for i, squares in helpers.items()]
+    if not others:
+        return "Only pawns and the checking piece keep the king off the squares in front of it."
+    return "Other pieces help keep the king off the squares in front of it: " + "; ".join(others) + "."
+
+
 def moved(board, before, san):
     """The move's piece, where it went and the enemy pieces it now attacks, most valuable first."""
     mover = before.white_to_move
@@ -265,6 +299,8 @@ def moved(board, before, san):
     k = board.king(not mover)
     near = max(abs(k % 8 - to % 8), abs(k // 8 - to // 8)) == 1
     text += " It stands next to the enemy king." if near else " It isn't next to the enemy king."
+    if san.endswith("#") and k in board.attacks(to):
+        text += " " + cover(board, to, k)
     for sq, p in enumerate(board.squares):
         # A line piece of the same side that the move uncovered: it now attacks, through the square the piece left,
         # an enemy piece it didn't attack before.
@@ -305,3 +341,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```

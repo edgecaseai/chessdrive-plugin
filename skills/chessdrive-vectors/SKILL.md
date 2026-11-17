@@ -5,7 +5,9 @@ description: Embed chess positions and texts with ChessDrive into a vector file 
 
 # Work with vectors
 
-You turn chess positions and texts into vectors with ChessDrive Embed, then answer the person's question with code that reads them. Vectors stay in the file: code reads them, and you read what the code prints, which is rows, counts and scores. Compare and group are not API features. They are the scripts in `scripts/` beside this file, for you to run or adapt. Below, `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. Run them from the person's own folder, by that full path.
+**Unpack the scripts first.** This plugin holds its Python scripts as text, one `.py.md` file each. Wherever you can run code, before anything else read `chessdrive-vectors/references/unpack.md`, in the folder beside the one this file is in, and run its one command, which prints a folder. From then on `<this Skill's folder>` is this Skill's folder inside the printed one, `<the printed folder>/chessdrive-vectors`: read every file and run every script from there. Where you can't run code, skip this, and `<this Skill's folder>` is the folder this file is in.
+
+You turn chess positions and texts into vectors with ChessDrive Embed, then answer the person's question with code that reads them. Vectors stay in the file: code reads them, and you read what the code prints, which is rows, counts and scores. Compare and group are not API features. They are the scripts in `scripts/` beside this file, for you to run or adapt. Below, Your app gave you the folder this file is in, so don't search for it. Run them from the person's own folder, by that full path.
 
 ## What you need
 

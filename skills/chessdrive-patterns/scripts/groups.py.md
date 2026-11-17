@@ -1,3 +1,8 @@
+# groups.py
+
+The whole text of `groups.py`, a script of the `chessdrive-patterns` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+```python
 #!/usr/bin/env python3
 """The mistakes a player keeps making: `group.py` on their vector file, with each example read back as the mistake it
 is. NumPy only, on Python 3.11 or later.
@@ -95,3 +100,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```

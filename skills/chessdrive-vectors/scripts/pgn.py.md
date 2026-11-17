@@ -1,3 +1,8 @@
+# pgn.py
+
+The whole text of `pgn.py`, a script of the `chessdrive-vectors` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+```python
 #!/usr/bin/env python3
 """Read a PGN file's games and tags. The Python standard library only, on Python 3.11 or later, so a script that only
 reads games needs no NumPy. It splits a file as `chessdrive embed` splits it.
@@ -177,3 +182,4 @@ def main():
 if __name__ == "__main__":
     sys.dont_write_bytecode = True
     main()
+```

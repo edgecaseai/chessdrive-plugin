@@ -1,3 +1,8 @@
+# openings.py
+
+The whole text of `openings.py`, a script of the `chessdrive-prep` Skill. Claude's plugin directory takes no script files, so it's held here as text. Don't run or copy it from here: `unpack.md`, in `chessdrive-vectors/references`, writes it out as the file it is.
+
+```python
 #!/usr/bin/env python3
 """What a player plays, counted from a PGN file of their games, with no call and no charge. The Python standard library
 only, on Python 3.11 or later.
@@ -307,3 +312,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
