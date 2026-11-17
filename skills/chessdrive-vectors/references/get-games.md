@@ -24,7 +24,7 @@ Give the script what the request says, so it downloads only those games:
 
 > You have 14,530 games on Lichess, about 12 minutes to download. Which time controls should I take, and from how far back?
 
-Don't ask when it's 500 or fewer, or when the request already says, as in "my rapid games from the last two months": go ahead. With `exact: false`, `games` is a guide: with dates, Lichess gives the most there can be, and chess.com counts only rated games.
+Don't ask when it's 500 or fewer, or when the request already says, as in "my rapid games from the last two months": go ahead. Don't ask either, or run `--how-long`, when the Skill that sent you here gives its own `--max` and `--speed`, as `chessdrive-prep` does for an opponent's games: it has chosen the scope, so fetch with what it gives. With `exact: false`, `games` is a guide: with dates, Lichess gives the most there can be, and chess.com counts only rated games.
 
 **If it can't reach the site or is refused, or you can't run code, stop and give the person the link below.** That's how it goes in Claude's chat app and ChatGPT, whose sandboxes can't reach the sites. Don't go around it: no fetch of your own, no browser, no Claude in Chrome, no script in a page, and never pose as a browser. The link gets them the file in one click. Games in ChessBase need the steps below too.
 

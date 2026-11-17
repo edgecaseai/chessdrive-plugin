@@ -2,14 +2,14 @@
 
 A Study with a Board the person moves on gets a card that asks about the position on view, only when they ask: the engine's evaluation and best Line, and one question to Generate with that Line passed in. **The engine's Line runs on Stockfish in the person's browser, free,** with no key and no call to ChessDrive. A question to Generate works with a **Study key**, a key made for this page alone, which calls only Engine and Generate, up to a dollar a day, for 7 days; the Engine API is there only for a browser that can't run Stockfish. A Worksheet's grid and a Board in `view` mode with nothing to try get none.
 
-The browser's Stockfish is [stockfish.js](https://github.com/nmrugg/stockfish.js)' build of Stockfish 18, GPL-3.0, loaded unchanged from its npm package on unpkg the first time the person asks, about 7 MB, and kept by the browser after that. The card credits it. Keep its pinned URL in `live()` as it stands.
+The browser's Stockfish is [stockfish.js](https://github.com/nmrugg/stockfish.js)' build of Stockfish 18, GPL-3.0, loaded unchanged from its npm package on unpkg the first time the person asks, about 7 MB, and kept by the browser after that. A Claude artifact lets a page load scripts from unpkg but not fetch the engine's `.wasm`, so there `stockfish()` loads the package's asm.js build instead, about 10 MB and slower, and stops a search after 5 seconds. The card credits it. Keep its pinned URLs in `stockfish()` as they stand.
 
 ## Make the key
 
 - **In a coding agent,** make one Study key per page while you build it: `chessdrive study-key "<title>"`, with the page's `<title>`, which prints the key alone, or with no CLI the Connector's `study_key` tool with `name`. It's free. Make one, never more for the same page, and none when you rebuild a page that has one: keep its key.
 - **In Claude, ChatGPT or any app that shows the page itself,** make none. The page can't reach the API there, so the card shows the engine's Line where the browser can run Stockfish, and no questions; a copy the person downloads and opens shows the quiet "Add your key" line for them.
 
-Never print the key in the chat, and never write it anywhere but the page's `<meta>`: read it straight into the code that writes the page, as in `key = subprocess.run(["chessdrive", "study-key", title], capture_output=True, text=True, check=True).stdout.strip()`, not into a file of its own. If one ended up in a file, delete that file before you hand the page over.
+Never repeat the key in a message of yours, and never write it anywhere but the page's `<meta>`: read it straight into the code that writes the page, as in `key = subprocess.run(["chessdrive", "study-key", title], capture_output=True, text=True, check=True).stdout.strip()`, not into a file of its own. If one ended up in a file, delete that file before you hand the page over. The `study_key` tool gives the key in its answer, in the chat, with its `api_url`: put both into the page's `<meta>`s yourself, by editing the page once it's written, and never as text in a build script or an argument on a command line, where the key stays in a file or the shell's history. Code that builds the page again takes both `<meta>`s from the page that's there, so the key is kept and never typed.
 
 ## The page
 
@@ -20,9 +20,9 @@ In the frame's `<head>`, after the Board's script, the API's address from the ke
 <meta name="chessdrive-key" content="ck_…">
 ```
 
-Without a key, leave out the second line and keep the first: the page then shows "Add your key" for questions. The keeping script's Download leaves the key out of every copy, and the page takes it out of its own copy once it has read it.
+The first line's address is the key's `api_url`, which `study_key`'s answer holds, and the CLI's with `--json`. Without a key, leave out the second line and keep the first as the frame has it: the page then shows "Add your key" for questions. The keeping script's Download leaves the key out of every copy, and the page takes it out of its own copy once it has read it.
 
-First in `.cd-panel`, this card as it stands:
+First in `.cd-panel`, unless the kind's reference places it, as a Game review's and a Mistake drill's do, this card as it stands:
 
 ```html
 <section class="cd-card cd-live" hidden>
@@ -229,9 +229,11 @@ function live(board) {
 // Stockfish 18 in this browser (stockfish.js, GPL-3.0). The function it returns starts it the first time it's called,
 // and resolves to a function from a FEN to the engine's answer as Engine gives it, scores from White's side and moves
 // as {san, uci}, or to null where the browser can't run it. A Worker can't start from another site, so it starts from a Blob that loads the engine; the engine
-// finds its .wasm from the address after the Worker's #.
+// finds its .wasm from the address after the Worker's #. Where the page may not fetch the .wasm, as in a Claude
+// artifact, the Worker says so and the engine's asm.js build starts instead: one script, slower, so a search there
+// stops after 5 seconds.
 function stockfish(depth = 18) {
-  const url = 'https://unpkg.com/stockfish@18.0.8/bin/stockfish-18-lite-single';
+  const url = 'https://unpkg.com/stockfish@18.0.8/bin/stockfish-18-';
   const probe = document.createElement('chessdrive-board');
   // A Line's UCI moves in SAN too, from the Board, which plays them and writes them in its PGN.
   const moves = (fen, uci) => {
@@ -247,25 +249,7 @@ function stockfish(depth = 18) {
   };
   let started = null;
   return () => (started ||= new Promise((resolve) => {
-    let worker;
-    try {
-      const src = URL.createObjectURL(new Blob(['importScripts(' + JSON.stringify(url + '.js') + ');'], { type: 'text/javascript' }));
-      worker = new Worker(src + '#' + encodeURIComponent(url + '.wasm'));
-    } catch {
-      return resolve(null);
-    }
-    const fail = () => { worker.terminate(); resolve(null); };
-    const late = setTimeout(fail, 30000);
-    worker.onerror = () => { clearTimeout(late); fail(); };
-    let listen = null, queue = Promise.resolve();
-    worker.onmessage = ({ data }) => {
-      const line = String(data);
-      if (line === 'uciok') {
-        clearTimeout(late);
-        resolve(search);
-      }
-      listen?.(line);
-    };
+    let worker, go = 'go depth ' + depth, listen = null, queue = Promise.resolve();
     // One search at a time, each after the last, whether or not it found a move.
     const search = (fen) => {
       const run = queue.then(() => new Promise((done, failed) => {
@@ -282,12 +266,47 @@ function stockfish(depth = 18) {
           done({ lines: [line1], best_move: line1.moves[0] });
         };
         worker.postMessage('position fen ' + fen);
-        worker.postMessage('go depth ' + depth);
+        worker.postMessage(go);
       }));
       queue = run.catch(() => {});
       return run;
     };
-    worker.postMessage('uci');
+    // One build of the engine, with its .wasm's address or none. `next` runs once if it can't start: the page
+    // refused a file of it, which the Worker reports as "blocked", it failed, or it took over 30 seconds.
+    const start = (js, wasm, next) => {
+      let late = 0, over = false;
+      const fail = () => {
+        if (over) return;
+        over = true;
+        clearTimeout(late);
+        worker?.terminate();
+        next();
+      };
+      try {
+        const src = URL.createObjectURL(new Blob(['addEventListener("securitypolicyviolation", () => postMessage("blocked"));' +
+          'importScripts(' + JSON.stringify(js) + ');'], { type: 'text/javascript' }));
+        worker = new Worker(src + (wasm ? '#' + encodeURIComponent(wasm) : ''));
+      } catch {
+        return fail();
+      }
+      late = setTimeout(fail, 30000);
+      worker.onerror = fail;
+      worker.onmessage = ({ data }) => {
+        const line = String(data);
+        if (over) return;
+        if (line === 'blocked') return fail();
+        if (line === 'uciok') {
+          clearTimeout(late);
+          resolve(search);
+        }
+        listen?.(line);
+      };
+      worker.postMessage('uci');
+    };
+    start(url + 'lite-single.js', url + 'lite-single.wasm', () => {
+      go += ' movetime 5000';
+      start(url + 'asm.js', '', () => resolve(null));
+    });
   }));
 }
 ```

@@ -78,7 +78,7 @@ function tryMoves(board, button, shown, onBack) {
 ## Numbers
 
 - **Plies.** Each of a whole-game answer's `moves` has `ply`, the half-moves played *before* it: 0 for White's first move. The Board's `ply` counts half-moves played. So `moves[i]` is played from Board `ply: i` and shown done at `ply: i + 1`, and on a `ply` event the move just played is `moves[ply - 1]`. `generate`'s `position: {pgn, ply}` names the position at Board `ply`.
-- **Evaluations** are from White's side, and exactly one of `cp` and `mate` is set. For the side to move, better is higher for White and lower for Black: compare `cp × (white ? 1 : −1)`. Print pawns with one decimal (`+1.3`) and a mate as `M3` (White mates) or `−M3`. `mate: 0` is checkmate on the board: print "Checkmate", and pass `eval: null`.
+- **Evaluations** are from White's side, and exactly one of `cp` and `mate` is set. For the side to move, better is higher for White and lower for Black: compare `cp × (white ? 1 : −1)`. Where a page prints one as a number, print pawns with one decimal (`+1.3`) and a mate as `M3` (White mates) or `−M3`; a Game review's own text gives words instead ([review.md](review.md)). `mate: 0` is checkmate on the board: print "Checkmate", and pass `eval: null`.
 - **Moves in SAN.** Engine's answers through the Connector give each move in SAN alone: `best_line` and a Line's `moves` are lists such as `["Nf3", "d5"]`, and `move` and `best_move` are `{san}`. The CLI's `--json` gives `{san, uci}` in those lists instead, so read a move as `m.san ?? m`. An arrow and `lastMove` take a move's squares: get them from a Board you never put on the page, with this function as it stands:
 
   ```js

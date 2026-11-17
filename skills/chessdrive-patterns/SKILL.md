@@ -15,7 +15,7 @@ Three limits hold in everything you write:
 
 ## If they ask what this does, or give too little
 
-Say this, and wait: "Give me a PGN file of your last 30 games and your username on the site, and I'll find the kinds of mistake you make most, each with three examples on a board. It takes about 5 minutes, or 8 on Free. No file? Tell me your site and username, and I'll fetch them."
+Say this, and wait: "Give me a PGN file of your last 30 games and your username on the site, and I'll find the kinds of mistake you make most, each with three examples on a board. It takes about 4 minutes. No file? Tell me your site and username, and I'll fetch them."
 
 ## What you need
 
@@ -29,7 +29,7 @@ You need about 30 of the player's games in a PGN file, and their name as the fil
 
 **No file?** Read `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` and do what it says: with a username, fetch their games with its script, and otherwise give the person its steps for their site as they're written, never from memory. It covers Lichess, chess.com and ChessBase. Never call `search`, and don't bring it up: it can't find a player's games.
 
-Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 5 minutes, on Free too. Name the cost only if they ask: about 45 cents.
+Fewer than 30 games works, with fewer mistakes to group. Tell them 30 games take about 4 minutes, on Free too. Name the cost only if they ask: about 45 cents.
 
 ## Step 2: Mark the mistakes
 

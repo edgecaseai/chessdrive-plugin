@@ -16,7 +16,7 @@ Four limits hold in everything you write:
 
 ## If they ask what this does, or give too little
 
-Say this, and wait: "Tell me your opponent's username and site, or give me a PGN file of their games, and the colour you'll have. I'll count what they play against that colour, check their main lines with the engine, and give you their form and a plan, on a page to explore. It takes a few minutes, plus the download for a big account."
+Say this, and wait: "Tell me your opponent's username and site, or give me a PGN file of their games, and the colour you'll have. I'll count what they play against that colour, check their main lines with the engine, and give you their form and a plan, on a page to explore. It takes a few minutes."
 
 ## What you need
 
@@ -30,20 +30,21 @@ Ask only for what's missing, once, in one message:
 - **The opponent's games:** a PGN file, or their username on Lichess or chess.com. Their games are public, so no permission is needed. Use the path they gave, or the file attached to the chat. With only a real name, ask for their username.
 - **The opponent's name as the PGN writes it,** with a file: their username on that site. If the name isn't in the file, the script says which names are, so ask which is theirs.
 - **The person's colour.** If they don't know yet, run Steps 2 to 4 for both colours, with the top two lines of each.
-- **The moves they usually open with,** if they'd like the prep to fit them. "Not sure" is a fine answer: carry on without.
+- **The moves they usually open with** are never missing: use them if the person said them, and don't ask for them alone. If your message already asks for something above, you can add this to it, and "not sure" is a fine answer.
 
-**With a username, fetch their games yourself.** The script is in the `chessdrive-vectors` Skill beside this one. This Skill's folder is the one this file is in, which your app gave you, so don't search for it. If they didn't say which site, try both. First ask how long it takes, with no download:
-
-```bash
-python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py lichess <name> --how-long
-```
-
-Choose the scope as `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` says under Only the games they want, and give both downloads the same `--speed` and `--since`. Tell the person how long, in minutes, then start without waiting. If it's still over 8 minutes, add `--max 8000` to the Lichess download, which keeps it to about 7, and say you read their newest 8,000:
+**With a username, fetch their games yourself.** The script is in the `chessdrive-vectors` Skill beside this one. This Skill's folder is the one this file is in, which your app gave you, so don't search for it. If they didn't say which site, try both. Step 2 counts their newest 200 games with one colour, so download their newest 1,000 at blitz or slower, which leaves room for their games with the other colour and the few the count leaves out:
 
 ```bash
-python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py lichess <name> --out prep/lichess.pgn
-python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py chesscom <name> --out prep/chesscom.pgn
+python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py lichess <name> --max 1000 --speed blitz,rapid,classical,correspondence --out prep/lichess.pgn
+python3 <this Skill's folder>/../chessdrive-vectors/scripts/fetch_games.py chesscom <name> --max 1000 --speed blitz,rapid,classical,correspondence --out prep/chesscom.pgn
 ```
+
+**Start without asking which games.** Tell the person the download takes about a minute, and go: Prep's scope is the same however many games they have, so skip the `--how-long` step and the question `<this Skill's folder>/../chessdrive-vectors/references/get-games.md` has for a big account. chess.com serves a month at a time, so an account spread over many years can take a few minutes. Change the scope only for what the person said, and give both downloads the same:
+
+- **The game's speed,** as in "it's a rapid game": `--speed rapid` in place of the four, here and in Step 2.
+- **Dates,** as in "what do they play this year": add `--since`, as `get-games.md` says under Only the games they want.
+
+Each download prints `games`, how many it wrote. At 1,000 it stopped there, and they have more: you'll say so in What this rests on. If the site has no such games, download again with no `--speed` before you ask about the spelling.
 
 Give each a timeout of 10 minutes, or run it in the background and wait to be told it has finished. Run one at a time, and reuse a file you already have. Don't fetch with your own tools, as both sites refuse a plain request. With games from both sites, join them with `cat prep/lichess.pgn prep/chesscom.pgn > prep/games.pgn` and run Step 2 once, on that file.
 
@@ -52,36 +53,38 @@ If the script can't reach the site or is refused, as in Claude's chat app or Cha
 ## Step 2: Count what they play
 
 ```bash
-python3 <this Skill's folder>/scripts/openings.py <file> --player "<name>" --against <the person's colour> --tree prep/tree.json
+python3 <this Skill's folder>/scripts/openings.py <file> --player "<name>" --against <the person's colour> --out prep/summary.json --tree prep/tree.json
 ```
 
 Run every command here from the person's own folder, with the script's full path, so `prep/` lands there and never in the Skill's folder.
 
-Add `--after "1. e4"` with the moves the person opens with, when they said. Add `--speed rapid` when they said what speed the game is and the file has it (`bullet`, `blitz`, `rapid`, `classical`, `correspondence`, or `all`). Without it the script leaves out bullet if at least 30 slower games remain.
+Add `--after "1. e4"` with the moves the person opens with, when they said. Add `--speed rapid` when they said what speed the game is and the file has it (`bullet`, `blitz`, `rapid`, `classical`, `correspondence`, or `all`). Without it the script leaves out bullet if at least 30 slower games remain. For both colours, name each run's files for its colour, such as `prep/summary-white.json`.
 
-It prints:
+It prints this, and writes the same to `prep/summary.json`, where the Study's code reads it, so run it once:
 
-- `read`: the games in the file, theirs, with this colour, and `used`, what the rest stands on, from the date `from` to `to`, by `speeds`.
-- `left_out`: what it didn't read, and why.
-- `first_moves`: from where the reading starts, each move with its `games`, `won`, `drawn`, `lost` and `score_percent`, always from the opponent's side, and the `replies` to it.
+- `read`: `games_in_file`, `their_games` among them, `with_this_colour`, and `used`, what everything below stands on: their newest 200 with this colour at these speeds, or all of them if there are fewer, from the date `from` to `to`, by `speeds`. A speed of `unknown` is a game whose file gives no time control: write "3 with no time control given".
+- `left_out`: every other game in the file, each counted once, so with `used` they add up to `games_in_file`: `other_players`, games in the file they didn't play, `other_variants`, `set_up_positions`, `no_moves`, `unfinished`, `other_colour`, their games with the other colour, `other_speeds`, by speed, `other_first_moves`, games that didn't open with `--after`'s moves, `games_they_didnt_lose`, with `--lost`, and `older_than_newest_200`.
+- `first_moves`: from where the reading starts, the four most played, each with its `games`, `won`, `drawn`, `lost` and `score_percent`, always from the opponent's side, and the `replies` to it.
 - `lines`: the top three, each `line` as far as enough games still agree, with the same counts, `of_their_last_30`, `next`, the moves played after it, and `opening`, the file's own name for it, or null. A null name stays unnamed: write the moves.
 - `weak_spot`: another line they score badly in, if there is one.
 - `form`: their last 12 games at these speeds, of either colour, and `rating_then` and `rating_now`.
-- `positions`: the end of each line, ready for Step 3.
+- `positions`: the end of each line, ready for Step 3, `weak_spot`'s last when there is one.
 
 `next` is a move of whichever side is to move after the line. When that's the person's colour, it's what the opponent's opponents played, not the opponent: write "After it, White played 5. f3", never "they played". In the same way, when the opponent has Black, `first_moves` are White's and only their `replies` are the opponent's: "they mostly face 1.e4".
 
 If `few_games` is true, say the picture rests on few games. If `used` is 0, say so, and run it again without `--after`.
 
+**If `with_this_colour` is under 30 in games you downloaded,** they've played few games at those speeds: download again with no `--speed`, run this step on that file with no `--speed`, and say in What this rests on that the count reads their bullet games too.
+
 ## Step 3: Check where their lines end
 
-Call `engine` once, on every entry of `positions`, `weak_spot`'s too, with `lines: 3`. With the CLI, write them one a line to `prep/positions.jsonl` with code, then run `chessdrive engine --positions prep/positions.jsonl --lines 3 --out prep/engine.jsonl`, and read the results with code: line 7 answers line 7. With the Connector, it's `{"engine": "stockfish", "positions": <positions as printed>, "lines": 3}`. Each result has `lines` and `fen`, and from the Connector `board_url`. Each Line's score is from White's side, in `cp` or `mate`: under 50 either way is about equal, under 150 a little better, under 300 clearly better, more is winning, and a `mate` is mating. Turn them into those words, and use the words everywhere.
+Call `engine` once, on every entry of `positions`, with `lines: 3`. `weak_spot`'s position is already its last entry, so add nothing. With the CLI, write them one a line to `prep/positions.jsonl` with code, then run `chessdrive engine --positions prep/positions.jsonl --lines 3 --out prep/engine.jsonl`, and read the results with code: line 7 answers line 7. With the Connector, it's `{"engine": "stockfish", "positions": <positions as printed>, "lines": 3}`. Each result has `lines` and `fen`, and from the Connector `board_url`. Each Line's score is from White's side, in `cp` or `mate`: under 50 either way is about equal, under 150 a little better, under 300 clearly better, more is winning, and a `mate` is mating. Turn them into those words, and use the words everywhere.
 
 If a result is `game_over`, skip that line. If it's `not_run`, send those positions again, once. With the CLI, a position not run has no line yet: run the same command again, once. Copy each Line's first moves as they are, and write them after the line's last move: a Line is the engine's play, not the opponent's, so never say they played it.
 
 ## Step 4: Write the plan
 
-Call `generate` once, with `model: "queen"`, no `position`, and this `system`: `chessdrive generate --model queen --no-stream --system "<system>" "<message>"`. Without a position it talks only about what you send, rather than bringing in lines of its own:
+Call `generate` once, with `model: "queen"`, no `position`, and this `system`: `chessdrive generate --model queen --no-stream --system "<system>" "<message>"`, or with the Connector `{"model": "queen", "system": "<system>", "messages": [{"role": "user", "content": "<message>"}]}`. Without a position it talks only about what you send, rather than bringing in lines of its own:
 
 ```text
 You prepare a chess player for a game against one opponent. You know only what you are given: the counts from their games and the engine's lines.
@@ -94,20 +97,24 @@ Send `messages` with one `user` message:
 
 ```text
 I have {colour} against {name}. In {used} of their games from {from} to {to}:
-Line 1: {line}. {games} games: {won} wins, {drawn} draws, {lost} losses for them. After it, {they, or White or Black when `next` is the person's colour} played {next}. The engine says {who stands better}, and its best moves from there are {the first Line's first 4 moves, numbered}.
+Line 1: {line}. {games} games: {won} wins, {drawn} draws, {lost} losses for them. After it, {they, or White or Black when `next` is the person's colour} played {each move of `next` with its games, as in "5. f3 in 12 games and 5. Be3 in 7"}. The engine says {who stands better}, and its best moves from there are {the first Line's first 4 moves, numbered}.
 Line 2: ...
-They score worst in: {weak_spot's line and its counts}.
+They score worst in: {weak_spot's line}. {games} games: {won} wins, {drawn} draws, {lost} losses for them. The engine says {who stands better} there, and its best moves from there are {the first Line's first 4 moves, numbered}.
 Their last 12 games: {won} wins, {drawn} draws, {lost} losses.
 Which line should I aim for, and what should I watch for?
 ```
 
+Leave the "They score worst in" line out when `weak_spot` is null. Every line you send carries the engine's words for where it ends, the weak spot's too: without them the model guesses who stands better from the moves. For {who stands better}, write "White stands clearly better", or "the position is about equal".
+
 If it refuses, do as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says, and if it fails twice, give the lines and the engine's words with no plan, and say once that the plan isn't available right now.
 
-**Check the reply before you use it.** Go through every move it names: if a move isn't in what you sent, with the same number, drop that sentence. Drop a sentence too if it names an opening, or says something about the opponent that you didn't send.
+**Check the reply before you use it.** Go through every move it names: if a move isn't in what you sent, with the same number, drop that sentence. Drop a sentence too if it names an opening, says something about the opponent that you didn't send, or says who stands better in a line in other words than the engine's.
 
 ## Step 5: Build a Study
 
-Before you write your answer, build the person a Study with the `chessdrive-study` Skill beside this one: read `frame.md`, `board.md` and `opponent-prep.md` in `<this Skill's folder>/../chessdrive-study/references/`, and fill the page from what you already have. Hand it over as that Skill's Step 6 says: in a coding agent, open it and give its full path as a link. Do this in every run. Don't offer it or ask first, and make no new ChessDrive calls.
+Before you write your answer, build the person a Study with the `chessdrive-study` Skill beside this one, as an Opponent prep. Read `<this Skill's folder>/../chessdrive-study/SKILL.md` and every reference it names for that kind, and follow it from where it builds the page on. Skip its steps before that: Steps 1 to 4 here are its gathering. Fill the page with code from what you have: the summary in `prep/summary.json`, the tree in `prep/tree.json`, the engine's answer in `prep/engine.jsonl`, or in the tool's reply from the Connector, and the plan. Make no new `engine` or `generate` call. The Study key that Skill asks for in a coding agent is the one new call, and it's free. Do this in every run, and don't offer it or ask first.
+
+**Hand it over inside your answer.** Open the page as that Skill's hand-over says, in a coding agent, and write no hand-over message of its own: Step 6's answer carries its lines.
 
 A coding agent always builds the Study, as the page is a file it opens: `show_board` isn't a way round it. If your app can't show a page, as in a chat with no artifacts, or that Skill isn't there, call `show_board` instead, once, before your answer, with `pgn` the first line's `line`, its `ply`, `orientation` the person's colour, `moves: true` and `mode: "play-both"`, so they can try their own moves. With no `show_board`, make the moves of each line's heading a link to its position on the Board: its `board_url`, or the link Board links in `calls.md` builds.
 
@@ -116,10 +123,10 @@ A coding agent always builds the Study, as the page is a file it opens: `show_bo
 ```markdown
 **Against White they mostly answer 1.e4 with 1...c5, in 96 of the 143 games I read, and they score worst after 1...e6.** One more sentence with the plan's main idea.
 
-How to use the Study or the board, in one line.
+How to use the Study, and where it is: its full path as a link. Then how to keep and share it. Both as the Study Skill's hand-over words them. With only a board, how to use that, in one line.
 
 ### Line 1: 1. e4 c5 2. Nf3 d6 3. d4 cxd4
-41 games: 20 wins, 8 draws, 13 losses for them, and 12 of their last 30. Where it leaves you, in the engine's words, with its best moves.
+41 games: 20 wins, 8 draws, 13 losses for them, and 12 of their last 30. What was played after it, from `next`. Where it leaves you, in the engine's words, with its best moves.
 
 ### Line 2: ...
 
@@ -129,12 +136,14 @@ Their last 12: 7 wins, 1 draw, 4 losses, from 2026.10.02 to 2026.10.28. Their ra
 ### Your plan
 The plan from Step 4.
 
-**What this rests on:** {used} of their {their_games} games, from {from} to {to}, at {speeds}. Left out: {left_out, in words}. Games on other accounts, and over the board, aren't in it.
+**What this rests on:** {used} games, their newest with {their colour}, {speeds, as in "198 blitz and 2 correspondence"}, from {from} to {to}, of the {games_in_file} in the file. Left out: {every count in left_out above zero, in words}. Games on other accounts, and over the board, aren't in it.
 
 Want to drill their main line?
 ```
 
-Start with the bold answer, with nothing before it. Start a line's heading with "Line 1:", never with its first move, which would render as a list item. Write every line's counts as "21 games: 10 wins, 4 draws, 7 losses for them", never as 10W 4D 7L. Copy each line as the script writes it, numbers and all, and never renumber a move. An engine Line carries on from the move after its line's last: after `4. e4 d6` its first move is 5, as in 5. Be2 e5. If `weak_spot` isn't null, give it a heading after the top lines. The last line offers one follow-up.
+Start with the bold answer, with nothing before it. Start a line's heading with "Line 1:", never with its first move, which would render as a list item. Write every line's counts as "21 games: 10 wins, 4 draws, 7 losses for them", never as 10W 4D 7L. Copy each line as the script writes it, numbers and all, and never renumber a move. An engine Line carries on from the move after its line's last: after `4. e4 d6` its first move is 5, as in 5. Be2 e5. If `weak_spot` isn't null, give it a heading after the top lines, "They score worst in: " and its line, with the same two lines under it. The last line offers one follow-up.
+
+In What this rests on, the games used and the counts left out add up to the games in the file: add them up before you send. Write each count as what it is, as in "Left out: 491 games where they had White, 308 older games with Black and 1 with no moves." When a download stopped at 1,000, say what the file is: "the file is their newest 1,000 games at blitz or slower on Lichess, not every game they've played".
 
 ## Follow-ups
 
@@ -143,8 +152,8 @@ Start with the bold answer, with nothing before it. Start a line's heading with 
 These read the same file, so the script costs nothing:
 
 - **"Drill their main line":** build an Opening drill with the `chessdrive-study` Skill, from `lines`, with the person's side as the side to drill.
-- **"What did they play in the games they lost?":** run Step 2 again with `--lost`, and answer from its `lines` and counts.
-- **"After 1.d4, what do they do?":** run Step 2 again with `--after`, and answer from `first_moves` and `lines`. Call `engine` only if they ask where it leaves them.
+- **"What did they play in the games they lost?":** run Step 2 again with `--lost` and without `--out` and `--tree`, so the Study's files stay, and answer from its `lines` and counts.
+- **"After 1.d4, what do they do?":** run Step 2 again with `--after`, without `--out` and `--tree`, and answer from `first_moves` and `lines`. Call `engine` only if they ask where it leaves them.
 
 ## Rules
 
