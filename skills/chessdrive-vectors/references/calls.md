@@ -27,7 +27,7 @@ printf '%s' "$pgn" | chessdrive generate --model queen --pgn - --ply <ply> --no-
 
 Use `--fen "<fen>"` for a FEN, and leave the position out for a question with none. For a conversation, `--messages chat.json` takes a JSON list of `{"role", "content"}`. Leave `--max-tokens` out: the Model's thinking counts toward it, so a low cap cuts the reply short or loses it.
 
-The reply marks each Line it names, as in `14...Nf6 [L1]`, and lists the Lines after it, each with its moves, as `L1  14...Nf6 15.Qe2 O-O`. Those are the moves that passed as legal: where a Skill speaks of `lines` and of links such as `[text](line:L1)`, read these. A move the reply names that isn't in a listed Line was illegal, so drop that sentence.
+The reply marks each Line it names, as in `14...Nf6 [L1]`, and lists the Lines after it, each with its moves, as `L1  14...Nf6 15.Qe2 O-O`. Those are the moves that passed as legal: where a Skill speaks of `lines` and of links such as `[text](line:L1)`, read these. A move marked with a Line that isn't listed, as `[L3]` with no `L3` after the reply, wasn't legal, so drop that sentence. A move with no mark is no reason to drop one: a reply often writes the move asked about, or a move of a Line you sent, as plain text. The Connector's `generate` gives the reply as `content`, with the links as they are, and `lines`: there, drop the sentence whose link names a Line that `lines` doesn't have, and write every other link as its text alone.
 
 **Two or more calls that don't use each other's answers go together, up to 6 at once,** the most whose engine notes ChessDrive keeps: more than 6 and the notes behind the replies are skipped. Start them as soon as the engine has answered, and build any page while they run. With the CLI, write one call a line and run `ask.py`, in the background when you have a page to build:
 
@@ -44,23 +44,24 @@ Every chess judgement you give, in your answer, a page or a note, comes from Che
 - **The engine** gives every evaluation, verdict and Line.
 - **Queen** explains what the person reads as prose, and answers their questions.
 - **Knight,** cheap and quick, does the bulk, many calls at once: a line on each of many moves, whether a position shows the idea asked for, a group's name, a short summary.
-- Use a model's reply word for word, by code where it goes in a file. Never reword it or add to it. Name only moves the tools gave you, copied exactly. Where a reply and the engine disagree, the engine is right, so drop that sentence.
+- Use a model's reply word for word where it stands as a note, on a page, in a PGN or on a board, by code where it goes in a file. Never reword it or add to it. An answer you write in the chat from a reply, as `chessdrive-position`'s is, may cut it and join its sentences, and adds nothing to it. Name only moves the tools gave you, copied exactly. Where a sentence of a reply says the opposite of the engine, such as the other side better, another move best or a marked move good, the engine is right, so drop that sentence. Another word for the same thing, such as "a mistake" for a blunder, is no disagreement.
 - A note no model gave, after its retry, says so where it would stand, as in `{ Mistake. No explanation: the chess model didn't answer. }`, and your answer says how many. Never fill one in.
 - **A question about a position** they saw, such as "why was that a blunder?" or "what does the knight on f7 threaten?": answer it as Follow-ups in `<this Skill's folder>/../chessdrive-position/SKILL.md` says. Reuse an `engine` answer you have for that position.
 
 ## When a call is refused
 
-The CLI prints the API's code and message, and exits with a code of its own. Do as the Skill says for `limit_too_high` and `daily_limit_reached`, and for the rest:
+The CLI prints the API's code and message, and exits with a code of its own. Do as the Skill says for `limit_too_high`, and for the rest:
 
+- `daily_limit_reached`, where the Skill doesn't say: Free's calls for today are used up. Pass on its message, give what you already have, and stop: the same call works after midnight UTC, or on a paid Plan.
 - `plan_required`: Queen's calls on Free are used up for now, so make that call and the rest with Knight (`ask.py` does), and say so in one line.
 - `429 rate_limited`: wait for `Retry-After`, the `retry after` in seconds, then make the same call again.
-- `upstream_unavailable`, or a reply cut short: make the same call once more, then label it as above.
+- `upstream_unavailable`, or a reply cut short, one whose `finish_reason` is `max_tokens`, which `ask.py` checks: make the same call once more, then label it as above.
 - **The Balance is empty:** pass on its message and its link to Pricing, give what you already have, and stop.
 
 ## Only the Connector
 
 - **`show_board`,** a board drawn in Claude's chat or desktop app, or in ChatGPT. Where code runs, a Study, a page of the `chessdrive-study` Skill, does its work, so call `show_board` only where the Skill says no Study can show.
-- **`get_game`,** in Claude's chat app or ChatGPT, whose sandboxes can't reach Lichess or chess.com. Everywhere else, `fetch_games.py --url` in this Skill's `scripts` folder gets the game.
+- **`get_game`,** in Claude's chat app or ChatGPT, whose sandboxes can't reach Lichess or chess.com, and wherever you make your calls with the Connector. Everywhere else, `fetch_games.py --url` in the `chessdrive-vectors` Skill's `scripts` folder gets the game.
 
 ## Board links
 

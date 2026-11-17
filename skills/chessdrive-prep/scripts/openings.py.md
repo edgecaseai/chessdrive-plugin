@@ -11,11 +11,13 @@ only, on Python 3.11 or later.
 
 `--against` is the colour the person preparing will have, so this example reads cemoss17's games with Black. Add
 `--after "1. e4"` for what they do after the moves the person plays, `--speed` to choose speeds, `--lost` for only the
-games they lost, and `--tree tree.json` to write the whole tree for a Study.
+games they lost, `--out summary.json` to write what it prints to a file too, and `--tree tree.json` to write the whole
+tree for a Study.
 
 It reads their newest 200 games of that colour, leaves out bullet when 30 slower games remain, and prints one JSON
 object: what it read and left out, their first moves, the top lines each as far as the games still agree, the line they
-score worst in, their form, and `positions`, the end of each line, ready for Engine. Every move printed is in the file.
+score worst in, their form, and `positions`, the end of each line, ready for Engine. Every move printed is in the file,
+and every game in the file is either one of `used` or counted once in `left_out`.
 """
 
 import argparse
@@ -73,7 +75,7 @@ def moves_of(game):
 def speed_of(tags):
     """The speed by the Lichess sum of base time and 40 increments, which reads a chess.com file too."""
     control = tags.get("TimeControl", "")
-    if "/" in control:
+    if "/" in control or control == "-":  # chess.com's days a move, and Lichess's game with no clock
         return "correspondence"
     base, _, increment = control.partition("+")
     if not base.isdigit() or (increment and not increment.isdigit()):
@@ -93,12 +95,13 @@ def played_at(tags):
 
 
 def theirs(games, player):
-    """Their standard games, newest first, and how many of each kind it left out."""
+    """Their standard games, newest first, and how many of each kind it left out, other players' games among them."""
     wanted, kept, left_out = player.casefold(), [], Counter()
     for game in games:
         tags = tags_of(game)
         colour = next((c for c in ("White", "Black") if tags.get(c, "").casefold() == wanted), None)
         if colour is None:
+            left_out["other_players"] += 1
             continue
         moves = moves_of(game)
         result = result_of(tags, colour)
@@ -245,14 +248,15 @@ def report(text, player, against, after, speed, lost=False):
     from_speed = [g for g in of_colour if g.speed in speeds]
     wanted = after.replace(".", ". ").split()
     wanted = [w for w in wanted if is_move(w)]
-    reached = [g for g in from_speed if g.moves[: len(wanted)] == wanted and (g.result == "lost" or not lost)]
+    opened = [g for g in from_speed if g.moves[: len(wanted)] == wanted]
+    reached = [g for g in opened if g.result == "lost"] if lost else opened
     used = reached[:NEWEST]
     summary = {
         "player": player,
         "their_colour": colour,
         "read": {
             "games_in_file": len(games),
-            "their_games": len(played) + sum(left_out.values()),
+            "their_games": len(games) - left_out["other_players"],
             "with_this_colour": len(of_colour),
             "used": len(used),
             "from": min((g.date() for g in used), default=None),
@@ -261,11 +265,14 @@ def report(text, player, against, after, speed, lost=False):
             "after": after or None,
             "only_games_they_lost": lost,
         },
+        # Every game in the file that isn't one of `used`, each counted once, by the first reason in this order.
         "left_out": {
-            **left_out,
+            **{kind: left_out[kind] for kind in ("other_players", "other_variants", "set_up_positions", "no_moves", "unfinished")},
+            "other_colour": len(played) - len(of_colour),
             "other_speeds": dict(other_speeds.most_common()),
+            "other_first_moves": len(from_speed) - len(opened),
+            "games_they_didnt_lose": len(opened) - len(reached),
             "older_than_newest_200": len(reached) - len(used),
-            "other_first_moves": len(from_speed) - len(reached),
         },
         "few_games": len(used) < FEW_GAMES,
         "first_moves": [],
@@ -298,14 +305,16 @@ def main():
     parser.add_argument("--after", default="", help='read only games that open with these moves, such as "1. e4"')
     parser.add_argument("--speed", action="append", default=[], help="a speed to read, more than once if you like, or all")
     parser.add_argument("--lost", action="store_true", help="read only the games they lost")
+    parser.add_argument("--out", help="also write what this prints to this file, for code to read")
     parser.add_argument("--tree", help="also write the whole tree of what they played to this file, for a Study")
     args = parser.parse_args()
     if not Path(args.pgn).is_file():
         sys.exit(f"There's no file at {args.pgn}.")
     summary, tree = report(read_pgn(args.pgn), args.player, args.against, args.after, args.speed, args.lost)
-    if args.tree:
-        Path(args.tree).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.tree).write_text(json.dumps(tree, ensure_ascii=False), encoding="utf-8")
+    for path, holds in ((args.out, summary), (args.tree, tree)):
+        if path:
+            Path(path).parent.mkdir(parents=True, exist_ok=True)
+            Path(path).write_text(json.dumps(holds, ensure_ascii=False), encoding="utf-8")
     sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
     print(json.dumps(summary, ensure_ascii=False))
 

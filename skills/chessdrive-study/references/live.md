@@ -9,7 +9,7 @@ The browser's Stockfish is [stockfish.js](https://github.com/nmrugg/stockfish.js
 - **In a coding agent,** make one Study key per page while you build it: `chessdrive study-key "<title>"`, with the page's `<title>`, which prints the key alone, or with no CLI the Connector's `study_key` tool with `name`. It's free. Make one, never more for the same page, and none when you rebuild a page that has one: keep its key.
 - **In Claude, ChatGPT or any app that shows the page itself,** make none. The page can't reach the API there, so the card shows the engine's Line where the browser can run Stockfish, and no questions; a copy the person downloads and opens shows the quiet "Add your key" line for them.
 
-Never print the key in the chat, and never write it anywhere but the page's `<meta>`: read it straight into the code that writes the page, as in `key = subprocess.run(["chessdrive", "study-key", title], capture_output=True, text=True, check=True).stdout.strip()`, not into a file of its own. If one ended up in a file, delete that file before you hand the page over.
+Never repeat the key in a message of yours, and never write it anywhere but the page's `<meta>`: read it straight into the code that writes the page, as in `key = subprocess.run(["chessdrive", "study-key", title], capture_output=True, text=True, check=True).stdout.strip()`, not into a file of its own. If one ended up in a file, delete that file before you hand the page over. The `study_key` tool gives the key in its answer, in the chat, with its `api_url`: put both into the page's `<meta>`s yourself, by editing the page once it's written, and never as text in a build script or an argument on a command line, where the key stays in a file or the shell's history. Code that builds the page again takes both `<meta>`s from the page that's there, so the key is kept and never typed.
 
 ## The page
 
@@ -20,9 +20,9 @@ In the frame's `<head>`, after the Board's script, the API's address from the ke
 <meta name="chessdrive-key" content="ck_…">
 ```
 
-Without a key, leave out the second line and keep the first: the page then shows "Add your key" for questions. The keeping script's Download leaves the key out of every copy, and the page takes it out of its own copy once it has read it.
+The first line's address is the key's `api_url`, which `study_key`'s answer holds, and the CLI's with `--json`. Without a key, leave out the second line and keep the first as the frame has it: the page then shows "Add your key" for questions. The keeping script's Download leaves the key out of every copy, and the page takes it out of its own copy once it has read it.
 
-First in `.cd-panel`, this card as it stands:
+First in `.cd-panel`, unless the kind's reference places it, as a Game review's and a Mistake drill's do, this card as it stands:
 
 ```html
 <section class="cd-card cd-live" hidden>
