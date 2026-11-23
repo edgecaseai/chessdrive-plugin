@@ -1,0 +1,280 @@
+[
+  {
+    "request": "Rook endings with White to move",
+    "where": {
+      "all": [
+        {
+          "ref": "rook_ending"
+        },
+        {
+          "to_move": "white"
+        }
+      ]
+    },
+    "define": {
+      "rook_ending": {
+        "all": [
+          {
+            "none": {
+              "or": [
+                {
+                  "piece": "wQ"
+                },
+                {
+                  "piece": "bQ"
+                },
+                {
+                  "piece": "wB"
+                },
+                {
+                  "piece": "bB"
+                },
+                {
+                  "piece": "wN"
+                },
+                {
+                  "piece": "bN"
+                }
+              ]
+            }
+          },
+          {
+            "any": {
+              "piece": "wR"
+            }
+          },
+          {
+            "any": {
+              "piece": "bR"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": "A white knight on the rim",
+    "where": {
+      "any": {
+        "and": [
+          {
+            "piece": "wN"
+          },
+          {
+            "ref": "rim"
+          }
+        ]
+      }
+    },
+    "define": {
+      "rim": {
+        "or": [
+          {
+            "file": "a"
+          },
+          {
+            "file": "h"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": "Black is in check from a bishop",
+    "where": {
+      "all": [
+        {
+          "to_move": "black"
+        },
+        {
+          "any": {
+            "and": [
+              {
+                "piece": "bK"
+              },
+              {
+                "attacks": "wB"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "request": "White has a passed pawn on the 7th rank",
+    "where": {
+      "any": {
+        "and": [
+          {
+            "ref": "white_passed_pawns"
+          },
+          {
+            "rank": 7
+          }
+        ]
+      }
+    },
+    "define": {
+      "white_passed_pawns": {
+        "and": [
+          {
+            "piece": "wP"
+          },
+          {
+            "not": {
+              "fill": [
+                {
+                  "or": [
+                    {
+                      "piece": "bP"
+                    },
+                    {
+                      "shift": [
+                        {
+                          "piece": "bP"
+                        },
+                        "E"
+                      ]
+                    },
+                    {
+                      "shift": [
+                        {
+                          "piece": "bP"
+                        },
+                        "W"
+                      ]
+                    }
+                  ]
+                },
+                "S"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "request": "The kings castled on opposite wings",
+    "where": {
+      "ref": "kings_opposite_wings"
+    },
+    "define": {
+      "kings_opposite_wings": {
+        "some": [
+          {
+            "all": [
+              {
+                "any": {
+                  "and": [
+                    {
+                      "piece": "wK"
+                    },
+                    {
+                      "rank": 1
+                    },
+                    {
+                      "or": [
+                        {
+                          "file": "f"
+                        },
+                        {
+                          "file": "g"
+                        },
+                        {
+                          "file": "h"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "any": {
+                  "and": [
+                    {
+                      "piece": "bK"
+                    },
+                    {
+                      "rank": 8
+                    },
+                    {
+                      "or": [
+                        {
+                          "file": "a"
+                        },
+                        {
+                          "file": "b"
+                        },
+                        {
+                          "file": "c"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "flip": {
+              "all": [
+                {
+                  "any": {
+                    "and": [
+                      {
+                        "piece": "wK"
+                      },
+                      {
+                        "rank": 1
+                      },
+                      {
+                        "or": [
+                          {
+                            "file": "f"
+                          },
+                          {
+                            "file": "g"
+                          },
+                          {
+                            "file": "h"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "any": {
+                    "and": [
+                      {
+                        "piece": "bK"
+                      },
+                      {
+                        "rank": 8
+                      },
+                      {
+                        "or": [
+                          {
+                            "file": "a"
+                          },
+                          {
+                            "file": "b"
+                          },
+                          {
+                            "file": "c"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+]

@@ -6,11 +6,11 @@ A person may meet ChessDrive here first, so get them through this in their own a
 
 Stop at the first that's missing, walk them through it, then carry on down the list. Run a check alone, so you stop before the next, and skip those the Skill doesn't need.
 
-1. **Somewhere to run code.** If you can't run a command at all, say what's needed in one line: Claude's chat app on a paid plan, or an agent that runs code, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor. Then stop. In Claude's chat app, follow `claude-chat.md` beside this file instead of steps 2 and 3, which covers the domain step, the CLI and the sign-in. In ChatGPT, skip steps 2 and 3, as the Connector makes every call there, and go to step 5. The Skills that embed, Patterns, Game search and Vectors, can't run in ChatGPT, as the Connector has no `embed` tool: say they need Codex, Claude Code, Cursor or Claude's chat app, and stop.
-2. **The CLI,** which makes every ChessDrive call where code runs (`calls.md` beside this file). Run `chessdrive version`. If the command isn't found, see [Install the CLI](#install-the-cli). If it's older than 0.6.0, see [Update the CLI](#update-the-cli). If the person says no to installing it, skip to step 5 and use the Connector instead.
+1. **Where you are.** In a chat app, Claude's chat app or ChatGPT, the Connector makes every call, as `calls.md` beside this file says: skip steps 2 to 4, ask for no setting or install, and go to step 5. A sandbox there already has Python for the Skills' scripts. Only a Skill that embeds, Patterns, Game search or Vectors, needs more there. In Claude's chat app, follow `claude-chat.md` beside this file for it, instead of steps 2 and 3, which covers the domain step, the CLI and the sign-in. In ChatGPT it can't run, as the Connector has no `embed` tool: say it needs Codex, Claude Code, Cursor or Claude's chat app, and stop. Anywhere else, if the Skill runs code and you can't run a command at all, say what's needed in one line: Claude's chat app, ChatGPT, or an agent that runs code, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor. Then stop.
+2. **The CLI,** which makes every ChessDrive call in a coding agent (`calls.md` beside this file). Run `chessdrive version`. If the command isn't found, see [Install the CLI](#install-the-cli). If it's older than 0.6.0, see [Update the CLI](#update-the-cli). If the person says no to installing it, skip to step 5 and use the Connector instead.
 3. **The sign-in.** Run `chessdrive balance`, which costs nothing. If it says there's no API key, or that the key was refused, see [Sign in](#sign-in).
 4. **Python 3.11 or later with NumPy.** Run `python3 -c "import sys, numpy; assert sys.version_info >= (3, 11)"`. If it fails and `uv` is there, run the scripts with `uv run --python 3.11 --with numpy python`. If Python is older than 3.11, ask them to install the latest from https://www.python.org/downloads/ and tell you when it's done. Otherwise ask whether you can run `python3 -m pip install numpy`, and wait for their yes.
-5. **The Connector,** only where you can't run code, or the person said no to the CLI: the tools `engine` and `generate`. If they aren't there, see [Connect](#connect).
+5. **The Connector,** in a chat app, where you can't run code, or when the person said no to the CLI: the tools `engine` and `generate`. If they aren't there, see [Connect](#connect).
 
 ## Install the CLI
 
@@ -20,7 +20,7 @@ Say that the CLI is a small program that lets you call ChessDrive's engine and c
 npm install -g chessdrive
 ```
 
-Without `npm`, run `curl -fsSL https://platform.chessdrive.io/install.sh | sh`, or on Windows give them https://platform.chessdrive.io/docs/cli, which has the download.
+Without `npm`, run `curl -fsSL https://chessdrive.io/install.sh | sh`, or on Windows give them https://chessdrive.io/docs/cli, which has the download.
 
 If it says its folder isn't on the `PATH`, run the `export` line it prints, and use the same line in each later command.
 
@@ -49,7 +49,7 @@ If it says the sign-in has run out, start again from the first command. If `--no
 Say that ChessDrive isn't connected to your app yet, and give them the steps for their app, one at a time. They only do this once.
 
 - **Claude's chat or desktop app:** in a chat, open Customize, then Plugins, then ChessDrive. On its Connectors tab, press Connect, sign in to ChessDrive and pick a daily limit.
-- **ChatGPT:** the ChessDrive plugin brings the Connector. Ask them to open ChessDrive in ChatGPT's Plugins, press Connect and sign in to ChessDrive.
+- **ChatGPT:** ask them to open Settings, then Plugins, press Add, then Add Custom MCP Server, name it ChessDrive, paste `https://api.chessdrive.io/mcp` and sign in to ChessDrive. If ChessDrive is already in their Plugins, they open it there, press Connect and sign in instead.
 - **Claude Code:** the Plugin's Connector uses the key `chessdrive login` saved. Once the CLI is signed in, ask them to type `/mcp`, choose `chessdrive` and press Reconnect. If it isn't listed, ask to run `claude mcp add-json --scope user chessdrive '{"type":"http","url":"https://api.chessdrive.io/mcp","headersHelper":"chessdrive key --headers"}'`, then restart Claude Code.
 - **Codex:** ask to add this to `~/.codex/config.toml`, with the full path `command -v chessdrive` gives, then restart Codex:
 

@@ -1,6 +1,6 @@
 ---
 name: chessdrive-prep
-description: Prepare someone for a game against one opponent with ChessDrive, from a PGN file of that opponent's games, or their public Lichess and chess.com games. Use when someone says "prep me for my game tomorrow against X", "what does this player play against 1.e4", "help me prepare for my next opponent", or a coach or parent prepares a student. A local script counts what the opponent plays by colour, the engine checks where their top lines end, and the chess model writes a game plan. Gives what they play against this colour, their recent form, a plan, and how many games it read and what the file leaves out, then builds a Study, a page to explore their lines. Runs in an agent that runs code, such as Claude Code, Codex or Cursor, and in Claude's chat app on a paid plan. Calls ChessDrive's engine and chess model through the `chessdrive` CLI.
+description: Prepare someone for a game against one opponent with ChessDrive, from a PGN file of that opponent's games, or their public Lichess and chess.com games. Use when someone says "prep me for my game tomorrow against X", "what does this player play against 1.e4", "help me prepare for my next opponent", or a coach or parent prepares a student. A local script counts what the opponent plays by colour, the engine checks where their top lines end, and the chess model writes a game plan. Gives what they play against this colour, their recent form, a plan, and how many games it read and what the file leaves out, then builds a Study, a page to explore their lines. Runs in Claude's chat app and ChatGPT from an attached PGN file, and in an agent that runs code, such as Claude Code, Codex or Cursor. Calls ChessDrive's engine and chess model with the ChessDrive Connector in a chat app, Claude's or ChatGPT, and through the `chessdrive` CLI in a coding agent.
 ---
 
 # Opponent prep
@@ -20,8 +20,8 @@ Say this, and wait: "Tell me your opponent's username and site, or give me a PGN
 
 ## What you need
 
-- **Somewhere to run code.** That's the person's machine in a coding agent, or the app's sandbox in Claude's chat app or ChatGPT. The scripts need Python 3.11 or later and nothing else, make no ChessDrive call and cost nothing. If you can't run code at all, tell the person this needs Claude's chat app on a paid plan, ChatGPT, or an agent that runs code, such as Claude Code, Codex or Cursor, and stop.
-- **The `chessdrive` CLI at 0.6.0 or later, signed in,** for `engine` and `generate`, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says. If it isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says. If the person won't install it, or in ChatGPT, make the same calls with the ChessDrive Connector's tools.
+- **Somewhere to run code.** That's the person's machine in a coding agent, or the app's sandbox in Claude's chat app or ChatGPT. The scripts need Python 3.11 or later and nothing else, make no ChessDrive call and cost nothing. If you can't run code at all, tell the person this needs Claude's chat app, ChatGPT, or an agent that runs code, such as Claude Code, Codex or Cursor, and stop.
+- **The ChessDrive Connector in a chat app, Claude's or ChatGPT,** for `engine` and `generate`, as `<this Skill's folder>/../chessdrive-vectors/references/calls.md` says: no CLI, setting or install there. **In a coding agent, the `chessdrive` CLI at 0.6.0 or later, signed in,** or the Connector's tools if the person won't install it. If what you need isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and do what it says.
 
 ## Step 1: Get what you need
 
@@ -112,7 +112,7 @@ If it refuses, do as `<this Skill's folder>/../chessdrive-vectors/references/cal
 
 ## Step 5: Build a Study
 
-Before you write your answer, build the person a Study with the `chessdrive-study` Skill beside this one, as an Opponent prep. Read `<this Skill's folder>/../chessdrive-study/SKILL.md` and every reference it names for that kind, and follow it from where it builds the page on. Skip its steps before that: Steps 1 to 4 here are its gathering. Fill the page with code from what you have: the summary in `prep/summary.json`, the tree in `prep/tree.json`, the engine's answer in `prep/engine.jsonl`, or in the tool's reply from the Connector, and the plan. Make no new `engine` or `generate` call. The Study key that Skill asks for in a coding agent is the one new call, and it's free. Do this in every run, and don't offer it or ask first.
+Before you write your answer, build the person a Study with the `chessdrive-study` Skill beside this one, as an Opponent prep. Read `<this Skill's folder>/../chessdrive-study/SKILL.md` and every reference it names for that kind, and follow it from where it builds the page on. Skip its steps before that: Steps 1 to 4 here are its gathering. Fill the page with code from what you have: the summary in `prep/summary.json`, the tree in `prep/tree.json`, the engine's answer in `prep/engine.jsonl`, or from the Connector its reply, copied once to a file as `calls.md` says under The Connector's answers for a script, and the plan. Make no new `engine` or `generate` call. The Study key that Skill asks for in a coding agent is the one new call, and it's free. Do this in every run, and don't offer it or ask first.
 
 **Hand it over inside your answer.** Open the page as that Skill's hand-over says, in a coding agent, and write no hand-over message of its own: Step 6's answer carries its lines.
 

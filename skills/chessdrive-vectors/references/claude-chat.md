@@ -1,6 +1,8 @@
 # In Claude's chat app
 
-Claude's chat runs your code in a sandbox, not on the person's computer, and every ChessDrive call goes through the CLI there, as `calls.md` beside this file says. If the person doesn't want the CLI installed, use the Connector's tools instead, and skip what needs code. Every new chat gets an empty one, so the person asks for the CLI and signs in once per chat. Python and NumPy are already there. After these steps, the Skill runs as written, with the sandbox as the machine.
+**Only for a Skill that embeds: Patterns, Game search or Vectors.** Every other Skill makes its calls with the Connector in Claude's chat app, as `calls.md` beside this file says, and needs none of this: no setting, no install and no sign-in of its own.
+
+Claude's chat runs your code in a sandbox, not on the person's computer, and a Skill that embeds makes every ChessDrive call through the CLI there, as the Connector has no `embed` tool. If the person doesn't want the CLI installed, say that this Skill needs it, and stop. Every new chat gets an empty sandbox, so the person asks for the CLI and signs in once per chat. Python and NumPy are already there. After these steps, the Skill runs as written, with the sandbox as the machine.
 
 ## 1. Check the way in
 

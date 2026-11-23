@@ -1,6 +1,6 @@
 # ChessDrive
 
-Chess Skills for your agent. Where your agent runs code, they call ChessDrive through its CLI; in a chat that runs none, through the ChessDrive Connector. Ask about a position, a game or a player in plain words; the Skills use ChessDrive's engine, chess models and game corpus to answer, and show you a board.
+Your agent's chess toolkit. Its Skills call ChessDrive through the ChessDrive Connector in a chat app, Claude's or ChatGPT, with nothing to set up beyond its sign-in, and through ChessDrive's CLI in a coding agent. Ask about a position, a game or a player in plain words; the Skills use ChessDrive's engine, chess models and game corpus to answer, and show you a board.
 
 ## Install
 
@@ -15,34 +15,35 @@ Chess Skills for your agent. Where your agent runs code, they call ChessDrive th
   ```
 
 - **ChatGPT:** once ChessDrive is in ChatGPT's plugin directory, open Plugins, find ChessDrive, add it and sign in. Until then, add `https://api.chessdrive.io/mcp` as a custom MCP server, which brings the Connector's tools without the Skills.
-- **Cursor, Codex and other agents:** paste the setup prompt from [Add ChessDrive to your AI](https://platform.chessdrive.io/cookbook/add-to-your-ai).
+- **Cursor, Codex and other agents:** paste the setup prompt from [Add ChessDrive to your AI](https://chessdrive.io/cookbook/add-to-your-ai).
 
 Signing in connects your ChessDrive Account. Calls are billed to its Balance, as API calls are.
 
 ## The CLI
 
-The Skills that run code use the `chessdrive` CLI. On Windows, follow [the CLI docs](https://platform.chessdrive.io/docs/cli).
+In a coding agent, the Skills use the `chessdrive` CLI. In a chat app they need it only for `chessdrive-patterns` and `chessdrive-game-search`, in Claude's chat app, and walk you through it then. On Windows, follow [the CLI docs](https://chessdrive.io/docs/cli).
 
 ```bash
 npm install -g chessdrive
 chessdrive login
 ```
 
-Without npm, `curl -fsSL https://platform.chessdrive.io/install.sh | sh`.
+Without npm, `curl -fsSL https://chessdrive.io/install.sh | sh`.
 
 ## Skills
 
 - `chessdrive-position`: look at one position and explain it.
 - `chessdrive-game-review`: review a finished game, or annotate it for a video or article.
-- `chessdrive-prep`: prepare for a game against one opponent, from a PGN file of their games or their public Lichess and chess.com games: what they play against your colour, their recent form and a plan. It runs where your agent runs code.
+- `chessdrive-prep`: prepare for a game against one opponent, from a PGN file of their games or their public Lichess and chess.com games: what they play against your colour, their recent form and a plan. In a chat app, attach the PGN file: the chat's sandbox can't download their games.
 - `chessdrive-vectors`: embed positions and texts to a file on your machine, then find the closest ones or group them. It needs an agent that runs code there, such as Claude Code (the terminal or the desktop app's Code tab), Codex or Cursor, with the `chessdrive` CLI; it doesn't work in Claude's chat app.
 - `chessdrive-patterns`: find the mistakes you keep making across your last 30 games. It runs in an agent that runs code, with the `chessdrive` CLI, or in Claude's chat app on a paid plan, once you've added `api.chessdrive.io` under Settings, Capabilities, Domain allowlist.
 - `chessdrive-game-search`: find examples of an idea across your own PGN files, in plain English, checked with the engine and returned as a PGN. It runs where `chessdrive-patterns` does.
+- `chessdrive-position-filter`: find positions by what stands on the board, such as rook endings with White to move, across over two million master games, each linked to a board.
 - `chessdrive-study`: have your agent build you a Study, an interactive page of your own on the Board: a game to step through, a drill of your mistakes, an opening line to practise or a worksheet to print. It's an artifact in Claude and a local file in a coding agent.
 
 ## What it runs and sends
 
-- **ChessDrive calls:** the Skills send positions, games and questions to `api.chessdrive.io`, through the CLI or the Connector, signed in as your ChessDrive Account. Nothing else leaves your machine for ChessDrive: your PGN files and the files the Skills write stay where the code runs.
+- **ChessDrive calls:** the Skills send positions, games and questions to `api.chessdrive.io`, through the Connector in a chat app or the CLI in a coding agent, signed in as your ChessDrive Account. Nothing else leaves your machine for ChessDrive: your PGN files and the files the Skills write stay where the code runs.
 - **Scripts:** the Skills that run code use the Python scripts in their `scripts` folders, which you can read here. They read and write files in your working folder. `fetch_games.py` downloads a player's public games from lichess.org and chess.com when you give a username or a game link, and the others make no network calls of their own.
 - **Study pages:** a Study loads the ChessDrive Board from cdn.jsdelivr.net, its fonts from fonts.googleapis.com and, when you turn its engine on, Stockfish from unpkg.com.
 - **Claude Code:** the Plugin's Connector reads the key `chessdrive login` saved on your machine and sends it only to `api.chessdrive.io`, so you sign in once.

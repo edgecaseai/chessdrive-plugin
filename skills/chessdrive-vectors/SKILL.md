@@ -36,6 +36,7 @@ chessdrive embed --pgn games.pgn --out games.npy
 - **Every position of a PGN file:** as above, from `--pgn` with no `--ply`. Give `--pgn` again for each further file.
 - **Items you chose:** `--fen`, `--text`, `--pgn one-game.pgn --ply 24`, or `--input items.json`, a JSON list of items such as `{"type": "position", "pgn": "<the game>", "ply": 24}`.
 - **With the local MCP tool instead:** `embed` from `chessdrive mcp` takes `model` (its ID from `list_models`), `out`, and `pgn_file` or `input`. Paths are absolute. It answers with the same summary.
+- **A smaller file, only when the person asks for one:** add `--dimensions 256`, `128` or `64` (`dimensions` on the tool), with the CLI at 0.8.0 or later. Each row is the start of the full vector, so the file is a half, a quarter or an eighth the size, at the same price, and finds a little less. Embed every query of that file with the same `--dimensions`: `compare.py` refuses two lengths.
 
 It writes `games.npy`, the vectors, and `games.jsonl` beside it, one line per row saying what that row is. Keep them: every later question reads them, free and in seconds.
 

@@ -1,0 +1,443 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chessdrive.io/position-filter.schema.json",
+  "title": "Position filter",
+  "description": "A condition that is true or false for a Position. The root must be a test. This schema checks structure and values. Search checks the rest, and refuses with invalid_filter and the node's path: whether a ref names a definition, whether definitions refer to themselves, the kind of a ref, and the size limits (2,000 nodes and 64 levels once every ref is replaced).",
+  "$ref": "#/$defs/test",
+  "$defs": {
+    "piece": {
+      "type": "string",
+      "pattern": "^[wb][PNBRQK]$",
+      "description": "w or b, then P N B R Q K."
+    },
+    "side": {
+      "enum": [
+        "white",
+        "black"
+      ]
+    },
+    "square": {
+      "type": "string",
+      "pattern": "^[a-h][1-8]$"
+    },
+    "direction": {
+      "enum": [
+        "N",
+        "S",
+        "E",
+        "W",
+        "NE",
+        "NW",
+        "SE",
+        "SW"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "definitions": {
+      "description": "The value of a request's `define`: a name for each board expression or test.",
+      "type": "object",
+      "propertyNames": {
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "node": {
+      "description": "A board expression or a test.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/board"
+        },
+        {
+          "$ref": "#/$defs/test"
+        }
+      ]
+    },
+    "ref": {
+      "type": "object",
+      "required": [
+        "ref"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/name"
+        }
+      },
+      "description": "The definition with this name. It has the kind of that definition."
+    },
+    "board": {
+      "description": "A board expression: yields a set of squares.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "piece"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "piece": {
+              "$ref": "#/$defs/piece"
+            }
+          },
+          "description": "Squares holding that piece."
+        },
+        {
+          "type": "object",
+          "required": [
+            "attacks"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "attacks": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/piece"
+                },
+                {
+                  "$ref": "#/$defs/side"
+                }
+              ]
+            }
+          },
+          "description": "Squares attacked by that piece kind, or by that side. Own pieces count as attacked."
+        },
+        {
+          "type": "object",
+          "required": [
+            "occupied"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "occupied": {
+              "enum": [
+                "white",
+                "black",
+                "any"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "squares"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "squares": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/square"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "rank"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rank": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "type": "string",
+              "pattern": "^[a-h]$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "and"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "and": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/board"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "or"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "or": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/board"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "not"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "not": {
+              "$ref": "#/$defs/board"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "shift"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "shift": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "$ref": "#/$defs/board"
+                },
+                {
+                  "$ref": "#/$defs/direction"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "description": "X moved one step. Squares that leave the board are dropped."
+        },
+        {
+          "type": "object",
+          "required": [
+            "fill"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "fill": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "$ref": "#/$defs/board"
+                },
+                {
+                  "$ref": "#/$defs/direction"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "description": "X moved 1 to 7 steps that way, without X itself."
+        },
+        {
+          "type": "object",
+          "required": [
+            "flip"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "flip": {
+              "$ref": "#/$defs/board"
+            }
+          },
+          "description": "X with colours swapped and ranks mirrored."
+        },
+        {
+          "$ref": "#/$defs/ref"
+        }
+      ]
+    },
+    "test": {
+      "description": "A test: true or false for a Position.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "any"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "any": {
+              "$ref": "#/$defs/board"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "none"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "none": {
+              "$ref": "#/$defs/board"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "count"
+          ],
+          "additionalProperties": false,
+          "minProperties": 2,
+          "maxProperties": 2,
+          "properties": {
+            "count": {
+              "$ref": "#/$defs/board"
+            },
+            "gte": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64
+            },
+            "lte": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64
+            },
+            "eq": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 64
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "to_move"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "to_move": {
+              "$ref": "#/$defs/side"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "castling"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "castling": {
+              "enum": [
+                "K",
+                "Q",
+                "k",
+                "q"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "en_passant"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "en_passant": {
+              "anyOf": [
+                {
+                  "const": true
+                },
+                {
+                  "$ref": "#/$defs/board"
+                }
+              ]
+            }
+          },
+          "description": "An en passant square exists, or lies in X."
+        },
+        {
+          "type": "object",
+          "required": [
+            "all"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "all": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/test"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "some"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "some": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/test"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "not"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "not": {
+              "$ref": "#/$defs/test"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "flip"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "flip": {
+              "$ref": "#/$defs/test"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/ref"
+        }
+      ]
+    }
+  }
+}

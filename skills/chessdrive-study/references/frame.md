@@ -42,7 +42,7 @@ Whichever Skill sent you here, every page also needs:
   </aside>
   <p class="cd-keep" hidden><button class="cd-btn" data-keep="download">Download</button> <button class="cd-btn" data-keep="pdf">Save as PDF</button></p>
   <section class="cd-more">…</section>
-  <footer class="cd-made">Made with <a href="https://platform.chessdrive.io/?utm_source=study&utm_campaign=KIND" target="_blank" rel="noopener">ChessDrive</a></footer>
+  <footer class="cd-made">Made with <a href="https://chessdrive.io/?utm_source=study&utm_campaign=KIND" target="_blank" rel="noopener">ChessDrive</a></footer>
 </div>
 <script>
 (() => {

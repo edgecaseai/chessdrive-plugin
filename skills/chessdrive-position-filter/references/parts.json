@@ -1,0 +1,337 @@
+{
+  "rook_ending": {
+    "all": [
+      {
+        "none": {
+          "or": [
+            {
+              "piece": "wQ"
+            },
+            {
+              "piece": "bQ"
+            },
+            {
+              "piece": "wB"
+            },
+            {
+              "piece": "bB"
+            },
+            {
+              "piece": "wN"
+            },
+            {
+              "piece": "bN"
+            }
+          ]
+        }
+      },
+      {
+        "any": {
+          "piece": "wR"
+        }
+      },
+      {
+        "any": {
+          "piece": "bR"
+        }
+      }
+    ]
+  },
+  "white_passed_pawns": {
+    "and": [
+      {
+        "piece": "wP"
+      },
+      {
+        "not": {
+          "fill": [
+            {
+              "or": [
+                {
+                  "piece": "bP"
+                },
+                {
+                  "shift": [
+                    {
+                      "piece": "bP"
+                    },
+                    "E"
+                  ]
+                },
+                {
+                  "shift": [
+                    {
+                      "piece": "bP"
+                    },
+                    "W"
+                  ]
+                }
+              ]
+            },
+            "S"
+          ]
+        }
+      }
+    ]
+  },
+  "light_squares": {
+    "squares": [
+      "a2",
+      "a4",
+      "a6",
+      "a8",
+      "b1",
+      "b3",
+      "b5",
+      "b7",
+      "c2",
+      "c4",
+      "c6",
+      "c8",
+      "d1",
+      "d3",
+      "d5",
+      "d7",
+      "e2",
+      "e4",
+      "e6",
+      "e8",
+      "f1",
+      "f3",
+      "f5",
+      "f7",
+      "g2",
+      "g4",
+      "g6",
+      "g8",
+      "h1",
+      "h3",
+      "h5",
+      "h7"
+    ]
+  },
+  "opposite_bishops": {
+    "all": [
+      {
+        "count": {
+          "piece": "wB"
+        },
+        "eq": 1
+      },
+      {
+        "count": {
+          "piece": "bB"
+        },
+        "eq": 1
+      },
+      {
+        "none": {
+          "or": [
+            {
+              "piece": "wQ"
+            },
+            {
+              "piece": "bQ"
+            },
+            {
+              "piece": "wR"
+            },
+            {
+              "piece": "bR"
+            },
+            {
+              "piece": "wN"
+            },
+            {
+              "piece": "bN"
+            }
+          ]
+        }
+      },
+      {
+        "some": [
+          {
+            "all": [
+              {
+                "any": {
+                  "and": [
+                    {
+                      "piece": "wB"
+                    },
+                    {
+                      "ref": "light_squares"
+                    }
+                  ]
+                }
+              },
+              {
+                "none": {
+                  "and": [
+                    {
+                      "piece": "bB"
+                    },
+                    {
+                      "ref": "light_squares"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "none": {
+                  "and": [
+                    {
+                      "piece": "wB"
+                    },
+                    {
+                      "ref": "light_squares"
+                    }
+                  ]
+                }
+              },
+              {
+                "any": {
+                  "and": [
+                    {
+                      "piece": "bB"
+                    },
+                    {
+                      "ref": "light_squares"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "rim": {
+    "or": [
+      {
+        "file": "a"
+      },
+      {
+        "file": "h"
+      }
+    ]
+  },
+  "kings_opposite_wings": {
+    "some": [
+      {
+        "all": [
+          {
+            "any": {
+              "and": [
+                {
+                  "piece": "wK"
+                },
+                {
+                  "rank": 1
+                },
+                {
+                  "or": [
+                    {
+                      "file": "f"
+                    },
+                    {
+                      "file": "g"
+                    },
+                    {
+                      "file": "h"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "any": {
+              "and": [
+                {
+                  "piece": "bK"
+                },
+                {
+                  "rank": 8
+                },
+                {
+                  "or": [
+                    {
+                      "file": "a"
+                    },
+                    {
+                      "file": "b"
+                    },
+                    {
+                      "file": "c"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "flip": {
+          "all": [
+            {
+              "any": {
+                "and": [
+                  {
+                    "piece": "wK"
+                  },
+                  {
+                    "rank": 1
+                  },
+                  {
+                    "or": [
+                      {
+                        "file": "f"
+                      },
+                      {
+                        "file": "g"
+                      },
+                      {
+                        "file": "h"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "any": {
+                "and": [
+                  {
+                    "piece": "bK"
+                  },
+                  {
+                    "rank": 8
+                  },
+                  {
+                    "or": [
+                      {
+                        "file": "a"
+                      },
+                      {
+                        "file": "b"
+                      },
+                      {
+                        "file": "c"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

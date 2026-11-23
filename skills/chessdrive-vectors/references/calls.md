@@ -1,6 +1,6 @@
 # Call ChessDrive
 
-The Skills name their calls `engine` and `generate`, with the Connector's fields. **Wherever you can run code, make them with the `chessdrive` CLI**: on the person's machine, or in Claude's chat app's sandbox once `claude-chat.md` beside this file is done. Use the Connector's tools of the same name only where you can't run code, or when the person said no to installing the CLI. **In ChatGPT, use the Connector's tools for every call,** even where it runs code: its sandbox can't reach ChessDrive. `set-up.md` beside this file checks for the CLI, at 0.6.0 or later, and signs it in. Every Skill reads this file before its first call.
+The Skills name their calls `engine` and `generate`, with the Connector's fields. **In a chat app, Claude's chat app or ChatGPT, make every call with the Connector's tools of the same name,** even where the app runs code, and never install or sign in to the CLI there: the Connector needs no setting, install or sign-in of its own. **In a coding agent, make them with the `chessdrive` CLI** on the person's machine, and use the Connector's tools only when the person said no to installing it. Anywhere else you can't run code, use the Connector's tools. The one exception is a Skill that embeds, Patterns, Game search or Vectors, in Claude's chat app: the Connector has no `embed`, so that Skill makes every call with the CLI in the sandbox, once `claude-chat.md` beside this file is done. `set-up.md` beside this file checks for what a Skill needs where you are. Every Skill reads this file before its first call.
 
 **Read the CLI's text** for a call you answer from, such as one position. **Add `--json` only when code reads the answer**: write it to a file, and read the file with code, never by eye.
 
@@ -37,6 +37,10 @@ python3 <this Skill's folder>/../chessdrive-vectors/scripts/ask.py questions.jso
 
 A line is `{"id": "14...Qd7", "model": "queen", "system": "<system>", "message": "<message>", "pgn": "<pgn>", "ply": 27}`, with `"fen"` for a bare position. An answer has `id`, `model`, `text`, the reply with its moves as plain text and any sentence with an illegal move dropped, and `lines`. It retries as below, gives `"text": null` and the `error` for a call that failed twice, and bills nothing twice when run again. With the Connector, make up to 6 tool calls in one message.
 
+## The Connector's answers for a script
+
+Where a chat app runs code, a script that makes no ChessDrive call still runs there, such as one that builds a Study or counts an opponent's openings: hand it the Connector's answers as files. If your app saved an answer to a file, as it does with a large one, use that file. Otherwise write the answer to the file the Skill names, copied once from the tool's answer as it stands, and let the script read it, so no move is typed twice. For a script that reads `ask.py`'s answers, write one line a call, `{"id": "<the id the Skill gives>", "model": "<the model>", "text": "<the reply>"}`, where the reply is the `content` with the sentences dropped and the links written as text, as Generate above says, or `null` for a call that failed twice.
+
 ## Our models judge
 
 Every chess judgement you give, in your answer, a page or a note, comes from ChessDrive: whether a move is good or bad, what a position is about, whether a position shows an idea, and why. You plan, pick, combine and write. You never judge from your own reading of the board, and never fill a gap with your own words.
@@ -61,8 +65,8 @@ The CLI prints the API's code and message, and exits with a code of its own. Do 
 ## Only the Connector
 
 - **`show_board`,** a board drawn in Claude's chat or desktop app, or in ChatGPT. Where code runs, a Study, a page of the `chessdrive-study` Skill, does its work, so call `show_board` only where the Skill says no Study can show.
-- **`get_game`,** in Claude's chat app or ChatGPT, whose sandboxes can't reach Lichess or chess.com, and wherever you make your calls with the Connector. Everywhere else, `fetch_games.py --url` in the `chessdrive-vectors` Skill's `scripts` folder gets the game.
+- **`get_game`,** wherever you make your calls with the Connector, as in Claude's chat app or ChatGPT, whose sandboxes can't reach Lichess or chess.com. Everywhere else, `fetch_games.py --url` in the `chessdrive-vectors` Skill's `scripts` folder gets the game.
 
 ## Board links
 
-The CLI gives no `board_url`. Where a Skill links a position to the Board and no Study shows it, build the link from the position with code, as in `python3 -c 'import sys, urllib.parse as u; print("https://platform.chessdrive.io/board#fen=" + u.quote_plus(sys.argv[1]))' "<fen>"`, or for a game `#pgn=<pgn>&ply=<ply>`, each quoted the same way.
+The CLI gives no `board_url`. Where a Skill links a position to the Board and no Study shows it, build the link from the position with code, as in `python3 -c 'import sys, urllib.parse as u; print("https://chessdrive.io/board#fen=" + u.quote_plus(sys.argv[1]))' "<fen>"`, or for a game `#pgn=<pgn>&ply=<ply>`, each quoted the same way.

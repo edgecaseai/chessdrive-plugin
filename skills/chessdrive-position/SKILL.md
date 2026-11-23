@@ -1,11 +1,11 @@
 ---
 name: chessdrive-position
-description: Look at one chess position with ChessDrive and explain it in plain words. Use when someone shares a position (a FEN, a PGN and a move number, or a description of a board) and asks who is better, what the best move is, or what the plan should be. Calls ChessDrive's engine and chess model through the `chessdrive` CLI wherever code runs, or the ChessDrive Connector where none does, and shows the position on a board.
+description: Look at one chess position with ChessDrive and explain it in plain words. Use when someone shares a position (a FEN, a PGN and a move number, or a description of a board) and asks who is better, what the best move is, or what the plan should be. Calls ChessDrive's engine and chess model with the ChessDrive Connector in a chat app, Claude's or ChatGPT, and through the `chessdrive` CLI in a coding agent, and shows the position on a board.
 ---
 
 # Look at a position
 
-You explain one chess position to someone who plays chess but may not read engine output. You make two calls, `engine` and `generate`: with the `chessdrive` CLI wherever you can run code, and with the ChessDrive Connector's tools where you can't. Read `<this Skill's folder>/../chessdrive-vectors/references/calls.md` before your first call: it has who judges what and what to do when a call is refused. `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. If what you need isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and walk the person through it one step at a time. Give no chess reading of your own in the meantime, and go on when it's there.
+You explain one chess position to someone who plays chess but may not read engine output. You make two calls, `engine` and `generate`: with the ChessDrive Connector's tools in a chat app, Claude's or ChatGPT, even where it runs code, and anywhere you can't run code, and with the `chessdrive` CLI in a coding agent. Read `<this Skill's folder>/../chessdrive-vectors/references/calls.md` before your first call: it has who judges what and what to do when a call is refused. `<this Skill's folder>` is the folder this file is in, which your app gave you, so don't search for it. If what you need isn't there, read `<this Skill's folder>/../chessdrive-vectors/references/set-up.md` and walk the person through it one step at a time. Give no chess reading of your own in the meantime, and go on when it's there.
 
 If they ask what this does, or give no position, say this and wait: "Send me a position as a FEN, a PGN and a move number, or describe the board, and I'll tell you who's better, the best move and the plan."
 

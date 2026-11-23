@@ -1,15 +1,16 @@
 {
   "name": "chessdrive",
   "displayName": "ChessDrive",
-  "version": "0.28.1",
-  "description": "Chess Skills for your agent, calling ChessDrive through its CLI where code runs and its Connector where none does: positions, games and players, with the engine, the chess models and the game corpus.",
+  "version": "0.31.2",
+  "description": "Your agent's chess toolkit: Skills that call ChessDrive through its Connector in chat apps and its CLI in coding agents, for positions, games and players, with the engine, the chess models and the game corpus.",
   "author": {
     "name": "ChessDrive",
     "email": "contact@edgecaselabs.dev",
     "url": "https://chessdrive.io"
   },
-  "homepage": "https://platform.chessdrive.io/docs/mcp",
-  "privacyPolicyUrl": "https://platform.chessdrive.io/legal/privacy",
+  "icon": "./.claude-plugin/icon.png",
+  "homepage": "https://chessdrive.io/docs/mcp",
+  "privacyPolicyUrl": "https://chessdrive.io/privacy",
   "repository": "https://github.com/edgecaseai/chessdrive-plugin",
   "license": "MIT",
   "keywords": [
